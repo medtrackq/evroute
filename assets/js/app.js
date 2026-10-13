@@ -332,7 +332,9 @@
     return {
       km: res.final ? res.final.km : res.km,
       drive: drive,
-      total: drive + (res.chargeMin || 0),
+      // The route through the stations already includes driving into them; the first-pass
+      // estimate does not, so add the planner's detour minutes there.
+      total: drive + (res.chargeMin || 0) + (res.final ? 0 : res.detourMin || 0),
       arrive: res.arriveReal != null ? res.arriveReal : res.arrive,
       kwh: res.stops.reduce(function (s, x) { return s + x.kwhAdded; }, 0),
     };

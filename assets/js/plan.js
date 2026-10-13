@@ -249,7 +249,9 @@
       prevNode = c;
     });
     res.arrive = best[last].arrive;
-    res.chargeMin = res.stops.reduce(function (s, x) { return s + x.totalMin; }, 0);
+    // Charging plus plugging in; the drive to and from each station is counted separately.
+    res.chargeMin = res.stops.reduce(function (s, x) { return s + x.chargeMin + PLUG_MIN; }, 0);
+    res.detourMin = res.stops.reduce(function (s, x) { return s + x.c.detourMin; }, 0);
     return res;
 
     // Other stations the user could pick instead of stop c, reachable from the previous stop.

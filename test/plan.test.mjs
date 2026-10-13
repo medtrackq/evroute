@@ -140,3 +140,11 @@ test('round trip: stations count on both legs, destinations need no charge', asy
   assert.equal(legs.length, 2);
   assert.ok(legs[1].arrive < legs[0].arrive);
 });
+
+test('trip charging time is charge + plug-in only; detours are reported apart', () => {
+  const c = car('byd-atto3-std');
+  const r = P.plan(prof, P.candidates(prof, stationsEvery(60), c), c, { startSoc: 90, minSoc: 20, targetSoc: 80 });
+  const charge = r.stops.reduce((s, x) => s + x.chargeMin + P.PLUG_MIN, 0);
+  assert.ok(Math.abs(r.chargeMin - charge) < 1e-9);
+  assert.ok(r.detourMin > 0); // fake stations sit ~1 km off the road
+});
