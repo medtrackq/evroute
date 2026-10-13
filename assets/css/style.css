@@ -319,7 +319,6 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 .pin--stop { background: var(--ok); }
 .pin--stop svg { width: 14px; height: 14px; fill: #fff; }
 .halo { width: 70px; height: 70px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 16%, transparent); display: grid; place-items: center; }
-.popup-add { margin-top: 10px; }
 
 /* Chart card */
 .chart-card .tabs { background: var(--surface-2); border-radius: 999px; padding: 4px; }
@@ -497,3 +496,8 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 .track__dest { position: absolute; bottom: 0; width: 16px; height: 16px; margin-left: -8px; border-radius: 4px; background: var(--tile-lav-ink); border: 3px solid var(--surface); }
 .chart .dest-line { stroke: var(--tile-lav-ink); stroke-width: 1.5; stroke-dasharray: 2 4; }
 .chart .dest-label { fill: var(--tile-lav-ink); font-size: 11px; font-weight: 700; }
+.popup-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.popup-acts .btn { padding: 8px 12px; font-size: 13px; }
+/* Leaflet colours every link in a popup; keep the buttons' own colours */
+.leaflet-container a.btn { color: var(--text); }
+.leaflet-container a.btn--soft { color: var(--accent); }

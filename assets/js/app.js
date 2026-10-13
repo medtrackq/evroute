@@ -301,14 +301,33 @@
     return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Button that opens the operator's app. Android: an intent link launches the installed app
+  // and falls back to its Play Store page. iPhone: the operators publish no app links, so it goes
+  // to the App Store page, whose "Open" button launches the app when it's installed.
+  function appUrl(o) {
+    var ua = navigator.userAgent;
+    if (/android/i.test(ua) && o.android) {
+      var store = 'https://play.google.com/store/apps/details?id=' + encodeURIComponent(o.android);
+      return { url: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=' + o.android +
+        ';S.browser_fallback_url=' + encodeURIComponent(store) + ';end', blank: false };
+    }
+    if (/iphone|ipad|ipod/i.test(ua) && o.ios) return { url: o.ios, blank: false };
+    return { url: o.web, blank: true };
+  }
+
   function appLink(op) {
     var o = R.operators[op];
     if (!o) return '';
-    var ua = navigator.userAgent, url = o.web;
-    if (/android/i.test(ua) && o.android) url = 'https://play.google.com/store/apps/details?id=' + encodeURIComponent(o.android);
-    else if (/iphone|ipad|ipod/i.test(ua) && o.ios) url = o.ios;
-    return '<a class="btn btn--soft" href="' + esc(url) + '" target="_blank" rel="noopener">' +
+    var u = appUrl(o);
+    return '<a class="btn btn--soft" href="' + esc(u.url) + '"' + (u.blank ? ' target="_blank" rel="noopener"' : '') + '>' +
       (o.booking ? 'จองผ่านแอป ' : 'เปิดแอป ') + esc(o.app || o.name) + '</a>';
+  }
+
+  // Map popup for a station: details plus the same actions as its row in the plan.
+  function popupActions(st, extra) {
+    return '<div class="popup-acts">' + appLink(st.op) +
+      // No origin: Google Maps starts from where the phone is now.
+      '<a class="btn" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + (+st.lat).toFixed(6) + ',' + (+st.lng).toFixed(6) + '" target="_blank" rel="noopener">นำทางไปที่นี่</a>' + (extra || '') + '</div>';
   }
 
   function plugText(st) {
@@ -649,7 +668,9 @@
       L.marker([s.st.lat, s.st.lng], {
         icon: L.divIcon({ className: '', html: '<span class="pin pin--stop">' + (i + 1) + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] }),
         zIndexOffset: 900
-      }).bindPopup('<b>' + esc(s.st.name) + '</b><br>' + esc(s.st.op || '') + '<br>' + esc(plugText(s.st)), { maxWidth: 280 }).addTo(stopLayer);
+      }).bindPopup('<b>' + esc(s.st.name) + '</b>' + userTag(s.st) + '<br>' + esc(s.st.op || '') + '<br>' + esc(plugText(s.st)) +
+        '<br><span class="hint">จุดแวะที่ ' + (i + 1) + ' · ชาร์จถึง ' + pct(s.depart) + ' · ~' + dur(s.chargeMin + P.PLUG_MIN) + '</span>' +
+        popupActions(s.st), { maxWidth: 290 }).addTo(stopLayer);
     });
     if (res.fail && res.fail.reach) {
       var p = pointAt(res.prof, res.fail.reach);
@@ -671,7 +692,7 @@
     return '<b>' + esc(st.name) + '</b>' + userTag(st) + '<br>' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '<br>' + esc(plugText(st)) +
       '<br><span class="hint">กม. ' + km1(c.along) + ' · ' + (c.off < 0.15 ? 'ติดเส้นทาง' : 'ห่างเส้นทาง ' + km1(c.off) + ' กม.') + '</span>' +
       (st.guess ? '<br><span class="hint">ข้อมูลหัวชาร์จยังไม่ยืนยัน</span>' : '') +
-      '<br><button type="button" class="btn btn--soft popup-add" data-add="' + esc(st.id) + '">แวะชาร์จที่นี่</button>';
+      popupActions(st, '<button type="button" class="btn btn--primary" data-add="' + esc(st.id) + '">แวะชาร์จที่นี่</button>');
   }
 
   function say(msg, kind) {
