@@ -341,7 +341,8 @@
     var where = f.at ? 'หลังชาร์จที่ <b>' + esc(f.at.name) + '</b> (กม. ' + km1(f.along) + ')' : 'จากต้นทาง';
     return '<div class="verdict verdict--crit"><b>ไปไม่ถึงด้วยสถานีชาร์จที่มีข้อมูล</b>' +
       '<span>' + where + ' วิ่งได้ถึงราว กม. ' + km1(f.reach) + ' แต่ไม่มีสถานีชาร์จ DC ที่ใช้กับ ' + esc(c.plugs.join('/') || 'รถคันนี้') + ' ในระยะที่ไปถึง (เส้นทางยาว ' + km1(res.km) + ' กม.)</span>' +
-      '<span class="hint">ลองชาร์จให้เต็มกว่านี้ ตั้ง "ชาร์จถึง" สูงขึ้น ลด "แวะชาร์จเมื่อเหลือ" หรือหาสถานีในแอปผู้ให้บริการ (ข้อมูลสถานีของเรายังไม่ครบทุกเครือข่าย)</span></div>';
+      '<span class="hint">ลองชาร์จให้เต็มกว่านี้ ตั้ง "ชาร์จถึง" สูงขึ้น ลด "แวะชาร์จเมื่อเหลือ" หรือหาสถานีในแอปผู้ให้บริการ (ข้อมูลสถานีของเรายังไม่ครบทุกเครือข่าย)</span>' +
+      '<button type="button" class="btn btn--soft" data-addopen>รู้จักสถานีแถวนี้? เพิ่มสถานีชาร์จ</button></div>';
   }
 
   function stopRow(s, i, res) {
@@ -355,7 +356,7 @@
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
-        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + '</span>' +
+        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + userTag(st) + '</span>' +
         '<span class="row__meta">กม. ' + km1(s.kmReal != null ? s.kmReal : s.along) + ' · ' + off + ' · ' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '</span></div>' +
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
@@ -363,6 +364,7 @@
         (st.guess ? '<span class="row__warn">ข้อมูลหัวชาร์จ/กำลังไฟยังไม่ยืนยัน ตรวจในแอปก่อน</span>' : '') +
         (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
         (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
+        (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)</span>' +
@@ -596,9 +598,11 @@
     return null;
   }
 
+  function userTag(st) { return st.src === 'user' ? '<span class="tag tag--user">ผู้ใช้เพิ่ม</span>' : ''; }
+
   function stationPopup(c) {
     var st = c.st;
-    return '<b>' + esc(st.name) + '</b><br>' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '<br>' + esc(plugText(st)) +
+    return '<b>' + esc(st.name) + '</b>' + userTag(st) + '<br>' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '<br>' + esc(plugText(st)) +
       '<br><span class="hint">กม. ' + km1(c.along) + ' · ' + (c.off < 0.15 ? 'ติดเส้นทาง' : 'ห่างเส้นทาง ' + km1(c.off) + ' กม.') + '</span>' +
       (st.guess ? '<br><span class="hint">ข้อมูลหัวชาร์จยังไม่ยืนยัน</span>' : '') +
       '<br><button type="button" class="btn btn--soft popup-add" data-add="' + esc(st.id) + '">แวะชาร์จที่นี่</button>';
@@ -767,6 +771,7 @@
   });
   $('form').addEventListener('submit', function (e) { e.preventDefault(); if (!R.busy) plan(); });
   map.on('click', function (e) {
+    if (A.open) { setAddPoint({ lat: e.latlng.lat, lng: e.latlng.lng }); return; }
     if (R.result) return; // with a plan on screen, taps open station popups instead
     var p = { lat: e.latlng.lat, lng: e.latlng.lng, label: 'จุดที่เลือก (' + e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4) + ')' };
     setPoint(!R.a ? 'a' : 'b', p);
@@ -805,6 +810,7 @@
       return;
     }
     if (e.target.closest('#reset')) { newTrip(); replan(); return; }
+    if (e.target.closest('[data-addopen]')) { openAdd(true); return; }
     if ((t = e.target.closest('#share'))) {
       shareURL();
       var done = function () { t.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { t.textContent = 'คัดลอกลิงก์แผนนี้'; }, 2000); };
@@ -826,6 +832,169 @@
     try { localStorage.setItem('theme', dark ? 'light' : 'dark'); } catch (e) {}
     if (R.result) { draw(); chart(); }
   });
+
+
+  // ---------- add a station ----------
+  var PLUG_TYPES = [['CCS2', 'CCS2'], ['CHAdeMO', 'CHAdeMO'], ['GB/T', 'GB/T'], ['Type2', 'Type 2 (AC)'], ['Tesla', 'Tesla']];
+  var A = { open: false, point: null, marker: null, layer: L.layerGroup() };
+
+  function plugRow(type) {
+    var div = document.createElement('div');
+    div.className = 'plug';
+    div.innerHTML = '<select class="field" aria-label="ชนิดหัว">' + PLUG_TYPES.map(function (t) {
+      return '<option value="' + t[0] + '"' + (t[0] === type ? ' selected' : '') + '>' + t[1] + '</option>';
+    }).join('') + '</select>' +
+      '<input class="field" type="number" inputmode="decimal" min="1" max="500" placeholder="kW" aria-label="กำลังไฟ kW">' +
+      '<input class="field" type="number" inputmode="numeric" min="1" max="30" placeholder="หัว" aria-label="จำนวนหัว">' +
+      '<button type="button" class="plug__del" aria-label="ลบหัวชาร์จนี้">×</button>';
+    $('add-plugs').appendChild(div);
+  }
+
+  function resetAdd() {
+    $('add-form').reset();
+    $('add-op-other').hidden = true;
+    $('add-plugs').innerHTML = '<div class="plug-head"><span>ชนิดหัว</span><span>kW (ถ้ารู้)</span><span>จำนวนหัว</span><span></span></div>';
+    plugRow('CCS2');
+    setAddPoint(null);
+    addMsg('');
+  }
+
+  function addMsg(text, kind) {
+    var m = $('add-msg');
+    m.textContent = text;
+    m.className = 'add-msg' + (kind ? ' is-' + kind : '');
+  }
+
+  function setAddPoint(p, center) {
+    A.point = p;
+    if (A.marker) { map.removeLayer(A.marker); A.marker = null; }
+    var w = $('add-where');
+    if (!p) {
+      w.textContent = 'แตะบนแผนที่เพื่อปักหมุด (ลากหมุดเพื่อขยับได้)';
+      w.classList.remove('is-set');
+      return;
+    }
+    A.marker = L.marker([p.lat, p.lng], {
+      draggable: true, zIndexOffset: 1100,
+      icon: L.divIcon({ className: '', html: '<span class="pin pin--new">+</span>', iconSize: [30, 30], iconAnchor: [15, 15] })
+    }).addTo(map);
+    A.marker.on('dragend', function () { var ll = A.marker.getLatLng(); setAddPoint({ lat: ll.lat, lng: ll.lng }); });
+    w.textContent = '📍 ' + p.lat.toFixed(5) + ', ' + p.lng.toFixed(5) + nearText(p);
+    w.classList.add('is-set');
+    if (center) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15));
+  }
+
+  // Say so when the pin sits on a station we already have.
+  function nearText(p) {
+    var best = null, d = Infinity;
+    R.stations.forEach(function (st) {
+      if (Math.abs(st.lat - p.lat) > 0.01) return;
+      var k = P.km(p, st);
+      if (k < d) { d = k; best = st; }
+    });
+    return best && d < 0.15 ? ' · ใกล้ "' + best.name + '" ที่มีอยู่แล้ว (' + Math.round(d * 1000) + ' ม.) ถ้าเป็นที่เดียวกัน หัวชาร์จที่ใส่จะใช้แทนข้อมูลที่ยังไม่ยืนยัน' : '';
+  }
+
+  // Coordinates from a pasted Google Maps link or "lat, lng".
+  function parseWhere(text) {
+    var t = String(text || '');
+    try { t = decodeURIComponent(t); } catch (e) {}
+    var pats = [/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, /@(-?\d+\.\d+),(-?\d+\.\d+)/, /[?&](?:q|ll|query|destination)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/, /^\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*$/];
+    for (var i = 0; i < pats.length; i++) {
+      var m = pats[i].exec(t);
+      if (m) return { lat: +m[1], lng: +m[2] };
+    }
+    return null;
+  }
+
+  // Every known station as a small dot while adding, so people can see what's already there.
+  function drawAll() {
+    A.layer.clearLayers();
+    R.stations.forEach(function (st) {
+      L.circleMarker([st.lat, st.lng], { radius: 4, color: '#fff', weight: 1.5, fillColor: st.guess ? css('unk') : css('accent'), fillOpacity: 0.9 })
+        .bindTooltip(esc(st.name) + (st.src === 'user' ? ' (ผู้ใช้เพิ่ม)' : ''), { direction: 'top' }).addTo(A.layer);
+    });
+  }
+
+  function openAdd(open) {
+    A.open = open;
+    $('add-card').hidden = !open;
+    $('add-form').hidden = false;
+    $('add-title').textContent = 'เพิ่มสถานีชาร์จที่ยังไม่มี';
+    $('add-open').classList.toggle('is-on', open);
+    $('add-open').setAttribute('aria-expanded', open);
+    $('map').classList.toggle('is-picking', open);
+    if (open) {
+      resetAdd();
+      drawAll();
+      A.layer.addTo(map);
+      $('add-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      setAddPoint(null);
+      map.removeLayer(A.layer);
+    }
+  }
+
+  function saveStation(e) {
+    e.preventDefault();
+    if (!A.point) { addMsg('ปักหมุดตำแหน่งสถานีบนแผนที่ก่อน', 'err'); return; }
+    var op = $('add-op').value === 'other' ? $('add-op-other').value.trim() : $('add-op').value;
+    var body = {
+      lat: A.point.lat, lng: A.point.lng, operator: op, name: $('add-name').value.trim(),
+      hours: $('add-hours').value.trim(), note: $('add-note').value.trim(),
+      connectors: Array.prototype.map.call($('add-plugs').querySelectorAll('.plug'), function (row) {
+        var f = row.querySelectorAll('select, input');
+        return { type: f[0].value, kw: f[1].value, count: f[2].value };
+      }),
+    };
+    if (!op) { addMsg('เลือกผู้ให้บริการ', 'err'); return; }
+    if (body.name.length < 3) { addMsg('ใส่ชื่อสถานี', 'err'); return; }
+    var btn = $('add-save');
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก…';
+    fetch('/api/stations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok) throw new Error(d.error || 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง');
+          return d;
+        });
+      })
+      .then(function (d) {
+        R.stations.push(d.station);
+        $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
+        openAdd(false);
+        // Leave a thank-you in place of the form for a moment.
+        $('add-card').hidden = false;
+        $('add-form').hidden = true;
+        $('add-title').textContent = 'ขอบคุณ! เพิ่ม "' + d.station.name + '" แล้ว';
+        setTimeout(function () { if (!A.open) $('add-card').hidden = true; }, 4000);
+        if (R.result) replan();
+      })
+      .catch(function (err) { addMsg(err.message, 'err'); })
+      .then(function () { btn.disabled = false; btn.textContent = 'บันทึกสถานี'; });
+  }
+
+  $('add-open').addEventListener('click', function () { openAdd(!A.open); });
+  $('add-close').addEventListener('click', function () { openAdd(false); });
+  $('add-plug').addEventListener('click', function () { if ($('add-plugs').querySelectorAll('.plug').length < 6) plugRow('CCS2'); });
+  $('add-plugs').addEventListener('click', function (e) {
+    var del = e.target.closest('.plug__del');
+    if (del && $('add-plugs').querySelectorAll('.plug').length > 1) del.parentNode.remove();
+  });
+  $('add-op').addEventListener('change', function () { $('add-op-other').hidden = this.value !== 'other'; });
+  $('add-link').addEventListener('input', function () {
+    var v = this.value.trim(), p = parseWhere(v);
+    if (p) { setAddPoint(p, true); addMsg(''); return; }
+    if (!v) { addMsg(''); return; }
+    addMsg(/goo\.gl|maps\.app/.test(v) ? 'ลิงก์แบบย่อใช้ไม่ได้ ใน Google Maps กดค้างที่หมุดเพื่อคัดลอกพิกัด แล้ววางที่นี่แทน' : 'อ่านพิกัดจากข้อความนี้ไม่ได้', 'err');
+  });
+  $('add-gps').addEventListener('click', function () {
+    if (!navigator.geolocation) { addMsg('เครื่องนี้หาตำแหน่งไม่ได้', 'err'); return; }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      setAddPoint({ lat: pos.coords.latitude, lng: pos.coords.longitude }, true);
+    }, function () { addMsg('หาตำแหน่งไม่สำเร็จ ลองแตะบนแผนที่แทน', 'err'); }, { enableHighAccuracy: true, timeout: 10000 });
+  });
+  $('add-form').addEventListener('submit', saveStation);
 
   R.ready = loadStations();
   fromURL();

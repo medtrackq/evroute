@@ -8,11 +8,14 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fromOSM, fromOCM, fromCurated, merge } from './lib/stations.mjs';
+import { fromOSM, fromOCM, fromCurated, fromUser, merge } from './lib/stations.mjs';
+import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
 const OCM_KEY = process.env.OCM_KEY || '';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || ''; // owner/name
 const UA = 'evroute (EV trip planner for Thailand)';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
@@ -149,8 +152,9 @@ function due(src) {
 }
 
 function rebuild() {
-  const stations = merge(sources.curated.list, sources.ocm.list, sources.osm.list);
+  const stations = merge(sources.curated.list, users.list.map(fromUser), sources.ocm.list, sources.osm.list);
   const info = Object.fromEntries(Object.entries(sources).map(([k, s]) => [k, { count: s.list.length, at: s.at ? new Date(s.at).toISOString() : null, note: s.note }]));
+  info.user = { count: users.list.filter((s) => !s.hidden).length, at: usersAt ? new Date(usersAt).toISOString() : null, note: users.kind };
   stationsBody = Buffer.from(JSON.stringify({ updated: new Date().toISOString(), sources: info, stations }));
 }
 
@@ -162,6 +166,42 @@ function refreshRemote() {
   if (OCM_KEY && due(sources.ocm)) jobs.push(refreshOCM());
   refreshing = Promise.all(jobs.map((j) => j.then(rebuild))).finally(() => { refreshing = null; });
   return refreshing;
+}
+
+// ---------- user-added stations ----------
+const users = userStations(GITHUB_TOKEN && GITHUB_REPO
+  ? githubStore({ token: GITHUB_TOKEN, repo: GITHUB_REPO, branch: process.env.GITHUB_DATA_BRANCH || 'user-data' })
+  : localStore(join(ROOT, 'data', 'user-stations.json')));
+const USERS_TTL = 10 * 60 * 1000; // re-read so stations hidden on GitHub drop out
+const allowAdd = rateLimiter(10, 60 * 60 * 1000);
+let usersAt = 0;
+
+async function reloadUsers() {
+  usersAt = Date.now();
+  try {
+    await users.load();
+    if (stationsBody) rebuild();
+  } catch (err) {
+    console.error(new Date().toISOString(), 'user stations', err.message);
+  }
+}
+
+async function addStation(req, res) {
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  if (!allowAdd(ip)) { json(res, 429, { error: 'เพิ่มสถานีบ่อยเกินไป ลองใหม่ในอีกสักครู่' }); return; }
+  let body;
+  try { body = JSON.parse(await readBody(req)); } catch { json(res, 400, { error: 'ข้อมูลไม่ถูกต้อง' }); return; }
+  const v = validate(body);
+  if (v.error) { json(res, 400, { error: v.error }); return; }
+  try {
+    const rec = await users.add(v.station);
+    rebuild();
+    console.log(new Date().toISOString(), 'station added', rec.id, rec.name);
+    json(res, 201, { station: fromUser(rec) });
+  } catch (err) {
+    console.error(new Date().toISOString(), 'add station', err.message);
+    json(res, 502, { error: 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง' });
+  }
 }
 
 // ---------- route ----------
@@ -233,6 +273,10 @@ createServer(async (req, res) => {
     await proxyRoute(req, res);
     return;
   }
+  if (url.pathname === '/api/stations' && req.method === 'POST') {
+    await addStation(req, res);
+    return;
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { Allow: 'GET, HEAD' }).end();
     return;
@@ -240,7 +284,8 @@ createServer(async (req, res) => {
   if (url.pathname === '/api/stations') {
     if (await loadCurated() || !stationsBody) rebuild();
     refreshRemote(); // stale-while-revalidate
-    json(res, 200, stationsBody, { 'Cache-Control': 'public, max-age=3600' });
+    if (Date.now() - usersAt > USERS_TTL) reloadUsers();
+    json(res, 200, stationsBody, { 'Cache-Control': 'public, max-age=300' });
     return;
   }
   if (url.pathname === '/api/geocode') {
@@ -261,4 +306,4 @@ createServer(async (req, res) => {
 });
 
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
-Promise.all([loadOSMSnapshot(), loadCurated()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));
+Promise.all([loadOSMSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));

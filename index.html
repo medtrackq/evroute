@@ -138,11 +138,66 @@
         <div class="summary" id="summary" hidden></div>
         <section class="card map-card">
           <div id="map" class="map" role="region" aria-label="แผนที่เส้นทางและสถานีชาร์จ"></div>
-          <ul class="legend" aria-label="ความหมายของสัญลักษณ์">
-            <li><i class="sw sw--stop"></i>จุดแวะชาร์จ</li>
-            <li><i class="sw sw--cand"></i>สถานีใกล้เส้นทาง (แตะเพื่อเพิ่ม)</li>
-            <li><i class="sw sw--guess"></i>ข้อมูลหัวชาร์จยังไม่ยืนยัน</li>
-          </ul>
+          <div class="map-card__foot">
+            <ul class="legend" aria-label="ความหมายของสัญลักษณ์">
+              <li><i class="sw sw--stop"></i>จุดแวะชาร์จ</li>
+              <li><i class="sw sw--cand"></i>สถานีใกล้เส้นทาง (แตะเพื่อเพิ่ม)</li>
+              <li><i class="sw sw--guess"></i>ข้อมูลหัวชาร์จยังไม่ยืนยัน</li>
+            </ul>
+            <button type="button" class="pill-btn" id="add-open" aria-controls="add-card" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>เพิ่มสถานีชาร์จ
+            </button>
+          </div>
+        </section>
+
+        <section class="card add-card" id="add-card" aria-labelledby="add-title" hidden>
+          <div class="card__head">
+            <div>
+              <h2 class="card__title" id="add-title">เพิ่มสถานีชาร์จที่ยังไม่มี</h2>
+              <p class="hint">สถานีที่เพิ่มจะใช้วางแผนได้ทันที และทุกคนจะเห็น พร้อมป้าย "ผู้ใช้เพิ่ม"</p>
+            </div>
+            <button type="button" class="icon-btn" id="add-close" aria-label="ปิด">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
+          <form id="add-form" class="add-form" autocomplete="off" novalidate>
+            <div class="add-step">
+              <span class="opt__label">1. ตำแหน่งสถานี</span>
+              <p class="add-where" id="add-where">แตะบนแผนที่เพื่อปักหมุด (ลากหมุดเพื่อขยับได้)</p>
+              <div class="add-row">
+                <button type="button" class="btn" id="add-gps">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>ฉันอยู่ที่สถานีนี้
+                </button>
+              </div>
+              <label class="sr-only" for="add-link">ลิงก์ Google Maps หรือพิกัด</label>
+              <input id="add-link" class="field" type="text" placeholder="หรือวางลิงก์ Google Maps / พิกัด เช่น 13.7563, 100.5018">
+            </div>
+            <div class="add-step">
+              <label class="opt__label" for="add-op">2. ผู้ให้บริการ</label>
+              <select id="add-op" class="field">
+                <option value="">เลือกผู้ให้บริการ</option>
+                <option>PTT EV Station PluZ</option><option>PEA VOLTA</option><option>EleXA</option>
+                <option>EA Anywhere</option><option>MEA EV</option><option>Evolt</option>
+                <option>Altervim</option><option>Shell Recharge</option><option>Sharge</option>
+                <option>Tesla Supercharger</option><option>BYD</option><option>MG</option>
+                <option value="other">อื่น ๆ (พิมพ์เอง)</option>
+              </select>
+              <input id="add-op-other" class="field" type="text" maxlength="40" placeholder="ชื่อผู้ให้บริการ" hidden>
+              <label class="opt__label" for="add-name">ชื่อสถานี</label>
+              <input id="add-name" class="field" type="text" maxlength="80" placeholder="เช่น PTT ถ.พหลโยธิน กม.60 ขาขึ้น">
+            </div>
+            <div class="add-step">
+              <span class="opt__label">3. หัวชาร์จ</span>
+              <div class="plugs" id="add-plugs"></div>
+              <button type="button" class="link-btn" id="add-plug">+ เพิ่มหัวชาร์จอีกแบบ</button>
+            </div>
+            <div class="add-step add-step--two">
+              <label><span class="opt__label">เวลาเปิด (ถ้ารู้)</span><input id="add-hours" class="field" type="text" maxlength="60" placeholder="เช่น 24 ชม."></label>
+              <label><span class="opt__label">หมายเหตุ</span><input id="add-note" class="field" type="text" maxlength="200" placeholder="เช่น อยู่หลังร้านกาแฟ"></label>
+            </div>
+            <p class="add-msg" id="add-msg" role="status"></p>
+            <button type="submit" class="btn btn--primary btn--block" id="add-save">บันทึกสถานี</button>
+          </form>
         </section>
         <section class="card chart-card" id="chart-card" hidden>
           <div class="card__head">

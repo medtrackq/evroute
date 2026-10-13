@@ -143,7 +143,7 @@ button { -webkit-tap-highlight-color: transparent; font: inherit; }
 /* Dashboard grid */
 .dash { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 22px; padding: 28px 32px 32px; align-items: start; }
 .dash__left, .dash__right, .dash__form { display: grid; gap: 22px; min-width: 0; }
-.dash__right { position: sticky; top: 100px; }
+
 .notice { grid-column: 1 / -1; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; background: color-mix(in srgb, var(--warn) 14%, var(--surface)); }
 .help { grid-column: 1 / -1; }
 .help ul { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
@@ -362,7 +362,7 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 .row--end { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .row--end div { display: grid; min-width: 0; }
 .row--end b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.row--end span { font-size: 12.5px; color: var(--muted); }
+.row--end div span { font-size: 12.5px; color: var(--muted); }
 .row__top { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .row__n { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; font-size: 13px; font-weight: 700; color: var(--accent); background: var(--surface); }
 .row__main { flex: 1; min-width: 0; display: grid; }
@@ -438,3 +438,39 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
   .tile__v { font-size: 19px; }
   .row__body { margin-left: 0; }
 }
+
+/* Add a station */
+.map-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.map-card__foot .legend { margin: 0 6px; }
+.pill-btn.is-on { color: var(--on-accent); background: var(--accent); }
+.add-card .icon-btn svg { stroke-width: 2.2; }
+.add-form { display: grid; gap: 16px; margin-top: 14px; }
+.add-step { display: grid; gap: 8px; }
+.add-step--two { grid-template-columns: 1fr 1fr; }
+.add-step--two label { display: grid; gap: 6px; }
+.add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn svg.stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.add-where { font-size: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); color: var(--muted); }
+.add-where.is-set { color: var(--text); background: var(--tile-mint); }
+.plugs { display: grid; gap: 8px; }
+.plug { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.8fr) 40px; gap: 6px; align-items: center; }
+.plug .field { min-height: 44px; padding: 8px 10px; }
+.plug select.field { padding-right: 28px; background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%; }
+.plug__del { width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--muted); cursor: pointer; font-size: 18px; }
+.plug__del:hover { color: var(--crit); }
+.plug-head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.8fr) 40px; gap: 6px; font-size: 12px; color: var(--muted); padding: 0 4px; }
+.add-msg { font-size: 14px; min-height: 0; }
+.add-msg:empty { display: none; }
+.add-msg.is-err { color: var(--crit); font-weight: 600; }
+.add-msg.is-ok { color: var(--ok); font-weight: 600; }
+.pin--new { background: var(--warn); }
+.dot-all { pointer-events: auto; }
+.tag--user { color: #7a4a00; background: var(--tile-sun); }
+:root[data-theme="dark"] .tag--user { color: var(--tile-sun-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag--user { color: var(--tile-sun-ink); } }
+.map.is-picking { cursor: crosshair; }
+.map.is-picking .leaflet-grab { cursor: crosshair; }
+@media (max-width: 900px) { .add-card { order: 3; } }
+@media (max-width: 560px) { .add-step--two { grid-template-columns: 1fr; } }
+.add-card .card__head { flex-wrap: nowrap; }
+@media (max-width: 560px) { .plug { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.8fr) 36px; } .plug__del { width: 36px; height: 36px; } }
