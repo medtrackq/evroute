@@ -37,15 +37,9 @@
   }
 
   // ---------- map ----------
-  var map = L.map('map', { zoomControl: false }).setView([13.4, 101.0], 6);
-  L.control.zoom({ position: 'topright' }).addTo(map);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  }).addTo(map);
-  var routeLayer = L.layerGroup().addTo(map);
-  var candLayer = L.layerGroup().addTo(map);
-  var stopLayer = L.layerGroup().addTo(map);
-  var pins = { a: null, b: null };
+  // Created at start-up by MapView (Leaflet, or Google Maps when Google Places is on).
+  var map, routeLayer, candLayer, stopLayer;
+  var pins = {};
 
   // Destinations are lettered from B: dests[0] = B, dests[1] = C ...
   function letter(i) { return String.fromCharCode(66 + i); }
@@ -53,11 +47,10 @@
 
   function pin(which, p) {
     var key = String(which);
-    if (pins[key]) map.removeLayer(pins[key]);
-    pins[key] = p ? L.marker([p.lat, p.lng], {
-      icon: L.divIcon({ className: '', html: '<span class="pin pin--' + pinClass(which) + '">' + (which === 'a' ? 'A' : letter(which)) + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] }),
-      zIndexOffset: 1000, keyboard: false
-    }).bindTooltip(esc(p.label)).addTo(map) : null;
+    if (pins[key]) pins[key].remove();
+    pins[key] = p ? map.pin(p.lat, p.lng, {
+      html: '<span class="pin pin--' + pinClass(which) + '">' + (which === 'a' ? 'A' : letter(which)) + '</span>', z: 1000, tooltip: p.label,
+    }) : null;
   }
 
   // The places the trip visits after A, in order; a round trip ends back at A.
@@ -162,6 +155,7 @@
 
   // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
   function showPhoto() {
+    if (!R.car) return; // the photo list can arrive before the car is chosen
     var id = R.car.id, img = null;
     Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
     $('car-photo').hidden = !img;
@@ -278,6 +272,26 @@
       var prof = P.profile(d.trip.legs);
       var cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
       var res = P.plan(prof, cands, R.car, opts);
+      // Where our own data is thin, ask Google for the stations there and plan again. A plan that
+      // still gets stuck asks again further along (up to 5 rounds within GOOGLE_MAX_POINTS searches).
+      // A plan that already works only gets a few searches to improve its choices.
+      var total = 0, budget = res.ok ? 3 : GOOGLE_MAX_POINTS;
+      var round = function (n) {
+        return fillGaps(prof, cands, res, opts, Math.min(6, budget)).then(function (g) {
+          budget -= g.asked;
+          if (!g.added) return;
+          total += g.added;
+          cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
+          res = P.plan(prof, cands, R.car, opts);
+          if (!res.ok && n < 5 && budget > 0) return round(n + 1);
+        });
+      };
+      return round(1).then(function () {
+        if (total) res.googleAdded = total;
+        return { prof: prof, cands: cands, res: res };
+      });
+    }).then(function (x) {
+      var prof = x.prof, cands = x.cands, res = x.res;
       res.prof = prof;
       res.cands = cands;
       res.opts = opts;
@@ -318,6 +332,49 @@
       clearResult();
       say(/no path|no suitable/i.test(err.message) ? 'ไม่พบเส้นทางรถยนต์ระหว่าง 2 จุดนี้' : 'บริการหาเส้นทางหรือข้อมูลสถานีไม่ตอบ ลองใหม่อีกครั้ง', 'crit');
     }).then(function () { setBusy(false); });
+  }
+
+  // ---------- Google gap filling ----------
+  var GOOGLE_RADIUS_KM = 25;
+  var GOOGLE_MAX_POINTS = 12; // searches per trip plan, across all rounds
+
+  // Asks the server for Google's EV stations around stretches of the route where our data is
+  // thin, at most `max` search circles. Each area is asked once per page visit.
+  // Resolves to { added: stations added, asked: circles searched }.
+  function fillGaps(prof, cands, res, opts, max) {
+    var none = { added: 0, asked: 0 };
+    if (!R.cfg || !R.cfg.places || max <= 0) return Promise.resolve(none);
+    R.gAsked = R.gAsked || [];
+    var pts = P.gapPoints(prof, cands, R.car, opts, res, GOOGLE_RADIUS_KM, 20).filter(function (p) {
+      return !R.gAsked.some(function (q) { return P.km(p, q) < GOOGLE_RADIUS_KM; });
+    }).slice(0, max);
+    if (!pts.length) return Promise.resolve(none);
+    pts.forEach(function (p) { R.gAsked.push(p); });
+    return fetch('/api/google/ev', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ points: pts.map(function (p) { return { lat: p.lat, lng: p.lng }; }), radius: GOOGLE_RADIUS_KM * 1000 }),
+    }).then(function (r) { return r.ok ? r.json() : { stations: [] }; }).then(function (d) {
+      if (d.remaining === 0) R.cfg.places = null; // today's allowance is used up
+      return { added: addStations(d.stations || []), asked: pts.length };
+    }).catch(function () { return { added: 0, asked: pts.length }; });
+  }
+
+  // Adds stations for this visit only. One within 120 m of a station we know is the same site:
+  // its connector details replace a guessed list, otherwise it's skipped.
+  function addStations(list) {
+    var added = 0;
+    list.forEach(function (st) {
+      var same = R.stations.filter(function (o) { return Math.abs(o.lat - st.lat) < 0.002 && P.km(o, st) < 0.12; })[0];
+      if (!same) { R.stations.push(st); added++; return; }
+      if (same.guess && !st.guess) { same.plugs = st.plugs; same.guess = false; }
+      if (st.url && !same.url) same.url = st.url;
+    });
+    return added;
+  }
+
+  // Google asks for a link back to its place page wherever its data is shown.
+  function googleLink(st) {
+    return st.url ? '<a class="glink" href="' + esc(st.url) + '" target="_blank" rel="noopener">ข้อมูลจาก Google Maps</a>' : '';
   }
 
   function replan() { if (R.a && trip().dests.length && !R.busy) plan(); }
@@ -458,6 +515,7 @@
         (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
         (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
         (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
+        (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)</span>' +
@@ -493,6 +551,7 @@
         tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh') +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
+      (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
       '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
       '<ol class="list">' +
@@ -547,9 +606,9 @@
     $('summary').hidden = true;
     $('chart-card').hidden = true;
     $('nav').innerHTML = '';
-    routeLayer.clearLayers();
-    candLayer.clearLayers();
-    stopLayer.clearLayers();
+    routeLayer.clear();
+    candLayer.clear();
+    stopLayer.clear();
   }
 
   // ---------- charts ----------
@@ -682,36 +741,33 @@
   // ---------- map drawing ----------
   function draw() {
     var res = R.result;
-    routeLayer.clearLayers();
-    candLayer.clearLayers();
-    stopLayer.clearLayers();
+    routeLayer.clear();
+    candLayer.clear();
+    stopLayer.clear();
     if (!res) return;
     var pts = (res.final || res.prof).pts;
-    L.polyline(pts, { color: css('accent'), weight: 12, opacity: 0.18, interactive: false }).addTo(routeLayer);
-    L.polyline(pts, { color: css('accent'), weight: 5, opacity: 1, interactive: false, lineCap: 'round' }).addTo(routeLayer);
+    map.line(pts, { color: css('accent'), weight: 12, opacity: 0.18, layer: routeLayer });
+    map.line(pts, { color: css('accent'), weight: 5, layer: routeLayer });
 
     var chosen = {};
     res.stops.forEach(function (s) { chosen[s.st.id] = true; });
     res.cands.forEach(function (c) {
       if (chosen[c.st.id]) return;
-      L.circleMarker([c.st.lat, c.st.lng], {
-        radius: 6, color: '#fff', weight: 2, fillColor: c.st.guess ? css('unk') : css('accent'), fillOpacity: 0.95
-      }).bindPopup(stationPopup(c), { maxWidth: 280 }).addTo(candLayer);
+      map.dot(c.st.lat, c.st.lng, { radius: 6, fill: c.st.guess ? css('unk') : css('accent'), popup: stationPopup(c), layer: candLayer });
     });
     res.stops.forEach(function (s, i) {
-      L.marker([s.st.lat, s.st.lng], {
-        icon: L.divIcon({ className: '', html: '<span class="pin pin--stop">' + (i + 1) + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] }),
-        zIndexOffset: 900
-      }).bindPopup('<b>' + esc(s.st.name) + '</b>' + userTag(s.st) + '<br>' + esc(s.st.op || '') + '<br>' + esc(plugText(s.st)) +
-        '<br><span class="hint">จุดแวะที่ ' + (i + 1) + ' · ชาร์จถึง ' + pct(s.depart) + ' · ~' + dur(s.chargeMin + P.PLUG_MIN) + '</span>' +
-        popupActions(s.st), { maxWidth: 290 }).addTo(stopLayer);
+      map.pin(s.st.lat, s.st.lng, {
+        html: '<span class="pin pin--stop">' + (i + 1) + '</span>', z: 900, layer: stopLayer,
+        popup: '<b>' + esc(s.st.name) + '</b>' + userTag(s.st) + '<br>' + esc(s.st.op || '') + '<br>' + esc(plugText(s.st)) +
+          '<br><span class="hint">จุดแวะที่ ' + (i + 1) + ' · ชาร์จถึง ' + pct(s.depart) + ' · ~' + dur(s.chargeMin + P.PLUG_MIN) + '</span>' +
+          googleLink(s.st) + popupActions(s.st),
+      });
     });
     if (res.fail && res.fail.reach) {
       var p = pointAt(res.prof, res.fail.reach);
-      if (p) L.circleMarker(p, { radius: 9, color: '#fff', weight: 2.5, fillColor: css('crit'), fillOpacity: 1 })
-        .bindTooltip('แบตถึงระดับต่ำสุดราวตรงนี้', { direction: 'top' }).addTo(stopLayer);
+      if (p) map.dot(p[0], p[1], { radius: 9, fill: css('crit'), tooltip: 'แบตถึงระดับต่ำสุดราวตรงนี้', layer: stopLayer });
     }
-    map.fitBounds(L.latLngBounds(pts), { padding: [30, 30] });
+    map.fit(pts, 30);
   }
 
   function pointAt(prof, along) {
@@ -726,6 +782,7 @@
     return '<b>' + esc(st.name) + '</b>' + userTag(st) + '<br>' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '<br>' + esc(plugText(st)) +
       '<br><span class="hint">กม. ' + km1(c.along) + ' · ' + (c.off < 0.15 ? 'ติดเส้นทาง' : 'ห่างเส้นทาง ' + km1(c.off) + ' กม.') + '</span>' +
       (st.guess ? '<br><span class="hint">ข้อมูลหัวชาร์จยังไม่ยืนยัน</span>' : '') +
+      googleLink(st) +
       popupActions(st, '<button type="button" class="btn btn--primary" data-add="' + esc(st.id) + '">แวะชาร์จที่นี่</button>');
   }
 
@@ -741,7 +798,7 @@
     if (which === 'a') { R.a = p; $('from').value = p ? p.label : ''; }
     else { R.dests[which] = p; destInput(which).value = p ? p.label : ''; }
     pin(which, p);
-    if (p && !(R.a && R.dests[0])) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 11));
+    if (p && !(R.a && R.dests[0])) map.setView(p.lat, p.lng, Math.max(map.getZoom(), 11));
   }
 
   // Inputs for destinations C, D ... (B is the fixed "to" field).
@@ -760,7 +817,7 @@
       $('dest-' + i).value = R.dests[i] ? R.dests[i].label : '';
       suggest($('dest-' + i), $('dest-' + i + '-sug'), i);
     }
-    Object.keys(pins).forEach(function (k) { if (k !== 'a') { if (pins[k]) map.removeLayer(pins[k]); delete pins[k]; } });
+    Object.keys(pins).forEach(function (k) { if (k !== 'a') { if (pins[k]) pins[k].remove(); delete pins[k]; } });
     R.dests.forEach(function (p, i) { pin(i, p); });
     $('to').placeholder = R.dests.length > 1 ? 'จุดหมาย B: แวะที่ไหนก่อน' : 'ปลายทาง: จะไปที่ไหน';
     $('add-dest').hidden = R.dests.length >= MAX_DESTS;
@@ -954,10 +1011,11 @@
     if (R.a && R.dests[0] && R.result) plan();
   });
   $('form').addEventListener('submit', function (e) { e.preventDefault(); if (!R.busy) plan(); });
-  map.on('click', function (e) {
-    if (A.open) { setAddPoint({ lat: e.latlng.lat, lng: e.latlng.lng }); return; }
+  function wireMap() {
+  map.onClick(function (lat, lng) {
+    if (A.open) { setAddPoint({ lat: lat, lng: lng }); return; }
     if (R.result) return; // with a plan on screen, taps open station popups instead
-    var p = { lat: e.latlng.lat, lng: e.latlng.lng, label: 'จุดที่เลือก (' + e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4) + ')' };
+    var p = { lat: lat, lng: lng, label: 'จุดที่เลือก (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')' };
     var free = R.dests.indexOf(null);
     if (R.a && free < 0) return;
     setPoint(!R.a ? 'a' : free, p);
@@ -966,7 +1024,7 @@
   });
 
   // "แวะชาร์จที่นี่" in a station popup on the map.
-  map.getContainer().addEventListener('click', function (e) {
+  map.container.addEventListener('click', function (e) {
     var b = e.target.closest('[data-add]');
     if (!b) return;
     var id = b.dataset.add;
@@ -975,6 +1033,7 @@
     map.closePopup();
     replan();
   });
+  }
 
   document.querySelectorAll('[data-chart]').forEach(function (b) {
     b.addEventListener('click', function () { R.chart = b.dataset.chart; chart(); });
@@ -1006,7 +1065,7 @@
     }
     if (e.target.closest('a, button, summary, details')) return;
     var li = e.target.closest('.row[data-lat]');
-    if (li) map.setView([+li.dataset.lat, +li.dataset.lng], 15);
+    if (li) map.setView(+li.dataset.lat, +li.dataset.lng, 15);
   }
   $('result').addEventListener('click', onResultClick);
   $('nav').addEventListener('click', onResultClick);
@@ -1022,7 +1081,7 @@
 
   // ---------- add a station ----------
   var PLUG_TYPES = [['CCS2', 'CCS2'], ['CHAdeMO', 'CHAdeMO'], ['GB/T', 'GB/T'], ['Type2', 'Type 2 (AC)'], ['Tesla', 'Tesla']];
-  var A = { open: false, point: null, marker: null, layer: L.layerGroup() };
+  var A = { open: false, point: null, marker: null, layer: null }; // layer is made once the map exists
 
   function plugRow(type) {
     var div = document.createElement('div');
@@ -1053,21 +1112,20 @@
 
   function setAddPoint(p, center) {
     A.point = p;
-    if (A.marker) { map.removeLayer(A.marker); A.marker = null; }
+    if (A.marker) { A.marker.remove(); A.marker = null; }
     var w = $('add-where');
     if (!p) {
       w.textContent = 'แตะบนแผนที่เพื่อปักหมุด (ลากหมุดเพื่อขยับได้)';
       w.classList.remove('is-set');
       return;
     }
-    A.marker = L.marker([p.lat, p.lng], {
-      draggable: true, zIndexOffset: 1100,
-      icon: L.divIcon({ className: '', html: '<span class="pin pin--new">+</span>', iconSize: [30, 30], iconAnchor: [15, 15] })
-    }).addTo(map);
-    A.marker.on('dragend', function () { var ll = A.marker.getLatLng(); setAddPoint({ lat: ll.lat, lng: ll.lng }); });
+    A.marker = map.pin(p.lat, p.lng, {
+      html: '<span class="pin pin--new">+</span>', z: 1100, draggable: true,
+      onDragEnd: function (lat, lng) { setAddPoint({ lat: lat, lng: lng }); },
+    });
     w.textContent = '📍 ' + p.lat.toFixed(5) + ', ' + p.lng.toFixed(5) + nearText(p);
     w.classList.add('is-set');
-    if (center) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15));
+    if (center) map.setView(p.lat, p.lng, Math.max(map.getZoom(), 15));
   }
 
   // Say so when the pin sits on a station we already have.
@@ -1095,10 +1153,9 @@
 
   // Every known station as a small dot while adding, so people can see what's already there.
   function drawAll() {
-    A.layer.clearLayers();
+    A.layer.clear();
     R.stations.forEach(function (st) {
-      L.circleMarker([st.lat, st.lng], { radius: 4, color: '#fff', weight: 1.5, fillColor: st.guess ? css('unk') : css('accent'), fillOpacity: 0.9 })
-        .bindTooltip(esc(st.name) + (st.src === 'user' ? ' (ผู้ใช้เพิ่ม)' : ''), { direction: 'top' }).addTo(A.layer);
+      map.dot(st.lat, st.lng, { radius: 4, fill: st.guess ? css('unk') : css('accent'), tooltip: st.name + (st.src === 'user' ? ' (ผู้ใช้เพิ่ม)' : ''), layer: A.layer });
     });
   }
 
@@ -1113,11 +1170,11 @@
     if (open) {
       resetAdd();
       drawAll();
-      A.layer.addTo(map);
+      A.layer.show(true);
       $('add-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       setAddPoint(null);
-      map.removeLayer(A.layer);
+      A.layer.show(false);
     }
   }
 
@@ -1182,6 +1239,28 @@
   });
   $('add-form').addEventListener('submit', saveStation);
 
+  // Start: stations load in the background; the map is Google Maps when the server has Google
+  // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.
   R.ready = loadStations();
-  fromURL();
+  getJSON('/api/config').catch(function () { return {}; }).then(function (cfg) {
+    R.cfg = cfg || {};
+    if (!R.cfg.maps) return MapView.leaflet('map');
+    var dark = document.documentElement.dataset.theme === 'dark' ||
+      (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+    return MapView.google('map', R.cfg.maps, dark).catch(function (err) {
+      console.warn('Google Maps unavailable, using OpenStreetMap', err);
+      R.cfg.places = null; // without a Google map, Google Places data can't be shown
+      return MapView.leaflet('map');
+    });
+  }).then(function (view) {
+    map = view;
+    $('map').classList.add('map--' + view.kind);
+    if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
+    routeLayer = map.layer();
+    candLayer = map.layer();
+    stopLayer = map.layer();
+    A.layer = map.layer(false);
+    wireMap();
+    fromURL();
+  });
 })();

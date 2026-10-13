@@ -10,12 +10,22 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge } from './lib/stations.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
+import { googlePlaces } from './lib/google.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
 const OCM_KEY = process.env.OCM_KEY || '';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || ''; // owner/name
+// Google: Places (server-side key, never sent to browsers) and the Maps JavaScript API (a
+// browser key restricted to this site's domain). Places results must be shown on a Google map,
+// so the page switches to Google Maps whenever Places is on.
+const GOOGLE_PLACES_KEY = process.env.GOOGLE_PLACES_KEY || '';
+const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_KEY || '';
+const GOOGLE_MAP_ID = process.env.GOOGLE_MAP_ID || 'DEMO_MAP_ID';
+const GOOGLE_DAILY_LIMIT = Number(process.env.GOOGLE_DAILY_LIMIT) || 30;
+const places = GOOGLE_PLACES_KEY && GOOGLE_MAPS_KEY ? googlePlaces({ key: GOOGLE_PLACES_KEY, dailyLimit: GOOGLE_DAILY_LIMIT }) : null;
+const allowGoogle = rateLimiter(20, 60 * 60 * 1000);
 const UA = 'evroute (EV trip planner for Thailand)';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
@@ -187,8 +197,7 @@ async function reloadUsers() {
 }
 
 async function addStation(req, res) {
-  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-  if (!allowAdd(ip)) { json(res, 429, { error: 'เพิ่มสถานีบ่อยเกินไป ลองใหม่ในอีกสักครู่' }); return; }
+  if (!allowAdd(clientIp(req))) { json(res, 429, { error: 'เพิ่มสถานีบ่อยเกินไป ลองใหม่ในอีกสักครู่' }); return; }
   let body;
   try { body = JSON.parse(await readBody(req)); } catch { json(res, 400, { error: 'ข้อมูลไม่ถูกต้อง' }); return; }
   const v = validate(body);
@@ -201,6 +210,30 @@ async function addStation(req, res) {
   } catch (err) {
     console.error(new Date().toISOString(), 'add station', err.message);
     json(res, 502, { error: 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง' });
+  }
+}
+
+// ---------- Google gap filling ----------
+function clientIp(req) {
+  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+}
+
+async function googleStations(req, res) {
+  if (!places) { json(res, 404, { error: 'google disabled' }); return; }
+  if (!allowGoogle(clientIp(req))) { json(res, 429, { error: 'too many requests' }); return; }
+  let q;
+  try { q = JSON.parse(await readBody(req)); } catch { json(res, 400, { error: 'bad request' }); return; }
+  const points = (Array.isArray(q.points) ? q.points : []).slice(0, 6)
+    .filter((p) => Number.isFinite(p?.lat) && Number.isFinite(p?.lng) && p.lat > 5 && p.lat < 21 && p.lng > 97 && p.lng < 106);
+  const radius = Math.min(30000, Math.max(5000, Number(q.radius) || 25000));
+  if (!points.length) { json(res, 400, { error: 'no points' }); return; }
+  try {
+    const r = await places.search(points, radius);
+    console.log(new Date().toISOString(), 'google places', r.calls, 'calls,', r.stations.length, 'stations,', r.remaining, 'left today');
+    json(res, 200, r, { 'Cache-Control': 'no-store' });
+  } catch (err) {
+    console.error(new Date().toISOString(), 'google places', err.message);
+    json(res, 502, { error: 'google unavailable' });
   }
 }
 
@@ -277,6 +310,10 @@ createServer(async (req, res) => {
     await addStation(req, res);
     return;
   }
+  if (url.pathname === '/api/google/ev' && req.method === 'POST') {
+    await googleStations(req, res);
+    return;
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { Allow: 'GET, HEAD' }).end();
     return;
@@ -286,6 +323,13 @@ createServer(async (req, res) => {
     refreshRemote(); // stale-while-revalidate
     if (Date.now() - usersAt > USERS_TTL) reloadUsers();
     json(res, 200, stationsBody, { 'Cache-Control': 'public, max-age=300' });
+    return;
+  }
+  if (url.pathname === '/api/config') {
+    json(res, 200, {
+      maps: places ? { key: GOOGLE_MAPS_KEY, mapId: GOOGLE_MAP_ID } : null,
+      places: places ? { left: places.counter.remaining } : null,
+    }, { 'Cache-Control': 'no-store' });
     return;
   }
   if (url.pathname === '/api/geocode') {

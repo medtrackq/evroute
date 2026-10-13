@@ -516,3 +516,15 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 .tile__in:focus { outline: none; background: var(--surface); }
 .tile.is-edit .tile__v { display: flex; align-items: baseline; gap: 2px; }
 @media (max-width: 560px) { .tile__in { font-size: 19px; } }
+
+/* Google Maps */
+.glink { display: inline-block; margin-top: 4px; font-size: 12px; }
+/* Google's popups are always white, so give their content the light palette */
+.map--google .gm-style-iw {
+  --text: #121826; --muted: #7b879b; --surface: #ffffff; --surface-2: #f2f6fc; --surface-3: #e9f0fb;
+  --accent: #2f6bff; --accent-soft: #e5edff; --on-accent: #ffffff;
+  color: var(--text); font-family: inherit; font-size: 14px; line-height: 1.5;
+}
+.map--google .gm-style-iw a.btn { color: var(--text); text-decoration: none; }
+.map--google .gm-style-iw a.btn--soft { color: var(--accent); }
+.map--google .gm-style-iw a.btn--primary, .map--google .gm-style-iw button.btn--primary { color: var(--on-accent); }

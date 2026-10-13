@@ -281,6 +281,42 @@
     return out;
   }
 
+  // Where to ask Google for more stations: centres of search circles (radius R km) along the
+  // stretches of route where our own data leaves long gaps, the stretch where a plan got stuck
+  // first. At most `max` points.
+  function gapPoints(prof, cands, car, o, res, R, max) {
+    R = R || 25;
+    max = max || 6;
+    var range = (o.targetSoc - o.minSoc) / 100 * car.kwh / (car.use / 100 * (1 + (car.margin || 0) / 100) * 1.15);
+    var gap = Math.max(60, Math.min(range * 0.6, 150));
+    var stretches = [];
+    if (res && !res.ok && res.fail) {
+      // A plan that gets stuck: search only around where the car runs low, a little before it
+      // to a good way past it, since that's what decides whether the trip works at all.
+      var reach = Math.min(res.fail.reach, prof.km);
+      stretches.push([Math.max(0, reach - range * 0.6), Math.min(prof.km, reach + range * 0.6)]);
+    } else {
+      // A plan that works: fill the long gaps between known stations, for better choices.
+      var marks = [0].concat(cands.map(function (c) { return c.along; }), [prof.km]).sort(function (x, y) { return x - y; });
+      for (var i = 1; i < marks.length; i++) {
+        if (marks[i] - marks[i - 1] > gap) stretches.push([marks[i - 1], marks[i]]);
+      }
+    }
+    var out = [], step = R * 1.6;
+    stretches.forEach(function (s) {
+      var a = s[0] + R * 0.8, b = s[1] - R * 0.8;
+      var ks = b <= a ? [(s[0] + s[1]) / 2] : [];
+      for (var k = a; b > a && k <= b + 0.01; k += step) ks.push(k);
+      ks.forEach(function (k) {
+        if (out.some(function (q) { return Math.abs(q.along - k) < step * 0.75; })) return;
+        var c = prof.cum, j = 1;
+        while (j < c.length - 1 && c[j] < k) j++;
+        out.push({ lat: prof.pts[j][0], lng: prof.pts[j][1], along: k });
+      });
+    });
+    return out.slice(0, max);
+  }
+
   // Remaining range in km to state of charge in %, using the car's rated use with the safety margin.
   function kmToSoc(rangeKm, car) {
     return Math.max(0, Math.min(100, rangeKm * car.use / 100 * (1 + (car.margin || 0) / 100) / car.kwh * 100));
@@ -289,7 +325,7 @@
   var api = {
     km: km, decode: decode, speedFactor: speedFactor, profile: profile, at: at, nearest: nearest,
     usable: usable, candidates: candidates, taper: taper, chargeMinutes: chargeMinutes, energy: energy,
-    plan: plan, replay: replay, kmToSoc: kmToSoc, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
+    plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
   };
   root.EVPlan = api;
   if (typeof module === 'object' && module.exports) module.exports = api;

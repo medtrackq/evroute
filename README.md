@@ -57,6 +57,28 @@
 
 `type`: `CCS2`, `CHAdeMO`, `GB/T`, `Type2`, `Tesla` หรือ `DC` (ไม่รู้ชนิดหัว) · ชื่อผู้ให้บริการที่ตรงกับ `data/operators.json` จะมีปุ่มเปิดแอป
 
+### Google Places: เติมสถานีที่ขาด (ไม่บังคับ)
+
+ข้อมูลฟรีขาดสถานีหลายเครือข่าย (EA, PTT PluZ, EleXA ฯลฯ) เมื่อตั้ง key ของ Google ไว้ ระบบจะ**ขอสถานีจาก Google เฉพาะช่วงเส้นทางที่ข้อมูลเราไม่พอ**:
+- แผนที่ "ไปไม่ถึง" → ค้นรอบ ๆ ช่วงที่แบตจะหมด แล้ววางแผนใหม่ ทำซ้ำได้ถึง 5 รอบ ไม่เกิน 12 จุดค้นหาต่อการวางแผน 1 ครั้ง
+- แผนที่ไปได้อยู่แล้ว → ค้นเฉพาะช่วงที่สถานีห่างกันมาก ไม่เกิน 3 จุด
+- จุดที่ค้นแล้วจะไม่ค้นซ้ำในการเปิดหน้าเว็บครั้งเดียวกัน · ค้นวงกลมรัศมี 25 กม. ได้สูงสุด 20 สถานีต่อครั้ง
+- server จำกัดไม่เกิน `GOOGLE_DAILY_LIMIT` ครั้งต่อวัน (ค่าเริ่มต้น 30 ≈ 900/เดือน อยู่ในโควตาฟรี 1,000 ครั้ง/เดือน) และ 20 ครั้ง/ชั่วโมงต่อ IP เมื่อครบ แอปจะใช้ข้อมูลฟรีต่อตามปกติ
+
+ราคา (ณ ต.ค. 2026): ฟิลด์ข้อมูลหัวชาร์จ `evChargeOptions` อยู่ใน SKU "Nearby Search Enterprise + Atmosphere" ฟรี 1,000 ครั้ง/เดือน หลังจากนั้น $40 ต่อ 1,000 ครั้ง · แผนที่ Google Maps ฟรี 10,000 ครั้ง/เดือน
+
+เงื่อนไขของ Google ที่ระบบทำตามแล้ว: ข้อมูลจาก Places ต้องแสดงบนแผนที่ Google (เมื่อเปิดใช้ หน้าเว็บจะเปลี่ยนเป็น Google Maps เอง) · ห้ามเก็บข้อมูลไว้ใช้ซ้ำ (เก็บแค่ในหน้าเว็บที่เปิดอยู่) · แสดงเครดิตและลิงก์ "ข้อมูลจาก Google Maps" ทุกสถานีที่มาจาก Google
+
+ตั้งค่า:
+1. [Google Cloud Console](https://console.cloud.google.com) → สร้างโปรเจกต์ → ผูก Billing
+2. เปิด **Places API (New)** และ **Maps JavaScript API**
+3. สร้าง key 2 ตัว: (ก) สำหรับ server จำกัด API = Places API (New) (ข) สำหรับแผนที่ จำกัด Website = โดเมนเว็บบน Render, API = Maps JavaScript API
+4. **ตั้งเพดานจริง**: APIs & Services → Places API (New) → Quotas → จำกัด requests per day (เช่น 30) งบประมาณ (Budget) แค่แจ้งเตือน ไม่ได้หยุดการเรียก
+5. (แนะนำ) สร้าง Map ID ที่ Google Maps Platform → Map management แล้วใส่ใน `GOOGLE_MAP_ID` (ไม่ใส่จะใช้ `DEMO_MAP_ID` ซึ่งใช้ทดสอบได้)
+6. Render → Environment: `GOOGLE_PLACES_KEY` = key (ก), `GOOGLE_MAPS_KEY` = key (ข), (ไม่บังคับ) `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`
+
+ถ้าไม่ตั้ง หรือโหลดแผนที่ Google ไม่ได้ เว็บใช้แผนที่ OpenStreetMap และข้อมูลฟรีตามเดิม
+
 ### สถานีที่ผู้ใช้เพิ่ม
 
 Render แบบฟรีจะล้างไฟล์ทุกครั้งที่ deploy หรือ restart จึงเก็บรายการไว้ใน **GitHub**: ไฟล์ `user-stations.json` ใน branch `user-data` ของ repo นี้ (server สร้าง branch ให้เองครั้งแรก) ฟรี ไม่หาย มีประวัติทุกครั้งที่มีคนเพิ่ม และการเขียนลง branch นี้ไม่ทำให้เว็บ deploy ใหม่
@@ -91,6 +113,7 @@ Render แบบฟรีจะล้างไฟล์ทุกครั้ง�
 | [Photon](https://photon.komoot.io) (Komoot) | ค้นหาสถานที่ | `/api/geocode?q=` |
 | Overpass / Open Charge Map | สถานีชาร์จ | `/api/stations` (cache 24 ชม.) |
 | GitHub API | เก็บสถานีที่ผู้ใช้เพิ่ม | `POST /api/stations` |
+| Google Places (New) | สถานีในช่วงที่ข้อมูลขาด (ถ้าตั้ง key) | `POST /api/google/ev` |
 
 Valhalla และ Photon เป็นเซิร์ฟเวอร์สาธารณะสำหรับการใช้งานปริมาณน้อย ถ้ามีผู้ใช้มาก ควรตั้งเองหรือใช้บริการแบบเสียเงิน (แก้ URL ที่ `server.mjs` และ `assets/js/app.js`)
 
@@ -119,9 +142,11 @@ Render แบบฟรีจะหลับเมื่อไม่มีคน�
 | --- | --- |
 | `index.html` | หน้าเว็บ |
 | `assets/js/app.js` | ฟอร์ม ค้นหาสถานที่ แผนที่ แสดงผล ลิงก์ Google Maps/แอป |
+| `assets/js/mapview.js` | แผนที่: Leaflet (OpenStreetMap) หรือ Google Maps ผ่าน interface เดียวกัน |
 | `assets/js/plan.js` | ตัววางแผน: พลังงานตามความเร็ว เลือกสถานีใกล้เส้นทาง หาจุดแวะที่ใช้เวลาน้อยที่สุด เวลาชาร์จ |
 | `assets/js/cars.js` | ข้อมูลรุ่นรถ |
 | `assets/css/style.css` | สไตล์ (light/dark) |
+| `lib/google.mjs` | เรียก Google Places (New) หาสถานีรอบจุดที่กำหนด แปลงเป็นรูปแบบสถานีของเรา นับ/จำกัดต่อวัน |
 | `lib/userstore.mjs` | ตรวจข้อมูลสถานีที่ผู้ใช้เพิ่ม เก็บลง GitHub หรือไฟล์ จำกัดจำนวนต่อ IP |
 | `lib/stations.mjs` | แปลงข้อมูล OSM / Open Charge Map / รายการที่รวบรวม เป็นรูปแบบเดียวกัน และรวมสถานีซ้ำ |
 | `server.mjs` | static server + proxy/cache (สถานี เส้นทาง ค้นหาสถานที่) |

@@ -148,3 +148,22 @@ test('trip charging time is charge + plug-in only; detours are reported apart', 
   assert.ok(Math.abs(r.chargeMin - charge) < 1e-9);
   assert.ok(r.detourMin > 0); // fake stations sit ~1 km off the road
 });
+
+test('gap points: none when stations are dense, some in long gaps and where a plan fails', () => {
+  const c = car('byd-atto3-std');
+  const o = { startSoc: 90, minSoc: 20, targetSoc: 80 };
+  const dense = P.candidates(prof, stationsEvery(40), c);
+  assert.equal(P.gapPoints(prof, dense, c, o, P.plan(prof, dense, c, o)).length, 0);
+  const sparse = P.candidates(prof, stationsEvery(300), c);
+  const res = P.plan(prof, sparse, c, o);
+  const pts = P.gapPoints(prof, sparse, c, o, res);
+  assert.ok(pts.length > 0 && pts.length <= 6, pts.length);
+  // When stuck, every circle is around where the car runs low.
+  pts.forEach((p) => assert.ok(Math.abs(p.along - res.fail.reach) < 200, p.along + ' vs ' + res.fail.reach));
+  // A working plan with a long empty stretch asks about that stretch.
+  const holey = P.candidates(prof, stationsEvery(40).filter((s) => { const k = +s.id.slice(1); return k < 200 || k > 300; }), c);
+  const ok = P.plan(prof, holey, c, { ...o, startSoc: 100, targetSoc: 100, minSoc: 10 });
+  const fill = P.gapPoints(prof, holey, c, o, ok);
+  assert.ok(fill.length > 0 && fill.every((p) => p.along > 150 && p.along < 340), JSON.stringify(fill.map((p) => Math.round(p.along))));
+  pts.forEach((p) => assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lng)));
+});
