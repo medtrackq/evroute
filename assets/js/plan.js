@@ -320,6 +320,22 @@
     return out.slice(0, max);
   }
 
+  // Charging cost at one stop, in baht. prices: { operator: { dc, dcOff } , _default: { dc } }.
+  // Off-peak is everything outside Mon–Fri 09:00–22:00 Bangkok time (holidays are ignored).
+  // Chargers bill the energy they deliver, a little more than what reaches the battery.
+  var CHARGE_LOSS = 0.9;
+  function isOffPeak(when) {
+    var t = new Date(when.getTime() + 7 * 3600e3), day = t.getUTCDay(), h = t.getUTCHours();
+    return day === 0 || day === 6 || h < 9 || h >= 22;
+  }
+  function chargeCost(kwhAdded, op, prices, when) {
+    var p = (prices && (prices[op] || prices._default)) || null;
+    if (!p || !p.dc || kwhAdded <= 0) return null;
+    var off = when && p.dcOff && isOffPeak(when);
+    var rate = off ? p.dcOff : p.dc;
+    return { baht: kwhAdded / CHARGE_LOSS * rate, rate: rate, offPeak: !!off, known: !!prices[op] };
+  }
+
   // Remaining range in km to state of charge in %, using the car's rated use with the safety margin.
   function kmToSoc(rangeKm, car) {
     return Math.max(0, Math.min(100, rangeKm * car.use / 100 * (1 + (car.margin || 0) / 100) / car.kwh * 100));
@@ -328,7 +344,7 @@
   var api = {
     km: km, decode: decode, speedFactor: speedFactor, profile: profile, at: at, nearest: nearest,
     usable: usable, candidates: candidates, taper: taper, chargeMinutes: chargeMinutes, energy: energy,
-    plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
+    plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, chargeCost: chargeCost, isOffPeak: isOffPeak, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
   };
   root.EVPlan = api;
   if (typeof module === 'object' && module.exports) module.exports = api;

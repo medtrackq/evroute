@@ -229,6 +229,7 @@
 
   function loadStations() {
     var ops = getJSON('data/operators.json').then(function (d) { R.operators = d; }, function () {});
+    getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; if (R.result) render(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
       $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
@@ -577,7 +578,7 @@
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
-        '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)</span>' +
+        '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
         '<div class="row__acts">' +
           '<a class="btn" href="' + gmapsDir(prev, st) + '" target="_blank" rel="noopener">นำทางมาที่นี่</a>' +
           appLink(st.op) +
@@ -608,7 +609,8 @@
       '<div class="tiles">' +
         (res.chargeMin < 60 ? tile('lav', 'time', 'ชาร์จรวม', Math.round(res.chargeMin || 0), 'นาที')
           : tile('lav', 'time', 'ชาร์จรวม', Math.floor(res.chargeMin / 60) + ':' + String(Math.round(res.chargeMin % 60)).padStart(2, '0'), 'ชม.')) +
-        tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh') +
+        (res.cost != null ? tile('sun', 'dc', 'ค่าไฟโดยประมาณ', '฿' + Math.round(res.cost).toLocaleString('th-TH'), '', Math.round(t.kwh) + ' kWh')
+          : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
       (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
@@ -650,8 +652,29 @@
     return html;
   }
 
+  // Estimated cost of each stop, at the operator's price for the hour the car gets there
+  // (leaving now): on-peak or off-peak where the operator has both.
+  function priceStops(res) {
+    var prof = res.final || res.prof, start = Date.now(), extra = 0, total = 0;
+    res.stops.slice().sort(function (a, b) { return a.along - b.along; }).forEach(function (s) {
+      var km = s.kmReal != null ? s.kmReal : s.along;
+      var when = new Date(start + (P.at(prof, prof.tm, km) + extra) * 60000);
+      s.cost = P.chargeCost(s.kwhAdded, s.st.op, R.prices, when);
+      if (s.cost) total += s.cost.baht;
+      extra += s.chargeMin + P.PLUG_MIN;
+    });
+    res.cost = R.prices ? total : null;
+  }
+
+  function costText(c) {
+    if (!c) return '';
+    return ' · <b>~฿' + Math.round(c.baht).toLocaleString('th-TH') + '</b> <span class="hint">(' + c.rate + ' ฿/kWh' +
+      (c.offPeak ? ' ช่วง Off-Peak' : '') + (c.known ? '' : ' ราคาเฉลี่ย') + ')</span>';
+  }
+
   function render() {
     var res = R.result;
+    priceStops(res);
     $('result').hidden = false;
     $('result').innerHTML = resultCard(res);
     $('summary').hidden = false;
@@ -780,7 +803,7 @@
         '<text class="axis" x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle">จุด ' + (i + 1) + '</text>' +
         '<rect class="hit" x="' + (cx - slot / 2) + '" y="0" width="' + slot + '" height="' + H + '"/></g>';
     }).join('');
-    $('chart-kpi').innerHTML = 'เติมไฟรวม<b>' + Math.round(t.kwh) + '<small>kWh · ' + dur(res.chargeMin) + '</small></b>';
+    $('chart-kpi').innerHTML = 'เติมไฟรวม<b>' + Math.round(t.kwh) + '<small>kWh · ' + dur(res.chargeMin) + (res.cost != null ? ' · ~฿' + Math.round(res.cost).toLocaleString('th-TH') : '') + '</small></b>';
     $('chart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="พลังงานที่เติมแต่ละจุด (kWh)">' + grid + bars +
       '</svg><div class="tip" hidden></div>';
     var svg = $('chart').querySelector('svg'), tip = $('chart').querySelector('.tip');
@@ -791,7 +814,7 @@
         tip.hidden = false;
         tip.style.left = (cx / W * 100) + '%';
         tip.style.top = (y(s.kwhAdded) / H * r.height - 18) + 'px';
-        tip.innerHTML = '<b>' + esc(s.st.name) + '</b><br>+' + s.kwhAdded.toFixed(1) + ' kWh · ' + dur(s.chargeMin + P.PLUG_MIN);
+        tip.innerHTML = '<b>' + esc(s.st.name) + '</b><br>+' + s.kwhAdded.toFixed(1) + ' kWh · ' + dur(s.chargeMin + P.PLUG_MIN) + (s.cost ? ' · ~฿' + Math.round(s.cost.baht) : '');
       };
       g.addEventListener('pointerenter', show);
       g.addEventListener('pointerdown', show);

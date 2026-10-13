@@ -181,3 +181,21 @@ test('a favourite station is preferred when it costs little extra time', () => {
   assert.ok(r.ok);
   assert.ok(r.stops.some((s) => s.st.id === alt.st.id), r.stops.map((s) => s.st.id).join(','));
 });
+
+test('charging cost uses the operator price and off-peak hours', () => {
+  const prices = { 'PEA VOLTA': { dc: 6.9, dcOff: 5.9 }, _default: { dc: 7.5 } };
+  const weekdayNoon = new Date('2026-10-14T05:00:00Z'); // Wed 12:00 Bangkok
+  const weekdayNight = new Date('2026-10-14T16:00:00Z'); // Wed 23:00 Bangkok
+  const sunday = new Date('2026-10-18T05:00:00Z');
+  assert.equal(P.isOffPeak(weekdayNoon), false);
+  assert.equal(P.isOffPeak(weekdayNight), true);
+  assert.equal(P.isOffPeak(sunday), true);
+  const on = P.chargeCost(27, 'PEA VOLTA', prices, weekdayNoon);
+  assert.equal(on.rate, 6.9);
+  assert.ok(Math.abs(on.baht - 27 / 0.9 * 6.9) < 1e-9);
+  assert.equal(P.chargeCost(27, 'PEA VOLTA', prices, sunday).rate, 5.9);
+  const unknown = P.chargeCost(27, 'Someone', prices, weekdayNoon);
+  assert.equal(unknown.rate, 7.5);
+  assert.equal(unknown.known, false);
+  assert.equal(P.chargeCost(0, 'PEA VOLTA', prices, weekdayNoon), null);
+});

@@ -1,0 +1,90 @@
+{
+ "note": "ราคาค่าชาร์จ (บาท/kWh) ที่ผู้ให้บริการประกาศ ใช้ประมาณค่าใช้จ่ายเท่านั้น ราคาจริงอาจต่างตามสาขาและโปรโมชัน",
+ "onPeak": "จ.-ศ. 09:00-22:00 (ไม่รวมวันหยุดนักขัตฤกษ์)",
+ "prices": {
+  "PEA VOLTA": {
+   "dc": 6.9,
+   "dcOff": 5.9,
+   "ac": 5.9,
+   "note": "ราคามาตรฐานใหม่ 1 พ.ค. 69: DC 50-180kW On-Peak 6.90/Off 5.90; 300-360kW 7.90/6.90; 25kW 5.90/4.90 (On-Peak จ.-ศ. 09:00-22:00)",
+   "source": "https://www.ev-roads.com/content/38246/",
+   "asOf": "2026-05-01"
+  },
+  "EA Anywhere": {
+   "dc": 7.08,
+   "dcOff": null,
+   "ac": null,
+   "note": "DC เริ่มต้น 7.08 บาท/หน่วย ราคาเดียวทั้งวัน แตกต่างตามสถานี (ตาม Ft พ.ค.-ส.ค. 69); AC คิดรายชั่วโมง 80 บาท/ชม.",
+   "source": "https://www.ev-roads.com/content/38214/",
+   "asOf": "2026-05-01"
+  },
+  "PTT EV Station PluZ": {
+   "dc": 7.4,
+   "dcOff": 6.1,
+   "ac": null,
+   "note": "ตั้งแต่ 1 ก.ย. 69: 40-180kW On 7.4/Off 6.1; 180-200kW 7.7/6.4; EV HUB/240-480kW 7.9/6.6 (On-Peak จ.-ศ. 09:00-22:00)",
+   "source": "https://www.ev-roads.com/content/38606/",
+   "asOf": "2026-09-01"
+  },
+  "EleXA": {
+   "dc": 7.5,
+   "dcOff": null,
+   "ac": null,
+   "note": "EleX by EGAT DC ราคาเดียว 7.5 บาท/หน่วย (รวม VAT)",
+   "source": "https://www.autospinn.com/2026/01/electric-price-in-thailand-january-to-april-2026-147382",
+   "asOf": "2026-01"
+  },
+  "MEA EV": {
+   "dc": 7.5,
+   "dcOff": 7.5,
+   "ac": null,
+   "note": "ราคาเดียว 7.5 บาท/หน่วย ทุกช่วงเวลา",
+   "source": "https://www.grab.com/th/blog/driver/รวมราคาค่าชาร์จรถไฟฟ้า/",
+   "asOf": "2026-09"
+  },
+  "Evolt": {
+   "dc": 9.0,
+   "dcOff": null,
+   "ac": null,
+   "note": "DC 8-10 บาท/หน่วย ตามสถานี (ใช้ค่ากลาง); AC 60 บาท/ชม.",
+   "source": "https://www.greenenergythailand.com/posts/charging-networks-thailand-anywhere/",
+   "asOf": "2026-03"
+  },
+  "Altervim": {
+   "dc": 7.5,
+   "dcOff": null,
+   "ac": null,
+   "note": "Super Charge DC 7.5 บาท/หน่วย ราคาเดียว; AC 60 บาท/ชม. (ข้อมูลปี 68)",
+   "source": "https://www.autoinfo.co.th/online/469478",
+   "asOf": "2025-02"
+  },
+  "Sharge": {
+   "dc": 8.7,
+   "dcOff": null,
+   "ac": 8.5,
+   "note": "ราคาเดียว: ตู้ทั่วไป 8.7, ที่ 7-Eleven 7.1, DC 180kW ที่ Shell 9.0 บาท/หน่วย",
+   "source": "https://www.grab.com/th/blog/driver/รวมราคาค่าชาร์จรถไฟฟ้า/",
+   "asOf": "2026-09"
+  },
+  "Shell Recharge": {
+   "dc": 9.0,
+   "dcOff": 9.0,
+   "ac": 8.5,
+   "note": "DC HPC 180-360kW 9 บาท/หน่วย ราคาเดียว (ดำเนินการร่วม SHARGE); AC 8.5",
+   "source": "https://www.grab.com/th/blog/driver/รวมราคาค่าชาร์จรถไฟฟ้า/",
+   "asOf": "2026-09"
+  },
+  "Tesla Supercharger": {
+   "dc": 7.17,
+   "dcOff": 7.17,
+   "ac": null,
+   "note": "V3 250kW 7.17 บาท/หน่วย (ข้อมูล ม.ค. 68; ราคาจริงต่างตามสถานี/ไม่ใช่ Tesla แพงกว่า)",
+   "source": "https://ev.iphonemod.net/ev-charger-rate-update-jan-2025/",
+   "asOf": "2025-01"
+  },
+  "_default": {
+   "dc": 7.5,
+   "note": "ค่าเฉลี่ยโดยประมาณ"
+  }
+ }
+}
