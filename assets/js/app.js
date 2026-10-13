@@ -91,21 +91,20 @@
       kwh: +t.kwh || base.kwh, use: +t.use || base.use, dc: t.dc != null ? +t.dc : base.dc,
       margin: t.margin != null ? +t.margin : 10,
     };
-    $('kwh').value = R.car.kwh;
-    $('use').value = R.car.use;
-    $('dc').value = R.car.dc;
-    $('margin').value = R.car.margin;
     showSpec();
+    showPhoto();
   }
 
+  // Reads the tile inputs while they're open for editing; otherwise just saves the current car.
   function readTune() {
-    var c = R.car, n = function (id, lo, hi, def) { var v = parseFloat($(id).value); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : def; };
+    var c = R.car, n = function (id, lo, hi, def) { var v = $(id) ? parseFloat($(id).value) : NaN; return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : def; };
     c.kwh = n('kwh', 10, 200, c.kwh);
     c.use = n('use', 8, 40, c.use);
     c.dc = n('dc', 0, 400, c.dc);
     c.margin = n('margin', 0, 50, c.margin);
     store('car', { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin });
-    showSpec();
+    $('range-km').textContent = Math.round(rangeKm(100));
+    syncRange();
   }
 
   function rangeKm(soc) {
@@ -127,16 +126,50 @@
       (sub ? '<span class="tile__sub">' + sub + '</span>' : '') + '</div>';
   }
 
+  // The same tile with its number as an input, for "ปรับค่ารถ".
+  function editTile(color, icon, k, id, v, unit, min, max, step, sub) {
+    return '<label class="tile tile--' + color + ' is-edit"><span class="tile__ico" aria-hidden="true">' + ICONS[icon] + '</span>' +
+      '<span class="tile__k">' + k + '</span><span class="tile__v"><input id="' + id + '" class="tile__in" type="number" inputmode="decimal" min="' + min + '" max="' + max + '" step="' + step + '" value="' + v + '">' +
+      '<small>' + unit + '</small></span>' + (sub ? '<span class="tile__sub">' + sub + '</span>' : '') + '</label>';
+  }
+
   function showSpec() {
     var c = R.car;
     $('car-brand').textContent = c.brand === 'อื่น ๆ' ? 'รถของคุณ' : c.brand;
     $('car-name').textContent = c.id === 'custom' ? 'กำหนดเอง' : c.model;
-    $('spec').innerHTML =
-      tile('lav', 'bat', 'แบตเตอรี่', c.kwh, 'kWh') +
-      tile('sun', 'use', 'กินไฟ', c.use, '/100กม.') +
-      tile('mint', 'dc', 'DC สูงสุด', c.dc || '–', c.dc ? 'kW' : '', esc(c.plugs.join(', ') || 'ไม่รองรับ DC')) +
-      tile('sky', 'road', 'วิ่งได้ราว', Math.round(rangeKm(100)), 'กม.', 'ต่อแบตเต็ม');
+    var plugs = esc(c.plugs.join(', ') || 'ไม่รองรับ DC'), range = '<span id="range-km">' + Math.round(rangeKm(100)) + '</span>';
+    $('spec').innerHTML = R.tuning
+      ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1) +
+        editTile('sun', 'use', 'กินไฟ', 'use', c.use, '/100กม.', 8, 40, 0.1) +
+        editTile('mint', 'dc', 'DC สูงสุด', 'dc', c.dc, 'kW', 0, 400, 1, plugs) +
+        editTile('sky', 'road', 'เผื่อไว้', 'margin', c.margin, '%', 0, 50, 1, 'วิ่งได้ราว ' + range + ' กม.')
+      : tile('lav', 'bat', 'แบตเตอรี่', c.kwh, 'kWh') +
+        tile('sun', 'use', 'กินไฟ', c.use, '/100กม.') +
+        tile('mint', 'dc', 'DC สูงสุด', c.dc || '–', c.dc ? 'kW' : '', plugs) +
+        tile('sky', 'road', 'วิ่งได้ราว', range, 'กม.', 'ต่อแบตเต็ม');
     syncRange();
+  }
+
+  function setTuning(on) {
+    R.tuning = on;
+    $('tune-btn').setAttribute('aria-expanded', on);
+    $('tune-btn').classList.toggle('is-on', on);
+    $('tune-btn').querySelector('span').textContent = on ? 'เสร็จ' : 'ปรับค่ารถ';
+    $('tune-hint').hidden = !on;
+    showSpec();
+    if (on) $('kwh').focus();
+  }
+
+  // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
+  function showPhoto() {
+    var id = R.car.id, img = null;
+    Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
+    $('car-photo').hidden = !img;
+    if (!img) return;
+    $('car-img').src = img.thumb;
+    $('car-img').alt = R.car.brand + ' ' + R.car.model;
+    $('car-credit').innerHTML = 'ภาพ: <a href="' + esc(img.page) + '" target="_blank" rel="noopener">' + esc(img.artist || 'Wikimedia Commons') + '</a> · ' +
+      (img.licenseUrl ? '<a href="' + esc(img.licenseUrl) + '" target="_blank" rel="noopener">' + esc(img.license) + '</a>' : esc(img.license)) + ' · ภาพประกอบ อาจไม่ใช่รุ่นย่อยหรือปีเดียวกัน';
   }
 
   function unit() { return radio('unit'); }
@@ -868,7 +901,11 @@
     if (R.result) replan();
   });
   $('model').addEventListener('change', function () { setCar($('model').value); readTune(); if (R.result) replan(); });
-  ['kwh', 'use', 'dc', 'margin'].forEach(function (id) { $(id).addEventListener('change', function () { readTune(); }); });
+  $('tune-btn').addEventListener('click', function () { setTuning(!R.tuning); });
+  $('spec').addEventListener('input', function (e) { if (e.target.matches('.tile__in')) readTune(); });
+  $('spec').addEventListener('change', function (e) { if (e.target.matches('.tile__in') && R.result) replan(); });
+  $('spec').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('.tile__in')) { e.preventDefault(); setTuning(false); } });
+  getJSON('data/car-images.json').then(function (d) { R.photos = d.images || {}; showPhoto(); }, function () {});
 
   $('soc').addEventListener('input', syncRange);
   $('soc-range').addEventListener('input', function () { $('soc').value = this.value; syncRange(); });

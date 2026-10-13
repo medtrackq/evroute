@@ -211,12 +211,6 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 .tile--mint { background: var(--tile-mint); } .tile--mint .tile__ico { background: var(--tile-mint-ink); }
 .tile--sky { background: var(--tile-sky); } .tile--sky .tile__ico { background: var(--tile-sky-ink); }
 .tile__sub { font-size: 11.5px; color: var(--muted); }
-.tune { margin-top: 14px; }
-.tune summary { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--accent); }
-.tune__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 8px; }
-.tune__grid label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
-.tune__grid span { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 13px; white-space: nowrap; }
-.tune__grid .field { min-height: 42px; padding: 8px 10px; }
 
 /* Battery */
 .soc { display: grid; gap: 10px; padding: 16px; border-radius: 20px; background: var(--surface-2); }
@@ -430,7 +424,6 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
   .map-card { padding: 10px; }
   .car-card__name { font-size: 22px; }
   .summary { grid-template-columns: minmax(0, 1fr); }
-  .tune__grid { grid-template-columns: 1fr; }
   .status span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
   .tabs span, .tab { padding: 8px 10px; }
   .stops-card .tiles { gap: 8px; }
@@ -501,3 +494,25 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 /* Leaflet colours every link in a popup; keep the buttons' own colours */
 .leaflet-container a.btn { color: var(--text); }
 .leaflet-container a.btn--soft { color: var(--accent); }
+
+/* Car photo */
+.car-photo { position: relative; margin: 16px 0 0; border-radius: 22px; overflow: hidden; background: var(--surface-2); aspect-ratio: 16 / 8; }
+.car-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; }
+.car-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 46%; background: linear-gradient(transparent, rgb(8 15 30 / 62%)); pointer-events: none; }
+.car-photo figcaption { position: absolute; left: 12px; right: 12px; bottom: 8px; z-index: 1; font-size: 10.5px; line-height: 1.4; color: rgb(255 255 255 / 85%); }
+.car-photo figcaption a { color: #fff; }
+
+/* "ปรับค่ารถ": the tiles themselves become inputs */
+.tune-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 12px; }
+.tune-bar .pill-btn svg { width: 15px; height: 15px; }
+.tile.is-edit { cursor: text; outline: 2px dashed color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: -2px; }
+.tile.is-edit:focus-within { outline: 2px solid var(--accent); }
+.tile__in {
+  width: 100%; min-width: 0; max-width: 5.2em; font: inherit; font-size: 22px; font-weight: 600; color: var(--text);
+  background: color-mix(in srgb, var(--surface) 75%, transparent); border: 0; border-radius: 10px; padding: 2px 6px; margin-left: -6px;
+  -moz-appearance: textfield;
+}
+.tile__in::-webkit-outer-spin-button, .tile__in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tile__in:focus { outline: none; background: var(--surface); }
+.tile.is-edit .tile__v { display: flex; align-items: baseline; gap: 2px; }
+@media (max-width: 560px) { .tile__in { font-size: 19px; } }

@@ -54,17 +54,17 @@
               <label class="sr-only" for="model">รุ่น</label>
               <select id="model" class="field"></select>
             </div>
+            <figure class="car-photo" id="car-photo" hidden>
+              <img id="car-img" alt="" loading="lazy" decoding="async">
+              <figcaption id="car-credit"></figcaption>
+            </figure>
             <div class="tiles" id="spec"></div>
-            <details class="tune" id="tune">
-              <summary>ปรับค่ารถ</summary>
-              <div class="tune__grid">
-                <label>แบตที่ใช้ได้ <span><input id="kwh" class="field" type="number" inputmode="decimal" min="10" max="200" step="0.1"> kWh</span></label>
-                <label>กินไฟ <span><input id="use" class="field" type="number" inputmode="decimal" min="8" max="40" step="0.1"> kWh/100 กม.</span></label>
-                <label>ชาร์จ DC สูงสุด <span><input id="dc" class="field" type="number" inputmode="numeric" min="0" max="400" step="1"> kW</span></label>
-                <label>เผื่อไว้ <span><input id="margin" class="field" type="number" inputmode="numeric" min="0" max="50" step="1"> %</span></label>
-              </div>
-              <p class="hint">"กินไฟ" คือค่าเฉลี่ยขับทั่วไป ระบบคิดเพิ่มเองเมื่อวิ่งเร็วบนทางหลวง "เผื่อไว้" ใช้กับแอร์ ผู้โดยสาร สัมภาระ หรือฝนตก</p>
-            </details>
+            <div class="tune-bar">
+              <button type="button" class="pill-btn" id="tune-btn" aria-expanded="false" aria-controls="spec">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z"/></svg><span>ปรับค่ารถ</span>
+              </button>
+              <p class="hint" id="tune-hint" hidden>แก้ตัวเลขในช่องด้านบนได้เลย · "กินไฟ" คือค่าเฉลี่ยขับทั่วไป ระบบคิดเพิ่มเองเมื่อวิ่งเร็วบนทางหลวง · "เผื่อไว้" ใช้กับแอร์ ผู้โดยสาร สัมภาระ หรือฝนตก</p>
+            </div>
           </section>
 
           <section class="card" aria-labelledby="bat-title">
