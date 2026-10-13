@@ -8,6 +8,7 @@
   var SKIP_KM = 3;         // a station this close to where we just charged doesn't count as progress
   var PLUG_MIN = 5;        // parking, plugging in and paying
   var STOP_PENALTY = 10;   // planning cost of an extra stop beyond its real minutes
+  var FAV_BONUS = 12;      // minutes a favourite station is "worth", so it wins close calls
   var MAX_STOPS = 12;
   var DC_TYPES = ['CCS2', 'CHAdeMO', 'GBT', 'Tesla'];
 
@@ -164,7 +165,8 @@
   // Fastest set of stops from start to end (dynamic programming over stations in route order).
   // At each stop the car charges only as much as the next hop needs (plus a small buffer), never
   // past targetSoc; each stop also costs PLUG_MIN plus STOP_PENALTY so fewer stops win close calls.
-  // o.pinned: station ids the plan must use (kept in route order).
+  // o.pinned: station ids the plan must use (kept in route order). o.favs: { id: true } of the
+  // user's favourite stations, preferred when they cost little extra time.
   function plan(prof, cands, car, o) {
     var cap = car.kwh, minSoc = o.minSoc, target = o.targetSoc;
     var start = { along: 0, kw: 0, detourKm: 0, detourMin: 0, start: true };
@@ -191,7 +193,8 @@
       if (need > target) return null;
       if (need <= arrive + 1) return null; // no need to stop here: going straight past is better
       var depart = Math.max(need, arrive);
-      return { depart: depart, min: chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN + STOP_PENALTY };
+      var fav = o.favs && a.st && o.favs[a.st.id] ? FAV_BONUS : 0;
+      return { depart: depart, min: chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN + STOP_PENALTY - fav };
     }
 
     var best = nodes.map(function () { return null; }); // { time, arrive, prev, depart }

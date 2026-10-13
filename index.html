@@ -102,7 +102,13 @@
           </section>
 
           <section class="card" aria-labelledby="trip-title">
-            <h2 class="card__title" id="trip-title">เส้นทาง</h2>
+            <div class="card__head trip-head">
+              <h2 class="card__title" id="trip-title">เส้นทาง</h2>
+              <button type="button" class="pill-btn" id="saved-btn" aria-expanded="false" aria-controls="saved-list" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>แผนที่บันทึกไว้ <span id="saved-count"></span>
+              </button>
+            </div>
+            <ul class="saved-list" id="saved-list" hidden></ul>
             <div class="places">
               <div class="place">
                 <span class="dot dot--a" aria-hidden="true"></span>
@@ -150,6 +156,7 @@
               <li><i class="sw sw--stop"></i>จุดแวะชาร์จ</li>
               <li><i class="sw sw--cand"></i>สถานีใกล้เส้นทาง (แตะเพื่อเพิ่ม)</li>
               <li><i class="sw sw--guess"></i>ข้อมูลหัวชาร์จยังไม่ยืนยัน</li>
+              <li><i class="sw sw--fav"></i>สถานีโปรด</li>
             </ul>
             <button type="button" class="pill-btn" id="add-open" aria-controls="add-card" aria-expanded="false">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>เพิ่มสถานีชาร์จ

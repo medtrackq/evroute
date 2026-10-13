@@ -266,7 +266,7 @@
     box.hidden = false;
     box.innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
     shareURL();
-    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice() };
+    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds() };
 
     R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
       var prof = P.profile(d.trip.legs);
@@ -377,6 +377,65 @@
     return st.url ? '<a class="glink" href="' + esc(st.url) + '" target="_blank" rel="noopener">ข้อมูลจาก Google Maps</a>' : '';
   }
 
+  // ---------- favourite stations & saved plans (this browser only, no account) ----------
+  var FAV_COLOR = '#f2a900';
+  R.favs = load('favs') || {};
+
+  function favIds() {
+    var o = {};
+    Object.keys(R.favs).forEach(function (id) { o[id] = true; });
+    return o;
+  }
+
+  function favButton(st) {
+    var on = !!R.favs[st.id];
+    return '<button type="button" class="btn fav-btn' + (on ? ' is-on' : '') + '" data-fav="' + esc(st.id) + '" aria-pressed="' + on + '">' +
+      (on ? '★ สถานีโปรด' : '☆ สถานีโปรด') + '</button>';
+  }
+
+  function toggleFav(id) {
+    if (R.favs[id]) delete R.favs[id];
+    else {
+      var st = R.stations.filter(function (x) { return x.id === id; })[0];
+      R.favs[id] = st ? { name: st.name, lat: st.lat, lng: st.lng } : { name: id };
+    }
+    store('favs', R.favs);
+    if (R.result) replan(); // favourites change which stations the plan prefers
+  }
+
+  var MAX_SAVED = 20;
+  function savedPlans() { return load('plans') || []; }
+  function isSaved() { return savedPlans().some(function (p) { return p.q === location.search; }); }
+
+  function savePlan() {
+    var res = R.result;
+    if (!res) return;
+    shareURL();
+    var q = location.search, t = totals(res);
+    var list = savedPlans().filter(function (p) { return p.q !== q; });
+    list.unshift({
+      q: q, title: tripTitle(res.trip), from: R.a.label, car: R.car.brand + ' ' + R.car.model,
+      km: Math.round(t.km), stops: res.stops.length, at: new Date().toISOString(),
+    });
+    store('plans', list.slice(0, MAX_SAVED));
+    renderSaved();
+    var b = $('save-plan');
+    if (b) b.textContent = '★ บันทึกแล้ว';
+  }
+
+  function renderSaved() {
+    var list = savedPlans();
+    $('saved-btn').hidden = !list.length;
+    $('saved-count').textContent = list.length ? '(' + list.length + ')' : '';
+    if (!list.length) $('saved-list').hidden = true;
+    $('saved-list').innerHTML = list.map(function (p, i) {
+      var d = new Date(p.at);
+      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span>จาก ' + esc(p.from) + ' · ' + esc(p.car) + ' · ' + p.km + ' กม. · ชาร์จ ' + p.stops + ' จุด · ' +
+        d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + '</span></a>' +
+        '<button type="button" class="saved-del" data-unsave="' + i + '" aria-label="ลบแผนนี้">×</button></li>';
+    }).join('');
+  }
+
   function replan() { if (R.a && trip().dests.length && !R.busy) plan(); }
 
   // ---------- render ----------
@@ -415,7 +474,7 @@
 
   // Map popup for a station: details plus the same actions as its row in the plan.
   function popupActions(st, extra) {
-    return '<div class="popup-acts">' + appLink(st.op) +
+    return '<div class="popup-acts">' + appLink(st.op) + favButton(st) +
       // No origin: Google Maps starts from where the phone is now.
       '<a class="btn" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + (+st.lat).toFixed(6) + ',' + (+st.lng).toFixed(6) + '" target="_blank" rel="noopener">นำทางไปที่นี่</a>' + (extra || '') + '</div>';
   }
@@ -506,7 +565,7 @@
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
-        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + userTag(st) + '</span>' +
+        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + (R.favs[st.id] ? '<span class="tag tag--fav">★ โปรด</span>' : '') + userTag(st) + '</span>' +
         '<span class="row__meta">กม. ' + km1(s.kmReal != null ? s.kmReal : s.along) + ' · ' + off + ' · ' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '</span></div>' +
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
@@ -522,6 +581,7 @@
         '<div class="row__acts">' +
           '<a class="btn" href="' + gmapsDir(prev, st) + '" target="_blank" rel="noopener">นำทางมาที่นี่</a>' +
           appLink(st.op) +
+          favButton(st) +
           '<button type="button" class="btn" data-skip="' + esc(st.id) + '">ไม่แวะที่นี่</button>' +
         '</div>' + alts +
       '</div></li>';
@@ -585,7 +645,8 @@
       }
       html += '</ol>';
     }
-    html += '<button type="button" class="btn" id="share">คัดลอกลิงก์แผนนี้</button></section>';
+    html += '<div class="nav-card__row"><button type="button" class="btn" id="save-plan">' + (isSaved() ? '★ บันทึกแล้ว' : '☆ บันทึกแผนนี้') + '</button>' +
+      '<button type="button" class="btn" id="share">คัดลอกลิงก์แผนนี้</button></div></section>';
     return html;
   }
 
@@ -753,7 +814,7 @@
     res.stops.forEach(function (s) { chosen[s.st.id] = true; });
     res.cands.forEach(function (c) {
       if (chosen[c.st.id]) return;
-      map.dot(c.st.lat, c.st.lng, { radius: 6, fill: c.st.guess ? css('unk') : css('accent'), popup: stationPopup(c), layer: candLayer });
+      map.dot(c.st.lat, c.st.lng, { radius: R.favs[c.st.id] ? 8 : 6, fill: R.favs[c.st.id] ? FAV_COLOR : c.st.guess ? css('unk') : css('accent'), popup: stationPopup(c), layer: candLayer });
     });
     res.stops.forEach(function (s, i) {
       map.pin(s.st.lat, s.st.lng, {
@@ -1025,6 +1086,8 @@
 
   // "แวะชาร์จที่นี่" in a station popup on the map.
   map.container.addEventListener('click', function (e) {
+    var f = e.target.closest('[data-fav]');
+    if (f) { map.closePopup(); toggleFav(f.dataset.fav); return; }
     var b = e.target.closest('[data-add]');
     if (!b) return;
     var id = b.dataset.add;
@@ -1048,6 +1111,8 @@
       replan();
       return;
     }
+    if ((t = e.target.closest('[data-fav]'))) { toggleFav(t.dataset.fav); return; }
+    if (e.target.closest('#save-plan')) { savePlan(); return; }
     if ((t = e.target.closest('[data-skip]'))) {
       R.excluded[t.dataset.skip] = true;
       R.pinned = R.pinned.filter(function (id) { return id !== t.dataset.skip; });
@@ -1068,6 +1133,20 @@
     if (li) map.setView(+li.dataset.lat, +li.dataset.lng, 15);
   }
   $('result').addEventListener('click', onResultClick);
+  $('saved-btn').addEventListener('click', function () {
+    var l = $('saved-list');
+    l.hidden = !l.hidden;
+    this.setAttribute('aria-expanded', !l.hidden);
+  });
+  $('saved-list').addEventListener('click', function (e) {
+    var d = e.target.closest('[data-unsave]');
+    if (!d) return;
+    var list = savedPlans();
+    list.splice(+d.dataset.unsave, 1);
+    store('plans', list);
+    renderSaved();
+  });
+  renderSaved();
   $('nav').addEventListener('click', onResultClick);
 
   $('theme').addEventListener('click', function () {

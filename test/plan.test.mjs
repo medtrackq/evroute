@@ -167,3 +167,17 @@ test('gap points: none when stations are dense, some in long gaps and where a pl
   assert.ok(fill.length > 0 && fill.every((p) => p.along > 150 && p.along < 340), JSON.stringify(fill.map((p) => Math.round(p.along))));
   pts.forEach((p) => assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lng)));
 });
+
+test('a favourite station is preferred when it costs little extra time', () => {
+  const c = car('byd-atto3-std');
+  const o = { startSoc: 90, minSoc: 20, targetSoc: 80 };
+  const cands = P.candidates(prof, stationsEvery(30), c);
+  const base = P.plan(prof, cands, c, o);
+  // Pick a station near (but not at) the first chosen stop and make it a favourite.
+  const first = base.stops[0];
+  const alt = cands.find((x) => x.st.id !== first.st.id && Math.abs(x.along - first.along) <= 40 && x.along < first.along);
+  assert.ok(alt, 'need a nearby alternative');
+  const r = P.plan(prof, cands, c, { ...o, favs: { [alt.st.id]: true } });
+  assert.ok(r.ok);
+  assert.ok(r.stops.some((s) => s.st.id === alt.st.id), r.stops.map((s) => s.st.id).join(','));
+});
