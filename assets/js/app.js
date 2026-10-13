@@ -515,7 +515,8 @@
     var html = '<section class="card nav-card">';
     if (via.length <= MAX_GMAPS_WAYPOINTS) {
       html += '<a class="btn btn--primary" href="' + gmapsDir(R.a, end, via) + '" target="_blank" rel="noopener">' + BOLT + 'เปิดเส้นทางทั้งหมดใน Google Maps</a>' +
-        (via.length ? '<p class="hint">จุดชาร์จ ' + res.stops.length + ' จุด' + (via.length > res.stops.length ? ' และจุดหมายของคุณ' : '') + ' ถูกใส่เป็นจุดแวะ (Add destination) ให้แล้ว</p>' : '');
+        (via.length ? '<p class="hint">จุดชาร์จ ' + res.stops.length + ' จุด' + (via.length > res.stops.length ? ' และจุดหมายของคุณ' : '') + ' ถูกใส่เป็นจุดแวะ (Add destination) ให้แล้ว ' +
+          'โดยส่งเป็นพิกัด Google Maps จึงอาจแสดงชื่อสถานที่ข้าง ๆ แทน เช่น 7-11 หรือร้านในปั๊มเดียวกัน แต่นำทางไปตำแหน่งสถานีชาร์จถูกต้อง</p>' : '');
     }
     if (via.length > MOBILE_WAYPOINTS || via.length > MAX_GMAPS_WAYPOINTS) {
       html += '<p class="hint">' + (via.length > MAX_GMAPS_WAYPOINTS ? 'จุดแวะเกิน ' + MAX_GMAPS_WAYPOINTS + ' จุด ซึ่ง Google Maps รับไม่ได้ ให้นำทางทีละช่วง:' : 'แอป Google Maps บนมือถือบางเครื่องรับจุดแวะได้ไม่เกิน ' + MOBILE_WAYPOINTS + ' จุด ถ้าจุดแวะหายไป ให้นำทางทีละช่วง:') + '</p><ol class="legs">';
