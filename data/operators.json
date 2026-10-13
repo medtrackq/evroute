@@ -1,0 +1,65 @@
+{
+  "PEA VOLTA": {
+    "name": "PEA VOLTA",
+    "name_th": "พีอีเอ โวลต้า (การไฟฟ้าส่วนภูมิภาค)",
+    "app": "PEA VOLTA",
+    "web": "https://peavoltaev.pea.co.th/",
+    "android": "com.pea.peavolta",
+    "ios": "https://apps.apple.com/th/app/pea-volta/id1503297093",
+    "booking": false
+  },
+  "Evolt": {
+    "name": "EVolt",
+    "name_th": "อีโวลท์",
+    "app": "EVolt",
+    "web": "https://evolt.co.th/",
+    "android": "th.evolt.echarge",
+    "ios": "https://apps.apple.com/th/app/evolt/id1471528625",
+    "booking": false
+  },
+  "EA Anywhere": {
+    "name": "EA Anywhere (Energy Mahanakhon)",
+    "name_th": "อีเอ เอนี่แวร์",
+    "app": "E@ Anywhere",
+    "web": "https://www.eaanywhere.com/",
+    "android": "evapp.eaanywhere",
+    "ios": "https://apps.apple.com/th/app/e-anywhere/id6480576942",
+    "booking": true
+  },
+  "PTT EV Station PluZ": {
+    "name": "EV Station PluZ (PTT OR)",
+    "name_th": "อีวี สเตชั่น พลัส (โออาร์)",
+    "app": "EV Station PluZ: PluZ Happiness",
+    "web": "https://www.pttor.com/product/commercial/ev-station-pluz",
+    "android": "com.pttor.evstationpluz",
+    "ios": "https://apps.apple.com/th/app/ev-station-pluz-pluz-happiness/id6535679105",
+    "booking": true
+  },
+  "EleXA": {
+    "name": "EleX by EGAT / EleXA",
+    "name_th": "อีเล็กซ์ บาย กฟผ. / อีเล็กซ่า",
+    "app": "EleXA",
+    "web": "https://egatev.egat.co.th/our-services/elexa/",
+    "android": "egat.smd.ev",
+    "ios": "https://apps.apple.com/th/app/elexa/id1557651291",
+    "booking": true
+  },
+  "MEA EV": {
+    "name": "MEA EV",
+    "name_th": "การไฟฟ้านครหลวง (MEA EV)",
+    "app": "MEA EV",
+    "web": "https://www.mea.or.th/",
+    "android": "th.mea.evcharger",
+    "ios": "https://apps.apple.com/th/app/mea-ev/id1321755208",
+    "booking": true
+  },
+  "Tesla Supercharger": {
+    "name": "Tesla Supercharger",
+    "name_th": "เทสลา ซูเปอร์ชาร์จเจอร์",
+    "app": "Tesla",
+    "web": "https://www.tesla.com/th_th/findus",
+    "android": "com.teslamotors.tesla",
+    "ios": "https://apps.apple.com/th/app/tesla/id582007913",
+    "booking": false
+  }
+}

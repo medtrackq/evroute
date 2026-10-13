@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>วางแผนชาร์จ EV</title>
+  <meta name="description" content="เลือกรุ่นรถ ใส่แบตที่เหลือ ต้นทางและปลายทาง แล้วดูว่าควรแวะชาร์จที่ไหนบ้างตลอดทาง พร้อมลิงก์นำทาง Google Maps และแอปผู้ให้บริการ">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef4f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#071219" media="(prefers-color-scheme: dark)">
+  <script>try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230a8a5c' d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">ข้ามไปที่เนื้อหา</a>
+
+  <header class="top">
+    <div class="wrap top__row">
+      <a class="brand" href="./" aria-label="วางแผนชาร์จ EV หน้าแรก">
+        <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+        <span class="brand__text">
+          <span class="brand__name">วางแผนชาร์จ EV</span>
+          <span class="brand__sub"><i class="live" id="live" aria-hidden="true"></i><span id="updated">กำลังโหลดสถานีชาร์จ…</span></span>
+        </span>
+      </a>
+      <div class="top__actions">
+        <button class="icon-btn" id="theme" type="button" aria-label="สลับโหมดสว่าง/มืด" title="สลับโหมดสว่าง/มืด">
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap rt" id="main">
+    <div class="notice" id="notice" role="status" hidden></div>
+
+    <div class="rt-body">
+      <div class="rt-side">
+        <form class="rt-form panel" id="form" autocomplete="off">
+          <h1 class="rt-title">วางแผนเดินทางด้วยรถ EV</h1>
+
+          <div class="ev-step">
+            <span class="ev-step__n" aria-hidden="true">1</span>
+            <div class="ev-step__body">
+              <span class="ev-label">รถของคุณ</span>
+              <div class="ev-row">
+                <label class="sr-only" for="brand">ยี่ห้อ</label>
+                <select id="brand" class="ev-select"></select>
+                <label class="sr-only" for="model">รุ่น</label>
+                <select id="model" class="ev-select ev-select--grow"></select>
+              </div>
+              <p class="ev-spec" id="spec"></p>
+              <details class="ev-tune" id="tune">
+                <summary>ปรับค่ารถ</summary>
+                <div class="ev-grid">
+                  <label>แบตที่ใช้ได้ <span><input id="kwh" type="number" inputmode="decimal" min="10" max="200" step="0.1"> kWh</span></label>
+                  <label>กินไฟ <span><input id="use" type="number" inputmode="decimal" min="8" max="40" step="0.1"> kWh/100 กม.</span></label>
+                  <label>ชาร์จ DC สูงสุด <span><input id="dc" type="number" inputmode="numeric" min="0" max="400" step="1"> kW</span></label>
+                  <label>เผื่อไว้ <span><input id="margin" type="number" inputmode="numeric" min="0" max="50" step="1"> %</span></label>
+                </div>
+                <p class="muted small">"กินไฟ" คือค่าเฉลี่ยขับทั่วไป ระบบคิดเพิ่มเองเมื่อวิ่งเร็วบนทางหลวง "เผื่อไว้" ใช้กับแอร์ ผู้โดยสาร สัมภาระ หรือฝนตก</p>
+              </details>
+            </div>
+          </div>
+
+          <div class="ev-step">
+            <span class="ev-step__n" aria-hidden="true">2</span>
+            <div class="ev-step__body">
+              <span class="ev-label">แบตตอนออกเดินทาง</span>
+              <div class="ev-row">
+                <label class="sr-only" for="soc">แบตที่เหลือ</label>
+                <input id="soc" class="rt-input ev-num" type="number" inputmode="numeric" min="1" max="100" value="90">
+                <div class="ev-seg" role="radiogroup" aria-label="หน่วย">
+                  <label><input type="radio" name="unit" value="pct" checked><span>%</span></label>
+                  <label><input type="radio" name="unit" value="km"><span>กม.</span></label>
+                </div>
+              </div>
+              <div class="ev-row ev-row--two">
+                <label class="ev-sub">แวะชาร์จเมื่อแบตเหลือ
+                  <select id="min" class="ev-select">
+                    <option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option>
+                    <option value="25">25%</option><option value="30">30%</option><option value="40">40%</option>
+                  </select>
+                </label>
+                <label class="ev-sub">ชาร์จถึง
+                  <select id="target" class="ev-select">
+                    <option value="60">60%</option><option value="70">70%</option><option value="80" selected>80%</option>
+                    <option value="90">90%</option><option value="100">100%</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="ev-step">
+            <span class="ev-step__n" aria-hidden="true">3</span>
+            <div class="ev-step__body">
+              <span class="ev-label">ต้นทาง – ปลายทาง</span>
+              <div class="rt-field">
+                <span class="rt-dot rt-dot--a" aria-hidden="true">A</span>
+                <label class="sr-only" for="from">ต้นทาง</label>
+                <input id="from" class="rt-input" type="text" placeholder="ต้นทาง: พิมพ์ชื่อสถานที่ อำเภอ หรือจังหวัด" enterkeyhint="next">
+                <button type="button" class="rt-mini" id="from-gps" title="ใช้ตำแหน่งของฉัน" aria-label="ใช้ตำแหน่งของฉันเป็นต้นทาง">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>
+                </button>
+                <ul class="rt-sug" id="from-sug" role="listbox" hidden></ul>
+              </div>
+              <button type="button" class="rt-swap" id="swap" aria-label="สลับต้นทางกับปลายทาง" title="สลับ">⇅</button>
+              <div class="rt-field">
+                <span class="rt-dot rt-dot--b" aria-hidden="true">B</span>
+                <label class="sr-only" for="to">ปลายทาง</label>
+                <input id="to" class="rt-input" type="text" placeholder="ปลายทาง: จะไปที่ไหน" enterkeyhint="search">
+                <ul class="rt-sug" id="to-sug" role="listbox" hidden></ul>
+              </div>
+              <p class="muted small rt-tip">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง)</p>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary rt-go" id="go">วางแผนการเดินทาง</button>
+        </form>
+
+        <div id="result" aria-live="polite"></div>
+      </div>
+
+      <div class="rt-map-wrap">
+        <div id="map" class="rr-map rt-map" role="region" aria-label="แผนที่เส้นทางและสถานีชาร์จ"></div>
+        <ul class="rt-legend" aria-label="ความหมายของสัญลักษณ์">
+          <li><i class="sw sw--stop"></i>จุดแวะชาร์จ</li>
+          <li><i class="sw sw--cand"></i>สถานีอื่นใกล้เส้นทาง (แตะเพื่อเพิ่ม)</li>
+          <li><i class="sw sw--guess"></i>ข้อมูลหัวชาร์จยังไม่ยืนยัน</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="rr-help panel">
+      <h2>ระบบคำนวณอย่างไร</h2>
+      <ul>
+        <li>คิดพลังงานตามระยะทางและความเร็วของแต่ละช่วงถนน (วิ่งเร็วกินไฟมากขึ้น) แล้วเลือกจุดชาร์จ DC ที่ใช้กับหัวชาร์จของรถคุณได้ ห่างจากเส้นทางไม่เกิน 5 กม.</li>
+        <li>เลือกชุดจุดแวะที่ใช้<b>เวลารวมน้อยที่สุด</b> (ขับ + อ้อมเข้าสถานี + ชาร์จ) โดยแบตไม่ต่ำกว่าค่าที่ตั้งไว้ และชาร์จเท่าที่ต้องใช้ ไม่เกินค่า "ชาร์จถึง"</li>
+        <li>เวลาชาร์จเป็นค่าประมาณ ชาร์จช้าลงเมื่อแบตเกิน 50% และช้ามากหลัง 80% ตามลักษณะของแบตลิเธียม</li>
+        <li>เปลี่ยนจุดแวะได้ด้วย "เปลี่ยนสถานี" หรือแตะสถานีบนแผนที่เพื่อเพิ่มเป็นจุดแวะ ระบบจะคำนวณช่วงที่เหลือให้ใหม่</li>
+        <li>ข้อมูลสถานียังไม่ครบทุกเครือข่าย ตรวจสอบในแอปของผู้ให้บริการก่อนออกเดินทาง และอย่าปล่อยแบตต่ำเกินไป</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p class="foot__warn"><strong>ใช้ประกอบการวางแผนเท่านั้น</strong> ระยะวิ่งจริงขึ้นกับสภาพถนน อากาศ และการขับขี่ สถานีอาจปิดหรือหัวชาร์จเสีย ตรวจสอบในแอปผู้ให้บริการก่อนเดินทาง</p>
+      <p id="sources">สถานีชาร์จ: <a href="https://peavoltaev.pea.co.th/pea-volta-charging-stations/" target="_blank" rel="noopener">PEA VOLTA</a> · <a href="https://evolt.co.th/driver/" target="_blank" rel="noopener">EVolt</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · <a href="https://openchargemap.org" target="_blank" rel="noopener">Open Charge Map</a> (CC BY 4.0) · เส้นทาง: <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> (FOSSGIS) · ค้นหาสถานที่: <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · แผนที่ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="assets/js/cars.js"></script>
+  <script src="assets/js/plan.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "evroute",
+  "version": "0.1.0",
+  "private": true,
+  "description": "วางแผนเดินทางรถ EV ในไทย แนะนำจุดแวะชาร์จตามเส้นทาง",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

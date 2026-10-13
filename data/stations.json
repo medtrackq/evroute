@@ -1,0 +1,8061 @@
+{
+"note": "Seed list compiled 2026-10-13 from operators' public pages; coordinates as published by each source. See README for sources and terms.",
+"stations": [
+{
+"name": "PEA VOLTA นครราชสีมา",
+"lat": 14.974244,
+"lng": 102.08355,
+"province": "นครราชสีมา",
+"address": "2 ถ.มุขมนตรี ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครชัยศรี",
+"lat": 13.803429,
+"lng": 100.188705,
+"province": "นครปฐม",
+"address": "9 หมู่1 ต.ไทยาวาส อ.นครชัยศรี จ.นครปฐม 73121",
+"hours": "06.00 น. - 20.00น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สำนักงานใหญ่",
+"lat": 13.850428,
+"lng": 100.558578,
+"province": "กรุงเทพมหานคร",
+"address": "200 ถนนงามวงศ์วาน แขวงลาดยาว เขตจตุจักร กทม. 10900",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+},
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA",
+"aka": [
+"PEA VOLTA สำนักงานใหญ่ #3",
+"PEA VOLTA สำนักงานใหญ่ #4"
+]
+},
+{
+"name": "PEA VOLTA ชลบุรี",
+"lat": 13.328598,
+"lng": 100.95163,
+"province": "ชลบุรี",
+"address": "47/1 หมู่ 3 ต.เสม็ด อ.เมือง จ.ชลบุรี 20000",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขาย้อย",
+"lat": 13.265577,
+"lng": 99.822556,
+"province": "เพชรบุรี",
+"address": "135 หมู่ 4 ถ.เพชรเกษม ต.สระพัง อ.เขาย้อย จ.เพชรบุรี 76140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หัวหิน",
+"lat": 12.551865,
+"lng": 99.961037,
+"province": "ประจวบคีรีขันธ์",
+"address": "2/7 ถ.เพชรเกษม ต.หนองแก อ.หัวหิน 77110",
+"hours": "07.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พัทยาใต้",
+"lat": 12.922679,
+"lng": 100.884033,
+"province": "ชลบุรี",
+"address": "321/1 หมู่ที่ 10 ต.หนองปรีอ อ.บางละมุง จ. ชลบุรี 20150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สมุทรสาคร",
+"lat": 13.543326,
+"lng": 100.26477,
+"province": "สมุทรสาคร",
+"address": "1062 ถ.วิเชียรโชฏก ต.มหาชัย อ.เมือง จ.สมุทรสาคร 74000",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปากช่อง",
+"lat": 14.692633,
+"lng": 101.405731,
+"province": "นครราชสีมา",
+"address": "171 ถ.มิตรภาพ ต.ปากช่อง อ.ปากช่อง ต.นครราชสีมา 30130",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+},
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA รังสิต",
+"lat": 14.045281,
+"lng": 100.616188,
+"province": "ปทุมธานี",
+"address": "60 หมู่ 6 ถนนพหลโยธิน ต.คลองหนึ่ง อ.คลองหลวง จ.ปทุมธานี 12120",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พระนครศรีอยุธยา",
+"lat": 14.383482,
+"lng": 100.603355,
+"province": "พระนครศรีอยุธยา",
+"address": "46 หมู่ 6 ต.หันตรา อ.เมือง จ.พระนครศรีอยุธยา 13000",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+},
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA",
+"aka": [
+"PEA VOLTA เขตพระนครศรีอยุธยา"
+]
+},
+{
+"name": "PEA VOLTA บางจาก วังมะนาว (เพชรเกษม ขาออก)",
+"lat": 13.318703,
+"lng": 99.827723,
+"province": "เพชรบุรี",
+"address": "3/1 ม.2 ถ.เพชรเกษม ต.ห้วยโรง อ.เขาย้อย จ.เพชรบุรี 76140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ชะอำ",
+"lat": 12.81797,
+"lng": 99.94063,
+"province": "เพชรบุรี",
+"address": "555/5 ถ.เพชรเกษม (ชะอำ) ต.เขาใหญ่ อ.ชะอำ จ.เพชรบุรี 76120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ละแม",
+"lat": 9.774321,
+"lng": 99.078615,
+"province": "ชุมพร",
+"address": "139 ม.9 ต.ทุ่งหลวง อ.ละแม จ.ชุมพร 86170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองกระบี่",
+"lat": 8.103181,
+"lng": 98.902471,
+"province": "กระบี่",
+"address": "48/26 ถ.ศรีพังงา ต.ปากน้ำ อ.เมือง จ.กระบี่ 81000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก คลองท่อม",
+"lat": 7.870082,
+"lng": 99.163729,
+"province": "กระบี่",
+"address": "154 ม.1 ถ.เพชรเกษม (4) ต.ห้วยน้ำขาว อ.คลองท่อม จ.กระบี่ 81120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พุนพิน",
+"lat": 9.126541,
+"lng": 99.159488,
+"province": "สุราษฎร์ธานี",
+"address": "85 ม.3 ถ.เอเซีย ต.หัวเตย อ.พุนพิน จ.สุราษฎร์ธานี 84130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พะเยา",
+"lat": 19.199128,
+"lng": 99.873795,
+"province": "พะเยา",
+"address": "159 หมู่ 1 ต.แม่ปืม อ.เมือง จ.พะเยา 56000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แพร่",
+"lat": 18.114801,
+"lng": 100.149204,
+"province": "แพร่",
+"address": "189 หมู่ 8 ต.นาจักร อ.เมือง จ.แพร่ 54000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ร้อยเอ็ด",
+"lat": 16.045468,
+"lng": 103.626819,
+"province": "ร้อยเอ็ด",
+"address": "308 หมู่ 7 ถนน เลี่ยง เมือง ต.ดงลาน อ.เมือง จ.ร้อยเอ็ด 45000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองพิษณุโลก (ข้างเซ็นทรัล)",
+"lat": 16.842585,
+"lng": 100.231461,
+"province": "พิษณุโลก",
+"address": "68/3 ม.5 ถ.สายพิษณุโลก-สุโขทัย ต.พลายชุมพล อ.เมืองพิษณุโลก จ.พิษณุโลก 65000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองพิษณุโลก (ทล.11 กม.228)",
+"lat": 16.851477,
+"lng": 100.347069,
+"province": "พิษณุโลก",
+"address": "555 ม.3 ต.ดอนทอง อ.เมืองพิษณุโลก จ.พิษณุโลก 65000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก คลองขลุง",
+"lat": 16.209973,
+"lng": 99.703566,
+"province": "กำแพงเพชร",
+"address": "39/8 ม.10 ต.คลองขลุง อ.คลองขลุง จ.กำแพงเพชร 62120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองตาก",
+"lat": 16.879123,
+"lng": 99.129101,
+"province": "ตาก",
+"address": "9 ม.5 ต.เชียงเงิน อ.เมืองตาก จ.ตาก 63000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ปากช่อง",
+"lat": 14.651944,
+"lng": 101.357804,
+"province": "นครราชสีมา",
+"address": "199 ม.1 ถ.มิตรภาพ ต.ปากช่อง อ.ปากช่อง จ.นครราชสีมา 30130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สีคิ้ว (มิตรภาพ กม.92)",
+"lat": 14.840834,
+"lng": 101.607413,
+"province": "นครราชสีมา",
+"address": "25 ม.12 ต.ลาดบัวขาว อ.สีคิ้ว จ.นครราชสีมา 30340",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครราชสีมา (มิตรภาพ กม. 141)",
+"lat": 14.957339,
+"lng": 102.041147,
+"province": "นครราชสีมา",
+"address": "1587/1 ถ.มิตรภาพ ต.บ้านใหม่ อ.เมือง จ.นครราชสีมา 30000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางปะอิน (สายเอเชีย กม. 62 ขาออก)",
+"lat": 14.26525,
+"lng": 100.61233,
+"province": "พระนครศรีอยุธยา",
+"address": "59 ม.3 สายเอเชีย ต.บ้านหว้า อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แก่งคอย",
+"lat": 14.57352,
+"lng": 100.986792,
+"province": "สระบุรี",
+"address": "94 ม.4 ถ.มิตรภาพ ต.ตาลเดี่ยว อ.แก่งคอย จ.สระบุรี 18110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บายพาสชลบุรี",
+"lat": 13.413579,
+"lng": 100.999581,
+"province": "ชลบุรี",
+"address": "99/1 ม.4 ถ.สายอ้อมเมืองชลบุรี ต.หนองไม้แดง อ.เมือง จ.ชลบุรี 20000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บ้านบึง",
+"lat": 13.331942,
+"lng": 101.082872,
+"province": "ชลบุรี",
+"address": "105 ม.5 ถ.สายชลบุรี-บ้านบึง ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก นาเกลือ",
+"lat": 12.964252,
+"lng": 100.910184,
+"province": "ชลบุรี",
+"address": "472/59 ม.4 ต.นาเกลือ อ.บางละมุง จ.ชลบุรี 20150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หล่มสัก",
+"lat": 16.760784,
+"lng": 101.216408,
+"province": "เพชรบูรณ์",
+"address": "145 หมู่ 3 ถนนสระบุรี-หล่มสัก ต.หนองไขว่ อ.หล่มสัก จ.เพชรบูรณ์ 67110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก อินทร์บุรี (ขาออก)",
+"lat": 14.980995,
+"lng": 100.357673,
+"province": "สิงห์บุรี",
+"address": "116 ม.1 ถ.สายเอเชีย ต.น้ำตาล อ.อินทร์บุรี จ.สิงห์บุรี 16110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พล",
+"lat": 15.723708,
+"lng": 102.592262,
+"province": "ขอนแก่น",
+"address": "10 ม.8 ถ.ทางหลวงแผ่นดินหมายเลข 2 ต.หนองแวงโสกพระ อ.พล จ.ขอนแก่น 40120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองขอนแก่น (แยกเมืองเก่า)",
+"lat": 16.37999,
+"lng": 102.810791,
+"province": "ขอนแก่น",
+"address": "485 ม.12 ถ.สายขอนแก่น-บ้านไผ่ (มิตรภาพ) อ.เมืองเก่า เมือง จ.ขอนแก่น 40000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุดรธานี",
+"lat": 17.400516,
+"lng": 102.800413,
+"province": "อุดรธานี",
+"address": "558 ถ.โพศรี ต.หมากแข้ง อ.เมือง จ.อุดรธานี 41000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองหนองคาย",
+"lat": 17.89063,
+"lng": 102.77594,
+"province": "หนองคาย",
+"address": "57/1 ม.5 ถ.สายหนองคาย-โพนพิสัย ต.หาดคำ อ.เมือง จ.หนองคาย 43000",
+"hours": "05.30 น. - 21.30 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ท่าแซะ",
+"lat": 10.593375,
+"lng": 99.123183,
+"province": "ชุมพร",
+"address": "131 ม.3 ถ.เพชรเกษม (4) ต.ท่าข้าม อ.ท่าแซะ จ.ชุมพร 86140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองพังงา",
+"lat": 8.42492,
+"lng": 98.479834,
+"province": "พังงา",
+"address": "29/38 ม.3 ต.ตากแดด อ.เมือง จ.พังงา 80180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก กะทู้",
+"lat": 7.908677,
+"lng": 98.344771,
+"province": "ภูเก็ต",
+"address": "2/75-76 ม.2 ถ.ทางหลวงชนบท ป่าตอง-กะทู้ (2010) ต.กะทู้ อ.กะทู้ จ.ภูเก็ต 83120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองภูเก็ต",
+"lat": 7.807702,
+"lng": 98.336798,
+"province": "ภูเก็ต",
+"address": "24/11 ม.4 ถ.วิเศษ ต.ราไวย์ อ.เมือง จ.ภูเก็ต 83130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สระแก้ว",
+"lat": 13.839046,
+"lng": 102.046313,
+"province": "สระแก้ว",
+"address": "6 ถ.สุวรรณศร ต.สระแก้ว อ.เมืองสระแก้ว จ.สระแก้ว 27000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ท่าใหม่",
+"lat": 12.711805,
+"lng": 101.982054,
+"province": "จันทบุรี",
+"address": "67/20 ม.3 ถ.สุขุมวิท ต.ทุ่งเบญจา อ.ท่าใหม่ จ.จันทบุรี 22170",
+"hours": "05.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครราชสีมา (มิตรภาพ กม. 134)",
+"lat": 14.93461,
+"lng": 101.982751,
+"province": "นครราชสีมา",
+"address": "444/1 ม.8 ต.โคกกรวด อ.เมืองนครราชสีมา จ.นครราชสีมา 30280",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองขอนแก่น (มิตรภาพ กม.348)",
+"lat": 16.519478,
+"lng": 102.831911,
+"province": "ขอนแก่น",
+"address": "485 ม.12 ถ.สายขอนแก่น-บ้านไผ่ (มิตรภาพ) ต.เมืองเก่า อ.เมืองขอนแก่น จ.ขอนแก่น 40000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ทับสะแก",
+"lat": 11.54551,
+"lng": 99.630973,
+"province": "ประจวบคีรีขันธ์",
+"address": "55/5 ม.1 ถ.เพชรเกษม ต.ทับสะแก อ.ทับสะแก จ.ประจวบคีรีขันธ์ 77130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ทุ่งสง",
+"lat": 8.175095,
+"lng": 99.631128,
+"province": "นครศรีธรรมราช",
+"address": "83/1 ม.7 ต.หนองหงส์ อ.ทุ่งสง จ.นครศรีธรรมราช 80110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก หาดใหญ่",
+"lat": 7.004133,
+"lng": 100.460182,
+"province": "สงขลา",
+"address": "46/1 ถ.เพชรเกษม ต.หาดใหญ่ อ.หาดใหญ่ จ.สงขลา 90110",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อุบลราชธานี",
+"lat": 15.245727,
+"lng": 104.824689,
+"province": "อุบลราชธานี",
+"address": "195 ม.7 ถ.เลี่ยงเมือง ต.แจระแม อ.เมืองอุบลราชธานี จ.อุบลราชธานี 34000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ซุปเปอร์ไฮเวย์เชียงใหม่",
+"lat": 18.79156,
+"lng": 99.024251,
+"province": "เชียงใหม่",
+"address": "99 ม.1 ถ.ซุปเปอร์ไฮเวย์ ต.หนองป่าครั่ง อ.เมืองเชียงใหม่ จ.เชียงใหม่ 50000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แม่ลาว",
+"lat": 19.754222,
+"lng": 99.731283,
+"province": "เชียงราย",
+"address": "59 ม.2 ถ.พหลโยธิน(พาน-เชียงราย) ต.จอมหมอกแก้ว อ.แม่ลาว จ.เชียงราย 57250",
+"hours": "05.30 น. - 22.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พยุหะคีรี",
+"lat": 15.498681,
+"lng": 100.128167,
+"province": "นครสวรรค์",
+"address": "41/1 ม.2 ถ.พหลโยธิน ต.ย่านมัทรี อ.พยุหะคีรี จ.นครสวรรค์ 60130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ขุขันธ์",
+"lat": 14.65506,
+"lng": 104.227672,
+"province": "ศรีสะเกษ",
+"address": "58 ม.8 ถ.ทางหลวงแผ่นดินสายโชคชัย-เดชอุดม (24) ต.นิคมพัฒนา อ.ขุขันธ์ จ.ศรีสะ เกษ 33140",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ประโคนชัย",
+"lat": 14.611971,
+"lng": 103.057427,
+"province": "บุรีรัมย์",
+"address": "105 ม.1 ต.โคกม้า อ.ประโคนชัย จ.บุรีรัมย์ 31140",
+"hours": "05.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองบุรีรัมย์ (คูเมือง-พุทไธสง)",
+"lat": 15.053641,
+"lng": 103.084562,
+"province": "บุรีรัมย์",
+"address": "188 ม.3 ถ.บุรีรัมย์-คูเมือง ต.ชุมเห็ด อ.เมือง จ.บุรีรัมย์ 31000",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บึงนาราง",
+"lat": 16.185515,
+"lng": 100.12824,
+"province": "พิจิตร",
+"address": "456 ม.2 ต.บึงนาราง อ.บึงนาราง จ.พิจิตร 66130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองตรัง",
+"lat": 7.561153,
+"lng": 99.605946,
+"province": "ตรัง",
+"address": "6 ถ.วิเศษกุล ต.นาตาล่วง อ.เมือง จ.ตรัง 92000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองระยอง",
+"lat": 12.6825,
+"lng": 101.254501,
+"province": "ระยอง",
+"address": "351/2 ถ.สุขุมวิท ต.เนินพระ อ.เมือง จ.ระยอง 21000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองชลบุรี",
+"lat": 13.36191,
+"lng": 101.015691,
+"province": "ชลบุรี",
+"address": "ถนนเลี่ยงเมืองชลบุรี ต. บ้านสวน อ.เมืองชลบุรี จ.ชลบุรี 20000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก วังจันทร์",
+"lat": 13.038284,
+"lng": 101.434814,
+"province": "ระยอง",
+"address": "168 ม.6 ต.ป่ายุบใน อ.วังจันทร์ จ.ระยอง 21210",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ชะอวด",
+"lat": 7.898508,
+"lng": 99.928921,
+"province": "นครศรีธรรมราช",
+"address": "228/4 ม.2 ถ.ทางหลวงหมายเลข 41 ต.เกาะขันธ์ อ.ชะอวด จ.นครศรีธรรมราช",
+"hours": "05.30 น. - 21.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เขาสมิง",
+"lat": 12.378657,
+"lng": 102.376825,
+"province": "ตราด",
+"address": "92/1 ม.5 ถ.สุขุมวิท ต.แสนตุ้ง อ.เขาสมิง จ.ตราด 23150",
+"hours": "06.00 น. - 20.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก วังน้อย (พหลโยธิน กม.57)",
+"lat": 14.19522,
+"lng": 100.6462,
+"province": "พระนครศรีอยุธยา",
+"address": "555 ม.2 ถ.พหลโยธิน ต.ลำไทร อ.วังน้อย จ.พระนครศรีอยุธยา 13170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แกลง",
+"lat": 12.78675,
+"lng": 101.67267,
+"province": "ระยอง",
+"address": "337/1 ถ.สุขุมวิท ต.ทางเกวียน อ.แกลง จ.ระยอง 21110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ดอยสะเก็ด",
+"lat": 18.873265,
+"lng": 99.13353,
+"province": "เชียงใหม่",
+"address": "480-480/1 ม.3 ถ.ติดทางหลวงจังหวัดสายดอยสะเก็ด-แม่สาย (1019) ต.เชิงดอย อ.ดอยสะเก็ด จ.เชียงใหม่ 50220",
+"hours": "05.30 น. - 21.30 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ห้างฉัตร",
+"lat": 18.310821,
+"lng": 99.390024,
+"province": "ลำปาง",
+"address": "141 ม.1 ถ.สายล าปาง-เชียงใหม่ ต.ปงยางคก อ.ห้างฉัตร จ.ลำปาง 52190",
+"hours": "06.30 น. - 22.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ท่าม่วง (ติดโฮมโปร กาญจนบุรี)",
+"lat": 13.994435,
+"lng": 99.560766,
+"province": "กาญจนบุรี",
+"address": "6 6 ม.1 ต.ท่าล้อ อ.ท่าม่วง จ.กาญจนบุรี 71000",
+"hours": "05.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครปฐม (เพชรเกษม กม. 61 ขาเข้า)",
+"lat": 13.803451,
+"lng": 100.022992,
+"province": "นครปฐม",
+"address": "272 ม.2 ถ.เพชรเกษม ต.ลำพยา อ.เมือง จ.นครปฐม 73000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แม่ริม",
+"lat": 18.9011,
+"lng": 98.94993,
+"province": "เชียงใหม่",
+"address": "197 ม.4 ถ.สายเชียงใหม่-ฝาง ต.แม่สา อ.แม่ริม จ.เชียงใหม่ 50180",
+"hours": "05.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA PEA VOLTA บางจาก ดอยหล่อ",
+"lat": 18.452512,
+"lng": 98.751901,
+"province": "เชียงใหม่",
+"address": "19 ม.23 ต.ดอยหล่อ อ.ดอยหล่อ จ.เชียงใหม่ 50160",
+"hours": "04.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก นาโคก (ขาออก)",
+"lat": 13.452056,
+"lng": 100.084284,
+"province": "สมุทรสาคร",
+"address": "84/7 ม.2 ถ.สายธนบุรี-ปากท่อ ต.นาโคก อ.เมือง จ.สมุทรสาคร 74000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สามพราน",
+"lat": 13.785147,
+"lng": 100.272556,
+"province": "นครปฐม",
+"address": "18/8 ม.2 ถ.สายปิ่นเกล้า-นครชัยศรี ต.บางเตย อ.สามพราน จ.นครปฐม 73110",
+"hours": "05.30 น. - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองชัยนาท",
+"lat": 15.192969,
+"lng": 100.136153,
+"province": "ชัยนาท",
+"address": "345/6 ถ.พหลโยธิน ตำบล บ้านกล้วย อำเภอเมืองชัยนาท ชัยนาท 17000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองน่าน",
+"lat": 18.795613,
+"lng": 100.782989,
+"province": "น่าน",
+"address": "82/15 ถนน มหายศ ตำบล ในเวียง อำเภอเมืองน่าน น่าน 55000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองบึงกาฬ",
+"lat": 18.323443,
+"lng": 103.634532,
+"province": "บึงกาฬ",
+"address": "ตำบล วิศิษฐ์ อำเภอเมืองบึงกาฬ บึงกาฬ 38000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองราชบุรี",
+"lat": 13.531586,
+"lng": 99.793711,
+"province": "ราชบุรี",
+"address": "86 หมู่ 8 ถ.เพชรเกษม ตำบล เจดีย์หัก อำเภอเมืองราชบุรี ราชบุรี 70000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองสมุทรสงคราม",
+"lat": 13.361625,
+"lng": 99.947733,
+"province": "สมุทรสงคราม",
+"address": "27 หมู่1 ตำบล คลองโคน อำเภอเมืองสมุทรสงคราม สมุทรสงคราม 75000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองหนองบัวลำภู",
+"lat": 17.211373,
+"lng": 102.454814,
+"province": "หนองบัวลำภู",
+"address": "255 หมู่ 10, ถนนอุดร - เลย, ตำบลลำภู อำเภอเมืองหนองบัวลำภู จังหวัดหนองบัวลำภู, 39000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองอุตรดิตถ์",
+"lat": 17.608324,
+"lng": 100.079486,
+"province": "อุตรดิตถ์",
+"address": "174 บรมอาสน์ ถนน บรมอาสน์ ตำบล ท่าอิฐ อำเภอเมืองอุตรดิตถ์ อุตรดิตถ์ 53000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองอุทัยธานี",
+"lat": 15.367856,
+"lng": 100.01393,
+"province": "อุทัยธานี",
+"address": "228 ซอย ตั้งใจงาม ตำบล น้ำซึม อำเภอเมืองอุทัยธานี อุทัยธานี 61000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เวียงสา",
+"lat": 18.711799,
+"lng": 100.693116,
+"province": "น่าน",
+"address": "301 หมู่ที่ 10 ตำบล กลางเวียง อำเภอเวียงสา น่าน 55110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่สะเรียง",
+"lat": 18.183444,
+"lng": 97.934382,
+"province": "แม่ฮ่องสอน",
+"address": "255/33 ตำบล บ้านกาด อำเภอแม่สะเรียง แม่ฮ่องสอน 58110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตะกั่วป่า",
+"lat": 8.871885,
+"lng": 98.36386,
+"province": "พังงา",
+"address": "23/19 ถนน เพชรเกษม หมู่ 1 โคกเคียน อำเภอตะกั่วป่า พังงา 82110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เฉลิมพระเกียรติ",
+"lat": 14.694627,
+"lng": 100.867314,
+"province": "สระบุรี",
+"address": "101 หมู่ 8 ถนนพหลโยธิน ตำบลหน้าพระลาน อำเภอเฉลิมพระเกียรติ สระบุรี 18000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองกาญจนบุรี",
+"lat": 14.037225,
+"lng": 99.577985,
+"province": "กาญจนบุรี",
+"address": "ตำบล ปากแพรก อำเภอเมืองกาญจนบุรี กาญจนบุรี 71000",
+"hours": "5.00 - 21.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองฉะเชิงเทรา",
+"lat": 13.705897,
+"lng": 101.052922,
+"province": "ฉะเชิงเทรา",
+"address": "ตำบล วังตะเคียน อำเภอเมืองฉะเชิงเทรา ฉะเชิงเทรา 24000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองชลบุรี (หนองมน)",
+"lat": 13.271975,
+"lng": 100.935512,
+"province": "ชลบุรี",
+"address": "413 ถนนสุขุมวิท ตำบลแสนสุข อำเภอเมืองชลบุรี ชลบุรี 20000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองชัยภูมิ",
+"lat": 15.771369,
+"lng": 102.025159,
+"province": "ชัยภูมิ",
+"address": "ตำบล หนองนาแซง อำเภอเมืองชัยภูมิ ชัยภูมิ 36000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครพนม",
+"lat": 17.321242,
+"lng": 104.558637,
+"province": "นครพนม",
+"address": "ตำบล กุรุคุ อำเภอเมืองนครพนม นครพนม 48000",
+"hours": "5.00 - 18.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองบุรีรัมย์ (โฮมโปร)",
+"lat": 14.982805,
+"lng": 103.079848,
+"province": "บุรีรัมย์",
+"address": "500 หมู่9 ตำบล อิสาณ อำเภอเมืองบุรีรัมย์ บุรีรัมย์ 31000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองปทุมธานี",
+"lat": 13.991613,
+"lng": 100.55101,
+"province": "ปทุมธานี",
+"address": "10 ตำบล บางกะดี อำเภอเมืองปทุมธานี ปทุมธานี 12000",
+"hours": "4.00 - 21.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสระบุรี",
+"lat": 14.460694,
+"lng": 100.922351,
+"province": "สระบุรี",
+"address": "64 ตำบล หนองปลาไหล อำเภอเมืองสระบุรี สระบุรี 18000",
+"hours": "5.00 - 22.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสุพรรณบุรี",
+"lat": 14.431953,
+"lng": 100.142969,
+"province": "สุพรรณบุรี",
+"address": "ตำบล ท่าระหัด อำเภอเมืองสุพรรณบุรี สุพรรณบุรี 72000",
+"hours": "5.00 - 20.30 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุดรธานี (บ้านขาว )",
+"lat": 17.565548,
+"lng": 102.801962,
+"province": "อุดรธานี",
+"address": "ตำบล บ้านขาว อำเภอเมืองอุดรธานี อุดรธานี 41000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุดรธานี (สนามบิน)",
+"lat": 17.393439,
+"lng": 102.766377,
+"province": "อุดรธานี",
+"address": "ตำบลเชียงพิณ อำเภอเมืองอุดรธานี อุดรธานี 41000",
+"hours": "5.00 - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แปลงยาว",
+"lat": 13.577155,
+"lng": 101.277326,
+"province": "ฉะเชิงเทรา",
+"address": "ตำบล วังเย็น อำเภอแปลงยาว ฉะเชิงเทรา 24190",
+"hours": "5.00 - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก โนนสูง",
+"lat": 15.097874,
+"lng": 102.272051,
+"province": "นครราชสีมา",
+"address": "ตำบล ดอนหวาย อำเภอโนนสูง นครราชสีมา 30160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก กบินทร์บุรี (นนทรี)",
+"lat": 14.045383,
+"lng": 101.633214,
+"province": "ปราจีนบุรี",
+"address": "ตำบล นนทรี อำเภอกบินทร์บุรี ปราจีนบุรี 25110",
+"hours": "5.00 - 22.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก กบินทร์บุรี (ลาดตะเคียน)",
+"lat": 13.904168,
+"lng": 101.658548,
+"province": "ปราจีนบุรี",
+"address": "99 ตำบลลาดตะเคียน อำเภอกบินทร์บุรี ปราจีนบุรี 25110",
+"hours": "5.00 - 22.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางเลน",
+"lat": 14.01161,
+"lng": 100.21178,
+"province": "นครปฐม",
+"address": "9 /2 ตำบลบางภาษี อำเภอบางเลน นครปฐม 73130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บายพาสโคราช (กม.11 )",
+"lat": 15.027023,
+"lng": 102.082135,
+"province": "นครราชสีมา",
+"address": "ตำบล หนองกระทุ่ม อำเภอเมืองนครราชสีมา นครราชสีมา 30000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บายพาสสุราษฎร์ (กม.5)",
+"lat": 9.11499,
+"lng": 99.346481,
+"province": "สุราษฎร์ธานี",
+"address": "ตำบลมะขามเตี้ย อำเภอเมืองสุราษฎร์ธานี สุราษฎร์ธานี 84000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ปราสาท",
+"lat": 14.620816,
+"lng": 103.277245,
+"province": "สุรินทร์",
+"address": "ตำบล ตานี อำเภอปราสาท สุรินทร์ 32140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สองพี่น้อง",
+"lat": 14.17294,
+"lng": 99.956121,
+"province": "สุพรรณบุรี",
+"address": "ตำบล ทุ่งคอก อำเภอสองพี่น้อง สุพรรณบุรี 72110",
+"hours": "5.00 - 21.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สิชล",
+"lat": 8.846654,
+"lng": 99.900638,
+"province": "นครศรีธรรมราช",
+"address": "3/1 หมู่ที่ 10 ถ. สุราษธานี - นครศรีธรรมราช ตำบล เปลี่ยน อำเภอ สิชล นครศรีธรรมราช 80120",
+"hours": "6.00 - 19.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก องครักษ์",
+"lat": 14.163809,
+"lng": 101.00755,
+"province": "นครนายก",
+"address": "ตำบล บางปลากด อำเภอองครักษ์ นครนายก 26120",
+"hours": "5.00 - 23.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก อ่าวลึก",
+"lat": 8.364112,
+"lng": 98.75145,
+"province": "กระบี่",
+"address": "ตำบล อ่าวลึกเหนือ อำเภอ อ่าวลึก กระบี่ 81110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปัว",
+"lat": 19.175575,
+"lng": 100.918154,
+"province": "น่าน",
+"address": "292 ม.1 ต.ปัว อ.ปัว จ.น่าน 55120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปากคาด",
+"lat": 18.317648,
+"lng": 103.315008,
+"province": "บึงกาฬ",
+"address": "ถนนชยางกูร ตำบล ปากคาด อำเภอ ปากคาด บึงกาฬ 38220",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พรรณานิคม",
+"lat": 17.366312,
+"lng": 103.825876,
+"province": "สกลนคร",
+"address": "ตำบล ช้างมิ่ง อำเภอ พรรณานิคม สกลนคร 47130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สว่างแดนดิน",
+"lat": 17.468154,
+"lng": 103.494639,
+"province": "สกลนคร",
+"address": "22 ตำบล สว่างแดนดิน อำเภอสว่างแดนดิน สกลนคร 47110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หนองไผ่",
+"lat": 15.995453,
+"lng": 101.065642,
+"province": "เพชรบูรณ์",
+"address": "999/1 หมู่ 3 ถนน สระบุรี-หล่มสัก ตำบล หนองไผ่ อำเภอหนองไผ่ เพชรบูรณ์ 67140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองแม่ฮ่องสอน",
+"lat": 19.315278,
+"lng": 97.965773,
+"province": "แม่ฮ่องสอน",
+"address": "286/3 ถ.แม่ฮ่องสอน-ปาย ตำบล ปางหมู อำเภอเมืองแม่ฮ่องสอน แม่ฮ่องสอน 58000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองมุกดาหาร",
+"lat": 16.543188,
+"lng": 104.694442,
+"province": "มุกดาหาร",
+"address": "106, ถนนเมืองใหม่, ตำบลมุกดาหาร อำเภอเมืองมุกดาหาร จังหวัดมุกดาหาร, 49000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองอำนาจเจริญ",
+"lat": 15.888783,
+"lng": 104.625035,
+"province": "อำนาจเจริญ",
+"address": "332 ม.8 อ.เมือง Chayangkun, ตำบล บุ่ง อำเภอเมืองอำนาจเจริญ อำนาจเจริญ 37000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองยโสธร",
+"lat": 15.797893,
+"lng": 104.144639,
+"province": "ยโสธร",
+"address": "91 ถนน รัตนเขต ตำบลในเมือง อำเภอเมืองยโสธร ยโสธร 35000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก แม่สอด",
+"lat": 16.725243,
+"lng": 98.594623,
+"province": "ตาก",
+"address": "ตำบล แม่สอด อำเภอแม่สอด ตาก 63110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสุโขทัย",
+"lat": 17.039489,
+"lng": 99.822734,
+"province": "สุโขทัย",
+"address": "41/3 หมู่ 2 ถนนจรดวิถีถ่อง ตำบลปากแคว อำเภอเมืองสุโขทัย สุโขทัย 64000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พยุหะคีรี กม.308",
+"lat": 15.407129,
+"lng": 100.148103,
+"province": "นครสวรรค์",
+"address": "ตำบล ม่วงหัก อำเภอพยุหะคีรี นครสวรรค์ 60130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ท่าวุ้ง",
+"lat": 14.817497,
+"lng": 100.50856,
+"province": "ลพบุรี",
+"address": "346 หมู่ 1 ถนนสายสิงห์บุรี-ลพบุรี ตำบลท่าวุ้ง อำเภอท่าวุ้ง ลพบุรี 15150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองมหาสารคาม (แยกแก่งเลิงจาน)",
+"lat": 16.166314,
+"lng": 103.282363,
+"province": "มหาสารคาม",
+"address": "ตำบล แก่งเลิงจาน อำเภอเมืองมหาสารคาม มหาสารคาม 44000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก โพนทอง",
+"lat": 16.294737,
+"lng": 103.976187,
+"province": "ร้อยเอ็ด",
+"address": "171 หมู่ 2 ตำบลสระนกแก้ว อำเภอ โพนทอง ร้อยเอ็ด 45110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุบลราชธานี (ในเมือง)",
+"lat": 15.253549,
+"lng": 104.837229,
+"province": "อุบลราชธานี",
+"address": "258 ถ. แจ้งสนิท ตำบล ในเมือง อำเภอเมืองอุบลราชธานี อุบลราชธานี 34000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุบลราชธานี (หนองขอน)",
+"lat": 15.291638,
+"lng": 104.785756,
+"province": "อุบลราชธานี",
+"address": "274 หมู่ 2 ถนนสายอุบล-ตระการ ตำบลไร่น้อย อำเภอเมืองอุบลราชธานี อุบลราชธานี 34000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองกาฬสินธุ์",
+"lat": 16.442452,
+"lng": 103.519713,
+"province": "กาฬสินธุ์",
+"address": "33, 33/9 ถนน ถีนานนท์ 9 ถนน ถีนานนท์ กาฬสินธุ์ อำเภอเมืองกาฬสินธุ์ กาฬสินธุ์ 46000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ไชโย",
+"lat": 14.665474,
+"lng": 100.472487,
+"province": "อ่างทอง",
+"address": "66/7 ม.1 ต ตำบล จรเข้ร้อง อำเภอไชโย อ่างทอง",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก วังน้อย กม.71",
+"lat": 14.255481,
+"lng": 100.76757,
+"province": "พระนครศรีอยุธยา",
+"address": "ถ. พหลโยธิน ตำบล ชะแมบ อำเภอวังน้อย จังหวัดพระนครศรีอยุธยา 13170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สามโคก",
+"lat": 14.039536,
+"lng": 100.525593,
+"province": "ปทุมธานี",
+"address": "ปั๊มน้ำมันเชลล์ ตำบล บางโพธิ์เหนือ อำเภอสามโคก ปทุมธานี 12160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองระนอง",
+"lat": 10.001837,
+"lng": 98.657019,
+"province": "ระนอง",
+"address": "6 202 หมู่ที่ 1 ถ. เพชรเกษม ตำบล บางนอน อำเภอเมืองระนอง ระนอง 85000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กระบุรี",
+"lat": 10.514647,
+"lng": 98.865815,
+"province": "ระนอง",
+"address": "ตำบล ปากจั่น อำเภอ กระบุรี ระนอง 85110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กะเปอร์",
+"lat": 9.636041,
+"lng": 98.655153,
+"province": "ระนอง",
+"address": "Lot 1, 127 ถ. เพชรเกษม ตำบล กะเปอร์ อำเภอ กะเปอร์ ระนอง 85120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กุยบุรี",
+"lat": 12.110666,
+"lng": 99.853775,
+"province": "ประจวบคีรีขันธ์",
+"address": "ตำบลสามกระทาย อำเภอกุยบุรี ประจวบคีรีขันธ์ 77150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองสงขลา",
+"lat": 7.145626,
+"lng": 100.564495,
+"province": "สงขลา",
+"address": "ตำบลพะวง อำเภอเมืองสงขลา สงขลา 90100",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สะเดา (พังลา)",
+"lat": 6.820619,
+"lng": 100.459129,
+"province": "สงขลา",
+"address": "300/25 หมู่ที่5 ตำบล พังลา อำเภอสะเดา สงขลา 90170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ป่าบอน",
+"lat": 7.26661,
+"lng": 100.173058,
+"province": "พัทลุง",
+"address": "205 ตำบล ป่าบอน อำเภอ ป่าบอน พัทลุง 93170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองปัตตานี",
+"lat": 6.886784,
+"lng": 101.245934,
+"province": "ปัตตานี",
+"address": "ตำบล รูสะมิแล อำเภอเมืองปัตตานี ปัตตานี 94000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองยะลา",
+"lat": 6.522706,
+"lng": 101.271291,
+"province": "ยะลา",
+"address": "ตำบล สะเตงนอก อำเภอเมืองยะลา ยะลา 95000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางละมุง กม.149",
+"lat": 12.899274,
+"lng": 100.897219,
+"province": "ชลบุรี",
+"address": "ชลบุรี-พัทยา ตำบล โป่ง อำเภอบางละมุง ชลบุรี 20150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พานทอง",
+"lat": 13.454027,
+"lng": 101.023663,
+"province": "ชลบุรี",
+"address": "หมู่ที่ 1 105 ตำบล บ้านเก่า อำเภอพานทอง ชลบุรี 20160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ท่าใหม่ ขาเข้า กม.307",
+"lat": 12.7168,
+"lng": 101.97715,
+"province": "จันทบุรี",
+"address": "61/4 หมู่ 3 ถนนสุขุมวิท ตำบลทุ่งเบญจา อำเภอท่าใหม่ จันทบุรี 22170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก กระทุ่มแบน",
+"lat": 13.705331,
+"lng": 100.307371,
+"province": "สมุทรสาคร",
+"address": "8/11 หมู่ 6 ถ. เพชรเกษม ตำบลอ้อมน้อย อำเภอกระทุ่มแบน สมุทรสาคร 74130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสมุทรสาคร",
+"lat": 13.466987,
+"lng": 100.104638,
+"province": "สมุทรสาคร",
+"address": "99/1 ต.นาโคก อ.เมืองสมุทรสาคร สมุทรสาคร 74000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ชะอำ ขาเข้า (กม.188)",
+"lat": 12.812739,
+"lng": 99.942516,
+"province": "เพชรบุรี",
+"address": "719, 52 ถ. เพชรเกษม ตำบล เขาใหญ่ อำเภอชะอำ เพชรบุรี 76120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ทุ่งใหญ่",
+"lat": 8.370616,
+"lng": 99.416964,
+"province": "นครศรีธรรมราช",
+"address": "ตำบล ทุ่งใหญ่ อำเภอ ทุ่งใหญ่ นครศรีธรรมราช 80240",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เขาพนม",
+"lat": 8.265765,
+"lng": 99.095019,
+"province": "กระบี่",
+"address": "ตำบล พรุเตียว อำเภอ เขาพนม กระบี่ 81140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ถลาง",
+"lat": 7.984717,
+"lng": 98.359778,
+"province": "ภูเก็ต",
+"address": "ตำบล ไม้ขาว อำเภอถลาง ภูเก็ต 83110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางกล่ำ",
+"lat": 7.023408,
+"lng": 100.404631,
+"province": "สงขลา",
+"address": "250 ตำบล ท่าช้าง อำเภอบางกล่ำ สงขลา 90110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสตูล",
+"lat": 6.745907,
+"lng": 100.034479,
+"province": "สตูล",
+"address": "ตำบล ควนโพธิ์ อำเภอเมืองสตูล สตูล 91140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนราธิวาส",
+"lat": 6.409367,
+"lng": 101.796096,
+"province": "นราธิวาส",
+"address": "ตำบล ลำภู อำเภอเมืองนราธิวาส นราธิวาส 96000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองพัทลุง",
+"lat": 7.614265,
+"lng": 100.051131,
+"province": "พัทลุง",
+"address": "4 หมู่ 1 เขาเจียก เมือง พัทลุง 93000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงดาว",
+"lat": 19.345185,
+"lng": 98.961195,
+"province": "เชียงใหม่",
+"address": "429 หมู่ 1 ตำบล แม่นะ อำเภอเชียงดาว เชียงใหม่ 50170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองเชียงราย",
+"lat": 19.84018,
+"lng": 99.794765,
+"province": "เชียงราย",
+"address": "ตำบลสันทราย อำเภอเมืองเชียงราย เชียงราย 57000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สบปราบ",
+"lat": 17.902692,
+"lng": 99.341764,
+"province": "ลำปาง",
+"address": "เลขที่ 149 หมู่ 15 149 ตำบล สบปราบ อำเภอสบปราบ ลำปาง 52170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองขอนแก่น (ถ.มะลิวัลย์)",
+"lat": 16.449754,
+"lng": 102.757086,
+"province": "ขอนแก่น",
+"address": "298 ถนนมลิวรรณ ตำบลบ้านเป็ด อำเภอเมืองขอนแก่น ขอนแก่น 40000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก นาวัง",
+"lat": 17.321366,
+"lng": 102.109066,
+"province": "หนองบัวลำภู",
+"address": "99 หมู่ 6 ตำบลเทพคีรี อำเภอ นาวัง หนองบัวลำภู 39170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางปะหัน",
+"lat": 14.49134,
+"lng": 100.524904,
+"province": "พระนครศรีอยุธยา",
+"address": "46 หมู่ 4 สายเอเซีย กม.39, อำเภอบางปะหัน",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ลำลูกกา",
+"lat": 13.934561,
+"lng": 100.74495,
+"province": "ปทุมธานี",
+"address": "ทางหลวง3004 ลำลูกกาคลอง7-ธัญบุรี ตำบล บึงคำพร้อย อำเภอลำลูกกา ปทุมธานี",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสระบุรี (บี5 อเวนิว)",
+"lat": 14.53997,
+"lng": 100.91045,
+"province": "สระบุรี",
+"address": "510 43 ถ. พหลโยธิน ตำบล ปากเพรียว อำเภอเมือง สระบุรี 18000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ศรีราชา กม.4",
+"lat": 13.120453,
+"lng": 101.025905,
+"province": "ชลบุรี",
+"address": "เทศบาลนครแหลมฉบัง อำเภอบางละมุง ชลบุรี",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก บางน้ำเปรี้ยว",
+"lat": 13.87196,
+"lng": 101.0443,
+"province": "ฉะเชิงเทรา",
+"address": "5/5 หมู่ 2 ตำบลหมอนทอง อำเภอบางน้ำเปรี้ยว ฉะเชิงเทรา 24150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองกระบี่ กม.949",
+"lat": 8.262746,
+"lng": 98.806775,
+"province": "กระบี่",
+"address": "169/1 หมู่ 4 ตำบลเขาคราม อำเภอเมืองกระบี่ กระบี่ 81000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครศรีธรรมราช (อ้อมค่าย)",
+"lat": 8.459953,
+"lng": 99.964438,
+"province": "นครศรีธรรมราช",
+"address": "30 25, ตำบล ปากพูน เมือง, นครศรีธรรมราช 80000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven บาลีฮาย",
+"lat": 12.924797,
+"lng": 100.867062,
+"province": "ชลบุรี",
+"address": "7-11 แหลมบาลีฮาย เมืองพัทยา อำเภอบางละมุง ชลบุรี 20150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 50,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พระนครศรีอยุธยา #2",
+"lat": 14.354302,
+"lng": 100.597199,
+"province": "พระนครศรีอยุธยา",
+"address": "60 หมู่ 5 ตำบล ไผ่ลิง อำเภอ พระนครศรีอยุธยา จังหวัด พระนครศรีอยุธยา",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครนายก",
+"lat": 14.21733,
+"lng": 101.22705,
+"province": "นครนายก",
+"address": "138 หมู่ที่ 5 ตำบลบ้านใหญ่ อำเภอเมืองนครนายก นครนายก 26000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปทุมธานี",
+"lat": 13.991312,
+"lng": 100.581677,
+"province": "ปทุมธานี",
+"address": "64 ถนน ปทุมสัมพันธ์ ตำบล บางปรอก อำเภอ เมืองปทุมธานี จังหวัด ปทุมธานี 12000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ธัญบุรี",
+"lat": 13.997938,
+"lng": 100.673836,
+"province": "ปทุมธานี",
+"address": "41/5 หมู่2 ถ.รังสิต-นครนายก ต.บึงยี่โถ อ.ธัญบุรี จ.ปธุมธานี 12130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ชลบุรี #3",
+"lat": 13.340357,
+"lng": 100.991245,
+"province": "ชลบุรี",
+"address": "ตำบล หนองข้างคอก อำเภอเมืองชลบุรี ชลบุรี 20000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตราด",
+"lat": 12.273417,
+"lng": 102.492506,
+"province": "ตราด",
+"address": "199 ม. 5 ตำบลวังกระแจะ อำเภอเมืองตราด จังหวัดตราด 23000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านโพธิ์",
+"lat": 13.624993,
+"lng": 101.032926,
+"province": "ฉะเชิงเทรา",
+"address": "80 หมู่ที่ 1 ถนน บางปะกง - ฉะเชิงเทรา ตำบล คลองประเวศ อำเภอบ้านโพธิ์ ฉะเชิงเทรา 24140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สอยดาว",
+"lat": 13.101761,
+"lng": 102.237294,
+"province": "จันทบุรี",
+"address": "222 ตำบล ทรายขาว อำเภอ สอยดาว จันทบุรี 22180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครปฐม",
+"lat": 13.823859,
+"lng": 100.069032,
+"province": "นครปฐม",
+"address": "242/15 ถนน 25 มกรา ตําบล พระปฐมเจดีย อําเภอเมืองนครปฐม จังหวัดนครปฐม 73000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กาญจนบุรี",
+"lat": 14.02805,
+"lng": 99.551769,
+"province": "กาญจนบุรี",
+"address": "49 ตำบล ปากแพรก อำเภอเมืองกาญจนบุรี กาญจนบุรี 71000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สุพรรณบุรี",
+"lat": 14.519512,
+"lng": 100.130729,
+"province": "สุพรรณบุรี",
+"address": "188 หมู่1 ตำบลสนามชัย อำเภอเมืองสุพรรณบุณี จังหวัดสุพรรณบุรี 72000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางเลน",
+"lat": 14.005841,
+"lng": 100.172547,
+"province": "นครปฐม",
+"address": "1/1 หมู่ 6 ถนนดอนตูม-บางเลน ต.บางเลน อ.บางเลน นครปฐม 73130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สันกำแพง",
+"lat": 18.752846,
+"lng": 99.104687,
+"province": "เชียงใหม่",
+"address": "93 ถนน เชียงใหม่- ดอยสะเก็ด ตำบล สันกำแพง อำเภอสันกำแพง เชียงใหม่ 50130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่ริม",
+"lat": 18.926099,
+"lng": 98.93928,
+"province": "เชียงใหม่",
+"address": "107 ตำบล ริมเหนือ อำเภอแม่ริม เชียงใหม่ 50180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หางดง",
+"lat": 18.688054,
+"lng": 98.928179,
+"province": "เชียงใหม่",
+"address": "197 หมู่ที่ 8 ตำบล หนองแก๋ว อำเภอหางดง เชียงใหม่ 50230",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สันทราย",
+"lat": 18.875833,
+"lng": 99.04486,
+"province": "เชียงใหม่",
+"address": "151 หมู่ 4 ถนนสันทราย-พร้าว ตำบลป่าไผ่ อำเภอสันทราย จังหวัดเชียงใหม่ 50210",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองพิจิตร",
+"lat": 16.438272,
+"lng": 100.345983,
+"province": "พิจิตร",
+"address": "ซอย บึงสีไฟ 6 ตำบล ในเมือง อำเภอเมืองพิจิตร พิจิตร 66000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตาก",
+"lat": 16.868686,
+"lng": 99.124322,
+"province": "ตาก",
+"address": "3 จอมพล ตำบลระแหง อำเภอเมืองตาก ตาก 63000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตะพานหิน",
+"lat": 16.20485,
+"lng": 100.470242,
+"province": "พิจิตร",
+"address": "119 หมู่ 3 ถนนตะพานหิน-เพชรบูรณ์ ตำบลตะพานหิน อำเภอตะพานหิน จังหวัดพิจิตร 66110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ขาณุวรลักษบุรี",
+"lat": 16.02359,
+"lng": 99.780533,
+"province": "กำแพงเพชร",
+"address": "ถ. พหลโยธิน ต.ดอนแตง อำเภอขาณุวรลักษบุรี กำแพงเพชร 62140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตากฟ้า",
+"lat": 15.345535,
+"lng": 100.493565,
+"province": "นครสวรรค์",
+"address": "14 หมู่1 ซอยนภาเขตพัฒนา ซอย 6 ตำบลตากฟ้า อำเภอตากฟ้า จังหวัดนครสวรรค์ 60190",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อินทร์บุรี",
+"lat": 15.006693,
+"lng": 100.34502,
+"province": "สิงห์บุรี",
+"address": "115 หมู่1 ถนนเอเซีย ตำบลน้ำตาล อำเภออินทร์บุรี จังหวัดสิงห์บุรี 16110 Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พรหมบุรี",
+"lat": 14.768827,
+"lng": 100.44991,
+"province": "สิงห์บุรี",
+"address": "66 ตำบล บ้านหม้อ อำเภอพรหมบุรี สิงห์บุรี 16120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บึงสามพัน",
+"lat": 15.811416,
+"lng": 101.007476,
+"province": "เพชรบูรณ์",
+"address": "ตำบล ซับสมอทอด อำเภอบึงสามพัน เพชรบูรณ์ 67160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อุดรธานี",
+"lat": 17.405852,
+"lng": 102.780284,
+"province": "อุดรธานี",
+"address": "123 หมู่ 5 ถนน ช้างเผือก ตำบล นาดี อำเภอเมืองอุดรธานี อุดรธานี 41000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ขอนแก่น",
+"lat": 16.441159,
+"lng": 102.840389,
+"province": "ขอนแก่น",
+"address": "44 ถนนกสิกรทุ่งสร้าง ตำบลในเมือง อำเภอเมืองขอนแก่น ขอนแก่น 40000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านไผ่",
+"lat": 16.053424,
+"lng": 102.716102,
+"province": "ขอนแก่น",
+"address": "65 หมู่ 2 ถ. มิตรภาพ ตำบล บ้านไผ่ ขอนแก่น 40110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA น้ำพอง",
+"lat": 16.717228,
+"lng": 102.869393,
+"province": "ขอนแก่น",
+"address": "ตำบล วังชัย อำเภอน้ำพอง ขอนแก่น 40140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ม่วงสามสิบ",
+"lat": 15.526292,
+"lng": 104.714172,
+"province": "อุบลราชธานี",
+"address": "ตำบล ม่วงสามสิบ อำเภอ ม่วงสามสิบ อุบลราชธานี 34140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขื่องใน",
+"lat": 15.421673,
+"lng": 104.540307,
+"province": "อุบลราชธานี",
+"address": "ตำบล ยางขี้นก อำเภอ เขื่องใน อุบลราชธานี 34150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พิบูลมังสาหาร",
+"lat": 15.231249,
+"lng": 105.239675,
+"province": "อุบลราชธานี",
+"address": "ตำบล กุดชมภู อำเภอ พิบูลมังสาหาร อุบลราชธานี 34110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA มหาชนะชัย",
+"lat": 15.499937,
+"lng": 104.217609,
+"province": "ยโสธร",
+"address": "129 หมู่6 ตำบล คูเมือง อำเภอ มหาชนะชัย ยโสธร 35130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองชัยภูมิ",
+"lat": 15.827968,
+"lng": 102.084868,
+"province": "ชัยภูมิ",
+"address": "123 หมู่10 ถนนนิเวศรัตน์ ตำบลโพนทอง อำเภอเมืองชัยภูมิ จังหวัดชัยภูมิ 36000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองบุรีรัมย์",
+"lat": 15.030314,
+"lng": 103.101868,
+"province": "บุรีรัมย์",
+"address": "190 หมู่ 8 ถนนบุรีรัมย์-พุทไธสง ตำบลชุมเห็ด อำเภอเมืองบุรีรัมย์ จังหวัดบุรีรัมย์ รหัสไปรษณีย์ 31000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เมืองสุรินทร์",
+"lat": 14.909363,
+"lng": 103.5076,
+"province": "สุรินทร์",
+"address": "สาขา 164 9 เทศบาล 4 ตำบล ในเมือง อำเภอเมืองสุรินทร์ สุรินทร์ 32000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครราชสีมา 2 (หัวทะเล)",
+"lat": 14.988468,
+"lng": 102.191139,
+"province": "นครราชสีมา",
+"address": "หมู่ที่ 1 69 ถนน เพชรมาตุคลา ตำบล พะเนา อำเภอเมืองนครราชสีมา นครราชสีมา 30000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เพชรบุรี",
+"lat": 13.098346,
+"lng": 99.943661,
+"province": "เพชรบุรี",
+"address": "ถ.ราชดำเนิน ตำบล คลองกระแซง อำเภอเมืองเพชรบุรี เพชรบุรี 76000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA โพธาราม",
+"lat": 13.689533,
+"lng": 99.848212,
+"province": "ราชบุรี",
+"address": "190 ซอย เลิศพาณิชย์ ตำบล โพธาราม อำเภอโพธาราม ราชบุรี 70120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA จอมบึง",
+"lat": 13.623864,
+"lng": 99.614005,
+"province": "ราชบุรี",
+"address": "35/2 ถนน ราชบุรี - ผาปก ตำบล จอมบึง อำเภอ จอมบึง ราชบุรี 70150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สวนผึ้ง",
+"lat": 13.545086,
+"lng": 99.438861,
+"province": "ราชบุรี",
+"address": "174 หมู่5 ตำบลท่าเคย อำเภอสวนผึ้ง จังหวัดราชบุรี 70180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เกาะสมุย",
+"lat": 9.520321,
+"lng": 99.938805,
+"province": "สุราษฎร์ธานี",
+"address": "ตำบล อ่างทอง อำเภอเกาะสมุย สุราษฎร์ธานี 84140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เกาะพะงัน",
+"lat": 9.707834,
+"lng": 99.992521,
+"province": "สุราษฎร์ธานี",
+"address": "101 หมู่ 3 ตำบล บ้านใต้ อำเภอเกาะพะงัน สุราษฎร์ธานี 84280",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พระแสง",
+"lat": 8.570792,
+"lng": 99.251158,
+"province": "สุราษฎร์ธานี",
+"address": "ตำบล อิปัน อำเภอ พระแสง สุราษฎร์ธานี 84210",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หัวไทร",
+"lat": 8.048089,
+"lng": 100.271804,
+"province": "นครศรีธรรมราช",
+"address": "221 หมู่11 ตำบล หัวไทร อำเภอ หัวไทร นครศรีธรรมราช 80170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พัทลุง",
+"lat": 7.601485,
+"lng": 100.030188,
+"province": "พัทลุง",
+"address": "ตำบล เขาเจียก อำเภอเมืองพัทลุง พัทลุง 93000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ละงู",
+"lat": 6.905125,
+"lng": 99.7891,
+"province": "สตูล",
+"address": "หมู่ที่ 1 323 ตำบล กำแพง อำเภอ ละงู สตูล 91110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เบตง",
+"lat": 5.77053,
+"lng": 101.06825,
+"province": "ยะลา",
+"address": "เลขที่ 1 ถ.สโมสร ตำบลเบตง อำเภอเบตง ยะลา 95110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หาดใหญ่",
+"lat": 7.01747,
+"lng": 100.49627,
+"province": "สงขลา",
+"address": "75 ถนน เพชรเกษม ซอย 15/2 ตำบล หาดใหญ่ อำเภอหาดใหญ่ สงขลา 90110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อ่างทอง",
+"lat": 14.585995,
+"lng": 100.454853,
+"province": "อ่างทอง",
+"address": "ตำบล โพสะ อำเภอเมืองอ่างทอง อ่างทอง 14000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ศรีราชา",
+"lat": 13.172134,
+"lng": 100.93184,
+"province": "ชลบุรี",
+"address": "5 ถ. สุขุมวิท อำเภอศรีราชา ชลบุรี 20110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สังขละบุรี",
+"lat": 15.15487,
+"lng": 98.45973,
+"province": "กาญจนบุรี",
+"address": "ตำบลหนองลู อำเภอสังขละบุรี จังหวัดกาญจนบุรี 71240",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ทองผาภูมิ",
+"lat": 14.749886,
+"lng": 98.623633,
+"province": "กาญจนบุรี",
+"address": "160/6 หมู่ที่ 1 ตำบลท่าขนุน อำเภอทองผาภูมิ จังหวัดกาจนบุรี 71180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เสนา",
+"lat": 14.327597,
+"lng": 100.404459,
+"province": "พระนครศรีอยุธยา",
+"address": "ตำบล บางนมโค วิเชียรบุรี, จังหวัดพระนครศรีอยุธยา 13110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ศรีมหาโพธิ",
+"lat": 13.94897,
+"lng": 101.512359,
+"province": "ปราจีนบุรี",
+"address": "หมู่ที่ 9 145 ตำบล ศรีมหาโพธิ อำเภอศรีมหาโพธิ ปราจีนบุรี 25140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บึง",
+"lat": 13.074769,
+"lng": 101.022504,
+"province": "ชลบุรี",
+"address": "บึง อำเภอศรีราชา ชลบุรี 20230",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แกลง",
+"lat": 12.783078,
+"lng": 101.687895,
+"province": "ระยอง",
+"address": "ตำบลทุ่งควายกิน อำเภอแกลง ระยอง 21110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางปะกง",
+"lat": 13.503372,
+"lng": 100.994007,
+"province": "ฉะเชิงเทรา",
+"address": "ตำบล บางปะกง อำเภอบางปะกง ฉะเชิงเทรา 24130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ่อทอง",
+"lat": 13.265381,
+"lng": 101.437952,
+"province": "ชลบุรี",
+"address": "268 ตำบล บ่อทอง อำเภอบ่อทอง ชลบุรี 20270",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พานทอง",
+"lat": 13.47109,
+"lng": 101.095608,
+"province": "ชลบุรี",
+"address": "1 ตำบล พานทอง อำเภอพานทอง ชลบุรี 20160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA โคกขาม",
+"lat": 13.55939,
+"lng": 100.31421,
+"province": "สมุทรสาคร",
+"address": "ตำบล โคกขาม อำเภอเมืองสมุทรสาคร สมุทรสาคร 74000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สามชุก",
+"lat": 14.75394,
+"lng": 100.09742,
+"province": "สุพรรณบุรี",
+"address": "ตำบล สามชุก อำเภอสามชุก สุพรรณบุรี 72130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปากน้ำชุมพร",
+"lat": 10.4283,
+"lng": 99.242,
+"province": "ชุมพร",
+"address": "339/44, 86120, ตำบล ปากน้ำ อำเภอเมืองชุมพร ชุมพร 86120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ดำเนินสะดวก",
+"lat": 13.522945,
+"lng": 99.963268,
+"province": "ราชบุรี",
+"address": "ตำบล ดำเนินสะดวก อำเภอดำเนินสะดวก ราชบุรี 70130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เพ",
+"lat": 12.623221,
+"lng": 101.425854,
+"province": "ระยอง",
+"address": "ซอย 1/2 ตำบลเพ อำเภอเมืองระยอง ระยอง 21160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านแพง",
+"lat": 17.971142,
+"lng": 104.213786,
+"province": "นครพนม",
+"address": "ตำบล บ้านแพง อำเภอ บ้านแพง นครพนม 48140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ชุมแพ",
+"lat": 16.55066,
+"lng": 102.085433,
+"province": "ขอนแก่น",
+"address": "ตำบล ชุมแพ อำเภอชุมแพ ขอนแก่น 40130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA วังสะพุง",
+"lat": 17.338292,
+"lng": 101.755341,
+"province": "เลย",
+"address": "ตำบล เขาหลวง อำเภอวังสะพุง เลย 42130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปักธงชัย",
+"lat": 14.734528,
+"lng": 102.029789,
+"province": "นครราชสีมา",
+"address": "ตำบลเมืองปัก อำเภอปักธงชัย นครราชสีมา 30150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครราชสีมา",
+"lat": 14.97431,
+"lng": 102.08327,
+"province": "นครราชสีมา",
+"address": "ตำบลในเมือง อำเภอเมืองนครราชสีมา นครราชสีมา 30000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หนองแค",
+"lat": 14.350779,
+"lng": 100.855058,
+"province": "สระบุรี",
+"address": "ตำบล หนองปลาหมอ อำเภอหนองแค สระบุรี 18140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปราจีนบุรี",
+"lat": 14.05461,
+"lng": 101.355016,
+"province": "ปราจีนบุรี",
+"address": "ตำบลหน้าเมือง อำเภอเมืองปราจีนบุรี ปราจีนบุรี 25000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางปะอิน",
+"lat": 14.214816,
+"lng": 100.586502,
+"province": "พระนครศรีอยุธยา",
+"address": "308 ตำบล คลองจิก อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA วังน้อย",
+"lat": 14.249739,
+"lng": 100.703734,
+"province": "พระนครศรีอยุธยา",
+"address": "ตำบล ลำตาเสา อำเภอวังน้อย จังหวัดพระนครศรีอยุธยา 13170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปทุมธานี",
+"lat": 14.022386,
+"lng": 100.527413,
+"province": "ปทุมธานี",
+"address": "ตำบล บางปรอก อำเภอเมืองปทุมธานี ปทุมธานี 12000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สระบุรี",
+"lat": 14.538243,
+"lng": 100.910119,
+"province": "สระบุรี",
+"address": "ตำบล ปากเพรียว อำเภอเมืองสระบุรี สระบุรี 18000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางแสน",
+"lat": 13.290496,
+"lng": 100.913077,
+"province": "ชลบุรี",
+"address": "ถนนบางแสนสาย 2, ตำบลแสนสุข อำเภอเมืองชลบุรี ชลบุรี 20130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พนัสนิคม",
+"lat": 13.455861,
+"lng": 101.196295,
+"province": "ชลบุรี",
+"address": "ตำบล บ้านช้าง อำเภอพนัสนิคม ชลบุรี 20140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ระยอง",
+"lat": 12.683331,
+"lng": 101.223928,
+"province": "ระยอง",
+"address": "143 หมู่ 2 ถ. สุขุมวิท ตำบลเนินพระ อำเภอเมืองระยอง ระยอง 21000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA โพนพิสัย",
+"lat": 18.025166,
+"lng": 103.103677,
+"province": "หนองคาย",
+"address": "ตำบล จุมพล อำเภอ โพนพิสัย หนองคาย 43120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กบินทร์บุรี",
+"lat": 13.978055,
+"lng": 101.75205,
+"province": "ปราจีนบุรี",
+"address": "28 3 ตำบล เมืองเก่า อำเภอกบินทร์บุรี ปราจีนบุรี 25240",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ขลุง",
+"lat": 12.453096,
+"lng": 102.241953,
+"province": "จันทบุรี",
+"address": "3 ตำบล ขลุง อำเภอ ขลุง จันทบุรี 22110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านค่าย",
+"lat": 12.772997,
+"lng": 101.293929,
+"province": "ระยอง",
+"address": "ตำบล บ้านค่าย อำเภอบ้านค่าย ระยอง 21120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA มาบตาพุด",
+"lat": 12.722244,
+"lng": 101.128415,
+"province": "ระยอง",
+"address": "18 ถนนมาบตาพุดเมืองใหม่สาย7 ตำบล ห้วยโป่ง อำเภอเมืองระยอง ระยอง 21150",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปลวกแดง",
+"lat": 12.971258,
+"lng": 101.21361,
+"province": "ระยอง",
+"address": "ตำบล ปลวกแดง อำเภอปลวกแดง ระยอง 21140",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อ้อมน้อย",
+"lat": 13.72346,
+"lng": 100.29793,
+"province": "นครปฐม",
+"address": "72 106 หมู่ที่ 9 ถ. พุทธมณฑลสาย 5 ตำบล ไร่ขิง อำเภอสามพราน นครปฐม 73210",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปราณบุรี",
+"lat": 12.362715,
+"lng": 99.885489,
+"province": "ประจวบคีรีขันธ์",
+"address": "ตำบล หนองตาแต้ม อำเภอปราณบุรี ประจวบคีรีขันธ์ 77120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ชะอำ",
+"lat": 12.717719,
+"lng": 99.928687,
+"province": "เพชรบุรี",
+"address": "ตำบล ชะอำ อำเภอชะอำ เพชรบุรี 76120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คลองหลวง",
+"lat": 14.06699,
+"lng": 100.707177,
+"province": "ปทุมธานี",
+"address": "ตำบล คลองห้า อำเภอคลองหลวง ปทุมธานี 12120",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พร้าว",
+"lat": 19.369384,
+"lng": 99.194945,
+"province": "เชียงใหม่",
+"address": "ตำบล เวียง อำเภอพร้าว เชียงใหม่ 50190",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่สาย",
+"lat": 20.427333,
+"lng": 99.887509,
+"province": "เชียงราย",
+"address": "226 หมู่ 8 ตำบล แม่สาย อำเภอแม่สาย เชียงราย 57130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ลี้",
+"lat": 17.790928,
+"lng": 98.952544,
+"province": "ลำพูน",
+"address": "333 หมู่ 4 ตำบล ลี้ อำเภอลี้ ลำพูน 51110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านดุง",
+"lat": 17.677536,
+"lng": 103.25028,
+"province": "อุดรธานี",
+"address": "2022 ตำบล บ้านดุง อำเภอ บ้านดุง อุดรธานี 41190",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านบึง",
+"lat": 13.297005,
+"lng": 101.124067,
+"province": "ชลบุรี",
+"address": "ตำบล บ้านบึง อำเภอบ้านบึง ชลบุรี 20170",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สามพราน",
+"lat": 13.74307,
+"lng": 100.212721,
+"province": "นครปฐม",
+"address": "33/1 หมู่1 ถ. เพชรเกษม ตำบลท่าตลาด อำเภอสามพราน นครปฐม 73110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สตูล",
+"lat": 6.611375,
+"lng": 100.073831,
+"province": "สตูล",
+"address": "104, 6 ซอย สฤษดิ์ภูมินารถ อำเภอเมืองสตูล สตูล 91000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สทิงพระ",
+"lat": 7.485899,
+"lng": 100.435842,
+"province": "สงขลา",
+"address": "ตำบล จะทิ้งพระ อำเภอ สทิงพระ สงขลา 90190",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA รัตภูมิ",
+"lat": 7.124785,
+"lng": 100.237816,
+"province": "สงขลา",
+"address": "436 ถนน ยนตรการกำธร ตำบล ท่าชะมวง อำเภอรัตภูมิ สงขลา 90180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บันนังสตา",
+"lat": 6.256538,
+"lng": 101.248711,
+"province": "ยะลา",
+"address": "ตำบล บันนังสตา อำเภอ บันนังสตา ยะลา 95130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตากใบ",
+"lat": 6.254845,
+"lng": 102.040017,
+"province": "นราธิวาส",
+"address": "29/14 ตำบล เจ๊ะเห อำเภอ ตากใบ นราธิวาส 96110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เลย",
+"lat": 17.484755,
+"lng": 101.727244,
+"province": "เลย",
+"address": "ตำบลกุดป่อง อำเภอเมืองเลย เลย 42000",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA จัตุรัส",
+"lat": 15.544792,
+"lng": 101.838926,
+"province": "ชัยภูมิ",
+"address": "ถนน ชัยภูมิ - สีคิ้ว ตำบล กุดน้ำใส อำเภอจัตุรัส ชัยภูมิ 36130",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ประทาย",
+"lat": 15.525304,
+"lng": 102.706322,
+"province": "นครราชสีมา",
+"address": "ตำบล กระทุ่มราย อำเภอ ประทาย นครราชสีมา 30180",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ฝาง",
+"lat": 19.9206,
+"lng": 99.2092,
+"province": "เชียงใหม่",
+"address": "ตำบล สันทราย อำเภอ ฝาง เชียงใหม่ 50110",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่อาย",
+"lat": 20.0416,
+"lng": 99.3295,
+"province": "เชียงใหม่",
+"address": "ตำบล แม่อาย อำเภอ แม่อาย เชียงใหม่ 50280",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่จัน",
+"lat": 20.1382,
+"lng": 99.8425,
+"province": "เชียงราย",
+"address": "161 1089 Tambon Pa Tueng, Amphoe Mae Chan, Chang Wat Chiang Rai 57110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงราย",
+"lat": 19.9115,
+"lng": 99.8233,
+"province": "เชียงราย",
+"address": "73 Soi Rat Det Damrong 3, Tambon Rop Wiang, Amphoe Mueang Chiang Rai, Chang Wat Chiang Rai 57000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ทุ่งเสลี่ยม",
+"lat": 17.3271,
+"lng": 99.526,
+"province": "สุโขทัย",
+"address": "333 Soi 5 Mu 2, Tambon Klang Dong, Amphoe Thung Saliam, Chang Wat Sukhothai 64150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงคาน",
+"lat": 17.8763,
+"lng": 101.655,
+"province": "เลย",
+"address": "VMG4+H3G, 201, Tambon Chiang Khan, Amphoe Chiang Khan, Chang Wat Loei 42110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านโป่ง",
+"lat": 13.835,
+"lng": 99.871,
+"province": "ราชบุรี",
+"address": "RVMC+X9 Pak Raet, Ban Pong District, Ratchaburi, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สิชล",
+"lat": 8.97098,
+"lng": 99.8941,
+"province": "นครศรีธรรมราช",
+"address": "XVCV+9JQ, Thung Prang, Sichon District, Nakhon Si Thammarat 80120, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ถลาง",
+"lat": 7.99269,
+"lng": 98.3541,
+"province": "ภูเก็ต",
+"address": "12/29 Thep Krasattri Rd, Tambon Si Sunthon, Amphoe Thalang, Chang Wat Phuket 83110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ท่ามะกา",
+"lat": 13.9037,
+"lng": 99.7456,
+"province": "กาญจนบุรี",
+"address": "WP3W+C4P, Wai Nieo, Tha Maka District, Kanchanaburi 71120, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แม่แตง",
+"lat": 19.1111,
+"lng": 98.938,
+"province": "เชียงใหม่",
+"address": "4W6Q+C5G 162 Tambon San Mahaphon, Amphoe Mae Taeng, Chang Wat Chiang Mai 50150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ร้องกวาง",
+"lat": 18.3122,
+"lng": 100.299,
+"province": "แพร่",
+"address": "876X+WJ8 377 Tambon Rong Khem, Amphoe Rong Kwang, Chang Wat Phrae 54140, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA กำแพงเพชร",
+"lat": 16.4896,
+"lng": 99.511,
+"province": "กำแพงเพชร",
+"address": "343 Tesa Rd 2, Tambon Nai Mueang, Amphoe Mueang Kamphaeng Phet, Chang Wat Kamphaeng Phet 62000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สวรรคโลก",
+"lat": 17.3206,
+"lng": 99.8332,
+"province": "สุโขทัย",
+"address": "6, 4 ถนน Thetsaban Damri 3, Tambon Mueang Sawankhalok, Amphoe Sawankhalok, Chang Wat Sukhothai 64110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ลาดยาว",
+"lat": 15.7546,
+"lng": 99.7663,
+"province": "นครสวรรค์",
+"address": "QQ38+RG Lat Yao, Lat Yao District, Nakhon Sawan, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA หนองบัว",
+"lat": 15.8635,
+"lng": 100.62,
+"province": "นครสวรรค์",
+"address": "VJ7C+C55, Nong Klap, Nong Bua District, Nakhon Sawan 60110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA นครสวรรค์",
+"lat": 15.7099,
+"lng": 100.116,
+"province": "นครสวรรค์",
+"address": "P458+W77, Matulee Rd, Tambon Pak Nam Pho, Amphoe Mueang Nakhon Sawan, Chang Wat Nakhon Sawan 60000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อู่ทอง",
+"lat": 14.3546,
+"lng": 99.8777,
+"province": "สุพรรณบุรี",
+"address": "818 Malaiman Rd, Tambon U Thong, Amphoe U Thong, Chang Wat Suphan Buri 72160, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปากพนัง",
+"lat": 8.3377,
+"lng": 100.202,
+"province": "นครศรีธรรมราช",
+"address": "86P2+WMM, Si Som Bru Rd., Pak Phanang, Amphoe Pak Phanang, Chang Wat Nakhon Si Thammarat 80140, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA จุน",
+"lat": 19.3444,
+"lng": 100.131,
+"province": "พะเยา",
+"address": "84VJ+PV8, Huai Khao Kam, Chun District, Phayao 56150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ฮอด",
+"lat": 18.1725,
+"lng": 98.6109,
+"province": "เชียงใหม่",
+"address": "5JC6+X9 Hang Dong, Hot District, Chiang Mai, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงแสน",
+"lat": 20.277,
+"lng": 100.08,
+"province": "เชียงราย",
+"address": "729/1 Nong Mut Rd, Tambon Wiang, Amphoe Chiang Saen, Chang Wat Chiang Rai 57150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พาน",
+"lat": 19.5564,
+"lng": 99.7436,
+"province": "เชียงราย",
+"address": "902 หมู่ 1 ต.เมืองพาน Tambon Mueang Phan, Amphoe Phan, Chang Wat Chiang Rai 57120, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงคำ",
+"lat": 19.5278,
+"lng": 100.311,
+"province": "พะเยา",
+"address": "G8H6+2FV, Chedi Kham, Chiang Kham District, Phayao 56110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ลำปาง",
+"lat": 18.251,
+"lng": 99.4552,
+"province": "ลำปาง",
+"address": "456 หมู่ 1 Phahonyothin Rd, Tambon Chomphu, Amphoe Mueang Lampang, Chang Wat Lampang 52100, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงใหม่",
+"lat": 18.7738,
+"lng": 99.0072,
+"province": "เชียงใหม่",
+"address": "208/1 วัดเกต เมืองเชียงใหม่, ตำบลวัดเกต อำเภอเมืองเชียงใหม่ เชียงใหม่ 50000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ลำพูน",
+"lat": 18.5689,
+"lng": 98.9967,
+"province": "ลำพูน",
+"address": "137 Lamphun-Pasang Rd, Nai Mueang, Amphoe Mueang Lamphun, Chang Wat Lamphun 51000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เพชรบูรณ์",
+"lat": 16.4238,
+"lng": 101.163,
+"province": "เพชรบูรณ์",
+"address": "2 Pratu Dao Alley, Tambon Sadiang, Amphoe Mueang Phetchabun, Chang Wat Phetchabun 67000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แคมป์สน",
+"lat": 16.7601,
+"lng": 101.025,
+"province": "เพชรบูรณ์",
+"address": "Q25F+RW, Khaem Son, Khao Kho District, Phetchabun 67280, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขมราฐ",
+"lat": 16.0385,
+"lng": 105.216,
+"province": "อุบลราชธานี",
+"address": "129 Arun Prasert, Tambon Khemmarat, Amphoe Khemmarat, Chang Wat Ubon Ratchathani 34170, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สมเด็จ",
+"lat": 16.6951,
+"lng": 103.75,
+"province": "กาฬสินธุ์",
+"address": "MPWX+2X5, Somdet, Somdet District, Kalasin 46150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สุวรรณภูมิ",
+"lat": 15.6172,
+"lng": 103.79,
+"province": "ร้อยเอ็ด",
+"address": "JQ8R+V38, Sa Khu, Suwannaphum District, Roi Et 45130, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA วาปีปทุม",
+"lat": 15.8498,
+"lng": 103.374,
+"province": "มหาสารคาม",
+"address": "428 ม.1 หนองแสง Tambon Nong Saeng, Amphoe Wapi Pathum, Chang Wat Maha Sarakham 44120, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เลิงนกทา",
+"lat": 16.2016,
+"lng": 104.544,
+"province": "ยโสธร",
+"address": "5, Tambon Sam Yaek, Amphoe Loeng Nok Tha, Chang Wat Yasothon 35120, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อุบลราชธานี 2",
+"lat": 15.273876,
+"lng": 104.850279,
+"province": "อุบลราชธานี",
+"address": "6 Soi Chayang Kun 42, ตำบลในเมือง, อำเภอเมือง, Chang Wat Ubon Ratchathani 34000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA จอมเทียน",
+"lat": 12.859344,
+"lng": 100.922901,
+"province": "ชลบุรี",
+"address": "VW5F+M5C 61 Muang Pattaya, Amphoe Bang Lamung, Chang Wat Chon Buri 20150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ภูเก็ต",
+"lat": 7.884087,
+"lng": 98.397431,
+"province": "ภูเก็ต",
+"address": "15 Phangnga Rd, Tambon Talat Yai, Amphoe Mueang Phuket, Chang Wat Phuket 83000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ทุ่งสง",
+"lat": 8.132967,
+"lng": 99.672759,
+"province": "นครศรีธรรมราช",
+"address": "4MMF+54Q, 403, Tambon Chamai, Amphoe Thung Song, Chang Wat Nakhon Si Thammarat 80110, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เกาะลันตา",
+"lat": 7.52975,
+"lng": 99.091053,
+"province": "กระบี่",
+"address": "G3HR+X6W, Ko Lanta Yai, Ko Lanta District, Krabi 81150, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บ้านไร่",
+"lat": 15.086488,
+"lng": 99.552961,
+"province": "อุทัยธานี",
+"address": "3HP2+CW5, 3011, Tambon Ban Bueng, Amphoe Ban Rai, Chang Wat Uthai Thani 61140, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สิงห์บุรี",
+"lat": 14.907056,
+"lng": 100.410058,
+"province": "สิงห์บุรี",
+"address": "WC46+R2 Bang Man, Mueang Sing Buri District, Sing Buri, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ลพบุรี",
+"lat": 14.80252,
+"lng": 100.653337,
+"province": "ลพบุรี",
+"address": "RM23+W5M, Thale Chup Son, Mueang Lop Buri District, Lopburi 15000, Thailand",
+"hours": "00.00 น. - 24.00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 25,
+"count": null
+},
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA",
+"aka": [
+"PEA VOLTA เขตลพบุรี"
+]
+},
+{
+"name": "PEA VOLTA สศช.",
+"lat": 13.757351,
+"lng": 100.514778,
+"province": "กรุงเทพมหานคร",
+"address": "สำนักงานสภาพัฒนาการเศรษฐกิจและสังคมแห่งชาติ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA จันทบุรี",
+"lat": 12.596,
+"lng": 102.096,
+"province": "จันทบุรี",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.จันทบุรี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สุราษฎร์ธานี",
+"lat": 9.13449,
+"lng": 99.3319,
+"province": "สุราษฎร์ธานี",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.สุราษฎร์ธานี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ตรัง",
+"lat": 7.607052,
+"lng": 99.599068,
+"province": "ตรัง",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.ตรัง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven พรหมพิราม",
+"lat": 17.197,
+"lng": 100.265,
+"province": "พิษณุโลก",
+"address": "7-11 สาขา ดงประคำ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ขาณุวรลักษบุรี",
+"lat": 16.0071,
+"lng": 99.7977,
+"province": "กำแพงเพชร",
+"address": "สถานีบริการน้ำมัน - CALTEX ใต้ฟ้าปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven ตะพานหิน",
+"lat": 16.2159,
+"lng": 100.439,
+"province": "พิจิตร",
+"address": "7-11 สาขา หน้าโรงพยาบาลสมเด็จพยุพราชตะพานหิน",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ โนนศิลา",
+"lat": 16.0096,
+"lng": 102.704,
+"province": "ขอนแก่น",
+"address": "สถานีบริการน้ำมัน - CALTEX ช.วิบูลย์ บ้านไผ่",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองขอนแก่น",
+"lat": 16.438,
+"lng": 102.926,
+"province": "ขอนแก่น",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ทีอาร์ที เชน คอร์ปอเรชั่น",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ โนนสะอาด",
+"lat": 16.9908,
+"lng": 102.893,
+"province": "อุดรธานี",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. ช.วิบูลย์โนนสะอาด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ หนองหาน",
+"lat": 17.3624,
+"lng": 103.152,
+"province": "อุดรธานี",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. ช.วิบูลย์หนองหาน",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองขอนแก่น (หน้า มข.)",
+"lat": 16.4611,
+"lng": 102.832,
+"province": "ขอนแก่น",
+"address": "BCP - ขอนแก่น(หน้า มข.)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ศูนย์การค้าอยุธยาซิตี้พาร์ค",
+"lat": 14.3368,
+"lng": 100.61,
+"province": "พระนครศรีอยุธยา",
+"address": "ศูนย์การค้าอยุธยาซิตี้พาร์ค",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก คลองหลวง",
+"lat": 14.0005,
+"lng": 100.613,
+"province": "ปทุมธานี",
+"address": "BCP - ถ.พหลโยธิน กม.33 (ขาออก)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven ลาดบัวหลวง",
+"lat": 14.1571,
+"lng": 100.29,
+"province": "พระนครศรีอยุธยา",
+"address": "7-11 สาขา ถนน 340 ลาดบัวหลวง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ศรีราชา (เขาคันทรง)",
+"lat": 13.1076,
+"lng": 101.145,
+"province": "ชลบุรี",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ซุปเปอร์สตาร์ ปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ศรีราชา 2 (หนองขาม)",
+"lat": 13.118,
+"lng": 101.031,
+"province": "ชลบุรี",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. เต็กย้ง เพิ่มพูนทรัพย์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก พนัสนิคม",
+"lat": 13.4357,
+"lng": 101.283,
+"province": "ชลบุรี",
+"address": "BCP - บริษัท ยูนิตี้ ปิโตรเลียม จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ บ้านฉาง",
+"lat": 12.7468,
+"lng": 101.099,
+"province": "ระยอง",
+"address": "สถานีบริการน้ำมัน - CALTEX พรมยุรี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ นิคมพัฒนา",
+"lat": 12.8421,
+"lng": 101.119,
+"province": "ระยอง",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ชานนท์ ปิโตรเลียม 2020",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เอสโซ่ สอยดาว",
+"lat": 13.1106,
+"lng": 102.225,
+"province": "จันทบุรี",
+"address": "สถานีบริการน้ำมันน้ำมัน - ESSO สาขาสอยดาว",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ปราณบุรี",
+"lat": 12.3786,
+"lng": 99.8914,
+"province": "ประจวบคีรีขันธ์",
+"address": "BCP - หจก.ไทยแก๊สปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เขาย้อย",
+"lat": 13.283,
+"lng": 99.8201,
+"province": "เพชรบุรี",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. สตาร์โกลด์ปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ บ้านนาเดิม",
+"lat": 8.8834,
+"lng": 99.2945,
+"province": "สุราษฎร์ธานี",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. พี.เอ็ม. ออยล์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ตะกั่วทุ่ง",
+"lat": 8.26801,
+"lng": 98.3332,
+"province": "พังงา",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. เดอะ บลู สเตชั่น สาขา 0001",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ทับปุด",
+"lat": 8.47639,
+"lng": 98.6056,
+"province": "พังงา",
+"address": "สถานีบริการน้ำมัน - CALTEX บริษัท จันตนาและบุตร จำกัด สาขา 00001",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven ปลายพระยา",
+"lat": 8.49899,
+"lng": 98.882,
+"province": "กระบี่",
+"address": "7-11 สาขา ถนนเซาเทิร์นกระบี่-สุราษฎร์ฯ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชียงใหม่ #2",
+"lat": 18.773933,
+"lng": 99.007533,
+"province": "เชียงใหม่",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.เชียงใหม่",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ปาย",
+"lat": 19.358568,
+"lng": 98.434267,
+"province": "แม่ฮ่องสอน",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟอ.ปาย",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พิษณุโลก",
+"lat": 16.817645,
+"lng": 100.322245,
+"province": "พิษณุโลก",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.พิษณุโลก",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขตนครราชสีมา",
+"lat": 14.95043,
+"lng": 102.018446,
+"province": "นครราชสีมา",
+"address": "การไฟฟ้าส่วนภูมิภาค เขต 3 (ภาคตะวันออกฉียงเหนือ) จังหวัดนครราชสีมา",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขตนครศรีธรรมราช",
+"lat": 8.356713,
+"lng": 99.918926,
+"province": "นครศรีธรรมราช",
+"address": "การไฟฟ้าส่วนภูมิภาค เขต 2 (ภาคใต้) จังหวัดนครศรีธรรมราช",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA ป่าตอง",
+"lat": 7.891094,
+"lng": 98.29796,
+"province": "ภูเก็ต",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟฟ.ป่าตอง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA พังงา",
+"lat": 8.447943,
+"lng": 98.532629,
+"province": "พังงา",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟจ.พังงา",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA สุไหงโก-ลก",
+"lat": 6.020381,
+"lng": 101.943014,
+"province": "นราธิวาส",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟอ.สุไหงโก-ลก",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ แม่แตง",
+"lat": 19.094717,
+"lng": 98.852197,
+"province": "เชียงใหม่",
+"address": "สถานีบริการน้ำมัน - CALTEX ส. สายปายปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก หางดง",
+"lat": 18.713031,
+"lng": 98.925565,
+"province": "เชียงใหม่",
+"address": "BCP - บริษัท จิน สเตชั่น จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองเชียงใหม่ (แม่เหียะ)",
+"lat": 18.740546,
+"lng": 98.965061,
+"province": "เชียงใหม่",
+"address": "BCP - ตนุภัท",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองเชียงราย (รอบเวียง)",
+"lat": 19.913338,
+"lng": 99.860239,
+"province": "เชียงราย",
+"address": "สถานีบริการน้ำมัน - CALTEX เค พาวเวอร์ เชียงราย (CALTEX)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองเชียงราย 2 (ป่าอ้อดอนไชย)",
+"lat": 19.860597,
+"lng": 99.784252,
+"province": "เชียงราย",
+"address": "สถานีบริการน้ำมัน - CALTEX เค พาวเวอร์ ป่าอ้อดอนชัย (CALTEX)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เทิง",
+"lat": 19.69167,
+"lng": 100.160259,
+"province": "เชียงราย",
+"address": "สถานีบริการน้ำมัน - CALTEX ธีร์ เทิง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เวียงป่าเป้า",
+"lat": 19.270362,
+"lng": 99.511703,
+"province": "เชียงราย",
+"address": "สถานีบริการน้ำมัน - CALTEX อเมริกัน แทรกเตอร์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ สบปราบ",
+"lat": 17.907056,
+"lng": 99.341963,
+"province": "ลำปาง",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. สเต๊ป ไนซ์ เทรดดิ้ง สาขาที่ 00001",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA แจ่มฟ้า เมืองลำพูน",
+"lat": 18.560082,
+"lng": 99.040796,
+"province": "ลำพูน",
+"address": "แจ่มฟ้าช๊อปปิ้งมอลล์ ลำพูน",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven เชียงม่วน",
+"lat": 18.88798,
+"lng": 100.285738,
+"province": "พะเยา",
+"address": "7-11 สาขา เชียงม่วน",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ บางระกำ",
+"lat": 16.63413,
+"lng": 100.14861,
+"province": "พิษณุโลก",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. บ่อทองก้าวหน้า",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ นาแก",
+"lat": 16.95017,
+"lng": 104.50222,
+"province": "นครพนม",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. สุวรรณเอสแอลเคบริการ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven เมืองนครพนม",
+"lat": 17.397716,
+"lng": 104.789079,
+"province": "นครพนม",
+"address": "7-11 สาขา ศรีเทพนตรพนม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ นากลาง",
+"lat": 17.292825,
+"lng": 102.24266,
+"province": "หนองบัวลำภู",
+"address": "สถานีบริการน้ำมัน - CALTEX ช วิบูลย์ นากลาง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองอุบลราชธานี 3 (ขามใหญ่)",
+"lat": 15.298462,
+"lng": 104.837555,
+"province": "อุบลราชธานี",
+"address": "BCP - บริษัท ดีเยี่ยมอุบล คนรักดี จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA โรงพยาบาลพริ้นซ์ ศรีสะเกษ",
+"lat": 15.12105,
+"lng": 104.303146,
+"province": "ศรีสะเกษ",
+"address": "โรงพยาบาลพริ้นซ์ศรีสะเกษ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สูงเนิน",
+"lat": 14.901577,
+"lng": 101.907522,
+"province": "นครราชสีมา",
+"address": "BCP - บริษัท สงวนพงษ์ออยล์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ พระทองคำ",
+"lat": 15.303415,
+"lng": 101.975673,
+"province": "นครราชสีมา",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. บีบี ทวีพลังงาน",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven สตึก",
+"lat": 15.294972,
+"lng": 103.295104,
+"province": "บุรีรัมย์",
+"address": "7-11 สาขา สตึก-บุรีรีมย์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เอสโซ่ เมืองบุรีรัมย์",
+"lat": 14.983474,
+"lng": 103.078817,
+"province": "บุรีรัมย์",
+"address": "สถานีบริการน้ำมันน้ำมัน - ESSO วีวราออยล์ สำนักงานใหญ่",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองนครนายก",
+"lat": 14.269972,
+"lng": 101.273278,
+"province": "นครนายก",
+"address": "สถานีบริการน้ำมัน - CALTEX ชัยเจริญออยล์ สาริกา",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก วิหารแดง",
+"lat": 14.379639,
+"lng": 100.956698,
+"province": "สระบุรี",
+"address": "BCP - บริษัท พี พลัส พาวเวอร์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองชลบุรี",
+"lat": 13.342126,
+"lng": 100.995532,
+"province": "ชลบุรี",
+"address": "สถานีบริการน้ำมัน - CALTEX บริษัท ภัทรพงศ์ปิโตรเลียม จำกัด) (บายพาสชลบุรี)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ พนัสนิคม",
+"lat": 13.463228,
+"lng": 101.172584,
+"province": "ชลบุรี",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ฐาอนันต์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก หนองใหญ่",
+"lat": 13.126197,
+"lng": 101.359475,
+"province": "ชลบุรี",
+"address": "BCP - บริษัท สิริกรโกศล ออยล์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ศรีราชา 2 (ทุ่งสุขลา)",
+"lat": 13.074291,
+"lng": 100.92089,
+"province": "ชลบุรี",
+"address": "BCP - บริษัท แหลมฉบัง ซีพอท 2021 จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองชลบุรี 3 (แสนสุข)",
+"lat": 13.26177,
+"lng": 100.94085,
+"province": "ชลบุรี",
+"address": "BCP - บริษัท บีเอ็มพี แมนเนจเมนท์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ บ้านค่าย",
+"lat": 12.805125,
+"lng": 101.301526,
+"province": "ระยอง",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. ดาวไฮเท็กซ์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ วังจันทร์",
+"lat": 12.9186,
+"lng": 101.53024,
+"province": "ระยอง",
+"address": "สถานีบริการน้ำมัน - CALTEX 9 Infinity Wangchan",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เชลล์ ปลวกแดง",
+"lat": 12.925277,
+"lng": 101.249506,
+"province": "ระยอง",
+"address": "สถานีบริการน้ำมัน - SHELL แม่น้ำคู้ ปลวกแดง ระยอง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven บางสะพานน้อย",
+"lat": 11.072344,
+"lng": 99.374487,
+"province": "ประจวบคีรีขันธ์",
+"address": "7-11 สาขา สามแยกบางสะพานน้อย",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ชะอวด",
+"lat": 7.960882,
+"lng": 99.9129,
+"province": "นครศรีธรรมราช",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. อุทัยทิพย์ปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองนครศรีธรรมราช",
+"lat": 8.496343,
+"lng": 99.927692,
+"province": "นครศรีธรรมราช",
+"address": "สถานีบริการน้ำมัน - CALTEX หจก. ดาวสันติออยล์",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ คุระบุรี",
+"lat": 9.22582,
+"lng": 98.38581,
+"province": "พังงา",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. พัฒน์ดาพล",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองตรัง",
+"lat": 7.560788,
+"lng": 99.594347,
+"province": "ตรัง",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ท่ากลางปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven ย่านตาขาว",
+"lat": 7.378243,
+"lng": 99.674838,
+"province": "ตรัง",
+"address": "7-11 สาขา อ.ย่านตาขาว",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครศรีธรรมราช 2 (นาทราย)",
+"lat": 8.48398,
+"lng": 99.925309,
+"province": "นครศรีธรรมราช",
+"address": "BCP - หจก.น้องเก้า",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ถลาง 2 (ไม้ขาว)",
+"lat": 8.171811,
+"lng": 98.298972,
+"province": "ภูเก็ต",
+"address": "BCP - บจก. อนุภาษภูเก็ตสปอร์ต เซ็นเตอร์ (สาขา 1)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก หนองจิก",
+"lat": 6.80326,
+"lng": 101.140374,
+"province": "ปัตตานี",
+"address": "BCP - หจก.วัชระปิโตรเลียม",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขตอุดรธานี",
+"lat": 17.368285,
+"lng": 102.760618,
+"province": "อุดรธานี",
+"address": "การไฟฟ้าส่วนภูมิภาค เขต 1 (ภาคตะวันออกฉียงเหนือ) จังหวัดอุดรธานี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขตเพชรบุรี",
+"lat": 13.060289,
+"lng": 99.983303,
+"province": "เพชรบุรี",
+"address": "การไฟฟ้าส่วนภูมิภาค เขต 1 (ภาคใต้) จังหวัดเพชรบุรี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เขาค้อ",
+"lat": 16.632287,
+"lng": 100.997557,
+"province": "เพชรบูรณ์",
+"address": "การไฟฟ้าส่วนภูมิภาค กฟอ.เขาค้อ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ชัยบาดาล",
+"lat": 15.226005,
+"lng": 101.127494,
+"province": "ลพบุรี",
+"address": "BCP - บริษัท รูท ทเวนตี้วัน สเตชั่น จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองนครสวรรค์",
+"lat": 15.707573,
+"lng": 100.088074,
+"province": "นครสวรรค์",
+"address": "BCP - บริษัท ไทย เพาเวอร์ กู๊ดส์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก กุมภวาปี",
+"lat": 17.119794,
+"lng": 102.988851,
+"province": "อุดรธานี",
+"address": "BCP - บริษัท ฑีฆเจริญค้าน้ำมัน จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA โรงแรมริเวอร์ทรีรีสอร์ท เชียงคาน",
+"lat": 17.891755,
+"lng": 101.643386,
+"province": "เลย",
+"address": "โรงแรม ริเวอร์ทรี รีสอร์ท",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองหนองคาย 2 (โพธิ์ชัย)",
+"lat": 17.862053,
+"lng": 102.749375,
+"province": "หนองคาย",
+"address": "BCP - บริษัท เลิศพัฒนาปิโตรเลียม จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ พนมสารคาม",
+"lat": 13.721765,
+"lng": 101.317872,
+"province": "ฉะเชิงเทรา",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ดาวพนมเทรดดิ้ง",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ กระทุ่มแบน",
+"lat": 13.705175,
+"lng": 100.317018,
+"province": "สมุทรสาคร",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. ชัยพฤกษ์ปิโตรเลี่ยม 1959",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก เมืองสมุทรสาคร 2 (บางกระเจ้า)",
+"lat": 13.539376,
+"lng": 100.230024,
+"province": "สมุทรสาคร",
+"address": "BCP - บริษัท ชิดบุญ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก สามพราน 2 (บางกระทึก)",
+"lat": 13.759246,
+"lng": 100.301677,
+"province": "นครปฐม",
+"address": "BCP - บริษัท 1.8 ดีเวล็อปเม้นต์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เอสโซ่ เมืองกาญจนบุรี",
+"lat": 14.051796,
+"lng": 99.504881,
+"province": "กาญจนบุรี",
+"address": "ทีเอ็มเค พาร์ค กาญจนบุรี (ESSO)",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA มหาวิทยาลัยมหิดล วิทยาเขตกาญจนบุรี",
+"lat": 14.130229,
+"lng": 99.159679,
+"province": "กาญจนบุรี",
+"address": "มหาวิทยาลัยมหิดล วิทยาเขตกาญจนบุรี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ไทรโยค",
+"lat": 14.089515,
+"lng": 99.280542,
+"province": "กาญจนบุรี",
+"address": "BCP - บริษัท แอล.อาร์.เซอร์วิส จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ละแม 2 (สวนแตง)",
+"lat": 9.74023,
+"lng": 99.1022,
+"province": "ชุมพร",
+"address": "BCP - บริษัท เอส.พี.ปิโตรเลียม อินเตอร์ กรุ๊ป จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก ทุ่งตะโก",
+"lat": 10.155019,
+"lng": 99.096189,
+"province": "ชุมพร",
+"address": "BCP - บริษัท เอพีสุราษฎร์เทรดดิ้ง จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ เมืองชุมพร",
+"lat": 10.35662,
+"lng": 99.11654,
+"province": "ชุมพร",
+"address": "สถานีบริการน้ำมัน - CALTEX บจก. เจทีทีบีซซ์ สาขา 00001",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก จอมบึง",
+"lat": 13.626285,
+"lng": 99.614588,
+"province": "ราชบุรี",
+"address": "BCP - บริษัท เอสเจซี เพาเวอร์ จำกัด",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven เมืองประจวบคีรีขันธ์",
+"lat": 11.80022,
+"lng": 99.792221,
+"province": "ประจวบคีรีขันธ์",
+"address": "7-11 สาขา ถนนสุขใจ ซอย 14",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA คาลเท็กซ์ ปราณบุรี",
+"lat": 12.357784,
+"lng": 99.88494,
+"province": "ประจวบคีรีขันธ์",
+"address": "สถานีบริการน้ำมัน - CALTEX พีเอส ปราณบุรี",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA เอสโซ่ เขาย้อย",
+"lat": 13.302838,
+"lng": 99.824954,
+"province": "เพชรบุรี",
+"address": "สถานีบริการน้ำมันน้ำมัน - ESSO วัฒนา-วังมะนาว",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA บางจาก หาดใหญ่ 2 (คอหงส์)",
+"lat": 7.029986,
+"lng": 100.499546,
+"province": "สงขลา",
+"address": "BCP - บริษัท เซาท์เทอร์น ยูเนี่ยน กรุ๊ป จำกัด สาขานวลแก้วอุทิศ",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 120,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA อู่เชิดชัย เมืองนครราชสีมา",
+"lat": 14.961874,
+"lng": 102.061913,
+"province": "นครราชสีมา",
+"address": "1069 ถนนมิตรภาพ ตำบลในเมือง อำเภอเมืองนครราชสีมา จังหวัดนครราชสีมา 30000",
+"hours": "00:00 น. - 23:59 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 300,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "PEA VOLTA 7-Eleven บาลีฮาย",
+"lat": 12.924697,
+"lng": 100.867455,
+"province": "ชลบุรี",
+"address": "27/7 พัทยาใต้ 24 เมืองพัทยา อำเภอบางละมุง ชลบุรี 20150",
+"hours": "00:00-24:00 น.",
+"connectors": [
+{
+"type": "DC",
+"kw": 360,
+"count": null
+}
+],
+"source": "https://www.google.com/maps/d/viewer?mid=1HGW0AWNfy1UmC82D3A8S6YqlQ7VfoTRz",
+"operator": "PEA VOLTA"
+},
+{
+"name": "BMW Exclusive Charging Station at Amorn Prestige",
+"lat": 13.988933,
+"lng": 100.617755,
+"province": "ปทุมธานี",
+"address": "Future Park Rangsit & Zpell , 94 ถ. พหลโยธิน ตำบล ประชาธิปัตย์ อำเภอธัญบุรี ปทุมธานี 12130",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Assawin Asset",
+"lat": 13.899997,
+"lng": 100.450674,
+"province": "นนทบุรี",
+"address": "Bang Phlap, Pak Kret District, Nonthaburi 11120",
+"hours": "Daily 09.00 - 18.00",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Big C Kanlapapruek",
+"lat": 13.688577,
+"lng": 100.432094,
+"province": "กรุงเทพมหานคร",
+"address": "25 Kanlapaphruek Road Khlong Bang Phran, Bang Bon, Bangkok 10150",
+"hours": "Daily 10.00 - 22.00",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Benz MBCC",
+"lat": 13.603741,
+"lng": 100.768047,
+"province": "สมุทรปราการ",
+"address": "335/12 Moo 9 Bangna-Trad Road KM. 19 Bangplee Samutprakarn 10540",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Benz VPC KM.30",
+"lat": 13.578582,
+"lng": 100.867373,
+"province": "สมุทรปราการ",
+"address": "Bang Bo, Bang Bo District, Samut Prakan 10560",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Ngantawee Service Nabon",
+"lat": 7.851029,
+"lng": 98.353363,
+"province": "ภูเก็ต",
+"address": "14/38 Village No. 1, Chalong Subdistrict, Mueang District, Phuket Province",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Charoenkit Oil",
+"lat": 18.542306,
+"lng": 99.063111,
+"province": "ลำพูน",
+"address": "Pa Sak, Mueang Lamphun District",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Gen Station",
+"lat": 18.451293,
+"lng": 98.74057,
+"province": "เชียงใหม่",
+"address": "140 No. 13, Khuang Pao Subdistrict, Chom Thong District, Chiang Mai Province.",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex NBB Property",
+"lat": 19.930617,
+"lng": 99.844172,
+"province": "เชียงราย",
+"address": "2, No. 5, Rim Kok Subdistrict, Mueang Chiang Rai District, Changhuat, Chiang Rai",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Ngantawee Service 2",
+"lat": 7.919198,
+"lng": 98.394809,
+"province": "ภูเก็ต",
+"address": "41/49 Thepkrasattri Road, Village No. 6, Ratsada Subdistrict, Mueang District, Phuket Province",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Carpark Building Station",
+"lat": 13.912887,
+"lng": 101.570552,
+"province": "ปราจีนบุรี",
+"address": "203,205 industrial 304 Tha Tum, Si Maha Phot District, Prachin Buri 25140",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Prasert Chaiyo",
+"lat": 14.662016,
+"lng": 100.473043,
+"province": "อ่างทอง",
+"address": "101/1 Moo 6, Asia Road (32), Chorakhe Rong Subdistrict, Chaiyo District, Ang Thong Province 14140",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Caltex Tin-Tungsten 00004",
+"lat": 18.852711,
+"lng": 99.091145,
+"province": "เชียงใหม่",
+"address": "165/10 Village No. 1, San Pa Pao Subdistrict, San Sai District, Chiang Mai Province",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Cosmo Oil Dok Kham Tai",
+"lat": 19.161845,
+"lng": 99.986483,
+"province": "พะเยา",
+"address": "Cosmo Oil Dok Khamtai, Dok Khamtai District, Phayao 56120",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Cosmo Oil Tar Sut",
+"lat": 20.08203,
+"lng": 99.874537,
+"province": "เชียงราย",
+"address": "119 No. 4, Phahonyothin Road, Tha Sut Subdistrict, Mueang Chiang Rai District, Chiang Rai 57100)",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Forestias Pavilion",
+"lat": 13.653129,
+"lng": 100.664849,
+"province": "สมุทรปราการ",
+"address": "63, Bang Keaw, Tambon Bang Kaeo, Amphoe Bang Phli, Chang Wat Samut Prakan 10540",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Harudot Chonburi by Nana Coffee",
+"lat": 13.338808,
+"lng": 100.96475,
+"province": "ชลบุรี",
+"address": "Soi Nartmontasevee 30/10, Samet, Chon Buri District, Chon Buri 20000",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Horizon Auto",
+"lat": 7.037874,
+"lng": 100.459301,
+"address": "152 Moo 1 Lobbureelamest Road, Hat Yai",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "McDonald’s – Liap Khlong Song",
+"lat": 13.859661,
+"lng": 100.697451,
+"province": "กรุงเทพมหานคร",
+"address": "47 Liap Khlong Song Rd, Bang Chan, Khlong Sam Wa, Bangkok 10510",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "McDonald’s – Rama 2",
+"lat": 13.660505,
+"lng": 100.435035,
+"address": "164/2 Rama 2 Road, Samae Dam Subdistrict, Bang Khun Thian District",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Merck Auto",
+"lat": 13.699981,
+"lng": 100.54545,
+"province": "กรุงเทพมหานคร",
+"address": "1101 Rama 3 Rd, Chong Nonsi, Yan Nawa, Bangkok 10120",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Mode Sathorn",
+"lat": 13.719992,
+"lng": 100.52161,
+"province": "กรุงเทพมหานคร",
+"address": "144 N Sathon Rd, Silom, Bang Rak, Bangkok 10500",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Muang Thai Academy Center",
+"lat": 13.784738,
+"lng": 99.943522,
+"province": "กรุงเทพมหานคร",
+"address": "Rama 4, Thang Rotfai Sai Kao Pak Nam Rd, Sai Kao Pak Nam Rd, Bangkok 10110",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "MSA Garbage Samutprakarn",
+"lat": 13.587994,
+"lng": 100.670279,
+"province": "กรุงเทพมหานคร",
+"address": "17 Soi Ramintra 42, Intersection 8, Ramintra Road, Ramintra Subdistrict, Khan Na Yao District, Bangkok 10230",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Muang Thai Life Assurance PCL.",
+"lat": 13.786477,
+"lng": 100.574471,
+"province": "กรุงเทพมหานคร",
+"address": "250 Ratchadaphisek Rd, Huai Khwang, Bangkok 10310",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "ONE Bangkok",
+"lat": 13.727151,
+"lng": 100.547268,
+"province": "กรุงเทพมหานคร",
+"address": "Witthayu Rd, Lumphini, Pathum Wan, Bangkok 10330",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Pepsi-Cola Trading(Lamphun)",
+"lat": 18.618815,
+"lng": 99.047302,
+"province": "ลำพูน",
+"address": "99/9 Moo 11 Chiangmai-Lampang Rd. Umong, Mueang Lamphun, Lamphun 51150",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Premium Outlet Ayutthaya",
+"lat": 14.21069,
+"lng": 100.610147,
+"province": "พระนครศรีอยุธยา",
+"address": "Asian Line Km. 5 Khlong Chik, Bang Pa-in District, Phra Nakhon Si Ayutthaya 13160",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Scandinavian Auto Bangna",
+"lat": 13.668698,
+"lng": 100.632678,
+"province": "กรุงเทพมหานคร",
+"address": "485 Soi Bang Na-Trad 42 Bang Na Nuea, Bang Na, Bangkok 10260",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Scandinavian Auto Ramintra",
+"lat": 13.8678,
+"lng": 100.609147,
+"province": "กรุงเทพมหานคร",
+"address": "181 Ram Inthra Rd, Anusawari, Bang Khen, Bangkok 10220",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "SCB Tawanron",
+"lat": 12.783356,
+"lng": 100.90678,
+"province": "ชลบุรี",
+"address": "78/3 Moo 8 (Soi Na Chom Thian 52), Sattahip, Chonburi 20250",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "SCG Bangsue Station DC",
+"lat": 13.805783,
+"lng": 100.539315,
+"address": "1 Cement Road, Bang Sue Subdistrict, Bang Sue District",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "SCG Boonthavorn Chanthaburi",
+"lat": 12.605907,
+"lng": 102.134095,
+"address": "SCG Home Boonthavorn",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "The American School Of Bangkok",
+"lat": 13.613637,
+"lng": 100.72463,
+"province": "กรุงเทพมหานคร",
+"address": "591 Khlong Tan Nuea, Watthana, Bangkok 10110",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Topgolf Megacity",
+"lat": 13.643439,
+"lng": 100.675628,
+"province": "สมุทรปราการ",
+"address": "Topgolf Megacity, 971, Bang Kaeo subdistrict, Bang Phli District, Samut Prakan 10540",
+"hours": "Daily 09.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "TOYOTA Driving Experience Park",
+"lat": 13.668444,
+"lng": 100.637322,
+"province": "กรุงเทพมหานคร",
+"address": "753 Debaratna Rd, Bang Na Nuea, Bang Na, Bangkok 10260",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Toyota pattaya (1998)",
+"lat": 12.989897,
+"lng": 100.924241,
+"province": "ชลบุรี",
+"address": "55/4 No. 1, Bang Lamung District, Chonburi",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo Chiang Mai Sweden Motors",
+"lat": 18.811574,
+"lng": 98.989994,
+"province": "เชียงใหม่",
+"address": "146 Hwy Chiang Mai-Lampang Frontage Rd, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50300",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo GT Auto Pattaya",
+"lat": 12.974512,
+"lng": 100.913078,
+"province": "ชลบุรี",
+"address": "147/18, Bang Lamung District, Chon Buri",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo 14 Auto Marque – Rama 2",
+"lat": 13.68053,
+"lng": 100.469424,
+"province": "กรุงเทพมหานคร",
+"address": "500 69 Rama 2 Rd, Bang Mot, Chom Thong, Bangkok",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo MWONE – Bangbuathong",
+"lat": 13.931499,
+"lng": 100.414729,
+"province": "นนทบุรี",
+"address": "Kanchanaphisek Rd, Tambon Bang Bua Thong, Bang Bua Thong District, Nonthaburi 11110",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo Newton Prestige",
+"lat": 13.78019,
+"lng": 100.434786,
+"province": "กรุงเทพมหานคร",
+"address": "109 Borommaratchachonnani Rd, Chim Phli, Taling Chan, Bangkok 10170",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Wearnes Automotive",
+"lat": 13.742661,
+"lng": 100.599792,
+"province": "กรุงเทพมหานคร",
+"address": "99, 3 Ramkhamhaeng Rd, Suan Luang, Bangkok 10250",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo Tanasit Khonkaen",
+"lat": 16.462953,
+"lng": 102.770159,
+"province": "ขอนแก่น",
+"address": "567 Daeng Yai, Mueang Khon Kaen District, Khon Kaen 40000",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo Phranakorn Vibhavadi",
+"lat": 13.838426,
+"lng": 100.55796,
+"province": "กรุงเทพมหานคร",
+"address": "108 Rd, Vibhavadi Rangsit, Lat Yao, Chatuchak, Bangkok 10900",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Volvo Phranakorn Ladprao",
+"lat": 13.773219,
+"lng": 100.633254,
+"province": "กรุงเทพมหานคร",
+"address": "Lat Phrao 103 Alley, Khlong Chan, Bang Kapi District, Bangkok",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "66 tower",
+"lat": 13.681871,
+"lng": 100.610011,
+"province": "กรุงเทพมหานคร",
+"address": "2556 Sukhumvit Road, Bangna, Bangna, Bangkok 10260",
+"hours": "Daily 08.00 - 18.00",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Office of the President",
+"lat": 6.456555,
+"lng": 101.78954,
+"province": "นราธิวาส",
+"address": "Moo 8 Khokkian Meung, Narathiwat 96000",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "Faculty of Engineering",
+"lat": 6.437674,
+"lng": 101.785507,
+"province": "นราธิวาส",
+"address": "Moo 8 Khokkian Meung, Narathiwat 96000",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "Type2",
+"kw": null,
+"count": null
+},
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "DIP KLUAYNAMTHAI",
+"lat": 13.709785,
+"lng": 100.585818,
+"province": "กรุงเทพมหานคร",
+"address": "Soi Trimith Praram 4 Road. Kluaynamthai Klong Toey Bangkok 10110",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "DIP RAMA6",
+"lat": 13.762979,
+"lng": 100.527844,
+"province": "กรุงเทพมหานคร",
+"address": "Rama 6 Road, Samsen Nai, Khet Phaya Thai, Bangkok, 10400",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "IPC 1",
+"lat": 18.791344,
+"lng": 99.017955,
+"province": "เชียงใหม่",
+"address": "158 Tung Hotel Rd., Wat Ket, Mueang, Chiang Mai 50000",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "MOI RAMA6",
+"lat": 13.764094,
+"lng": 100.52716,
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+},
+{
+"name": "IPC 5",
+"lat": 16.563125,
+"lng": 102.822762,
+"province": "ขอนแก่น",
+"address": "86 Moo 3, Mittraphap Road, Samran, Khon Kaen",
+"hours": "Daily 00.00 - 23.59",
+"connectors": [
+{
+"type": "CCS2",
+"kw": null,
+"count": null
+},
+{
+"type": "CHAdeMO",
+"kw": null,
+"count": null
+},
+{
+"type": "Type2",
+"kw": null,
+"count": null
+}
+],
+"source": "https://evolt.co.th/driver/",
+"operator": "Evolt"
+}
+]
+}
