@@ -32,7 +32,7 @@ const GEO_TTL = 10 * 60 * 1000;
 const STATION_TTL = 24 * 60 * 60 * 1000;
 const RETRY_MS = 30 * 60 * 1000; // after a failed refresh, keep serving what we have and try again later
 const MAX_BODY = 64 * 1024;
-const MAX_STOPS = 12;
+const MAX_POINTS = 20; // public Valhalla accepts up to 20 locations
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -224,8 +224,8 @@ async function proxyRoute(req, res) {
   let q;
   try { q = JSON.parse(await readBody(req)); } catch { json(res, 400, { error: 'bad request' }); return; }
   const locs = Array.isArray(q.locations) ? q.locations : [];
-  if (locs.length < 2 || locs.length > MAX_STOPS + 2 || !locs.every((l) => Number.isFinite(l?.lat) && Number.isFinite(l?.lon))) {
-    json(res, 400, { error: 'need 2 to ' + (MAX_STOPS + 2) + ' locations' });
+  if (locs.length < 2 || locs.length > MAX_POINTS || !locs.every((l) => Number.isFinite(l?.lat) && Number.isFinite(l?.lon))) {
+    json(res, 400, { error: 'need 2 to ' + MAX_POINTS + ' locations' });
     return;
   }
   const body = {

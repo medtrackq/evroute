@@ -474,3 +474,26 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 @media (max-width: 560px) { .add-step--two { grid-template-columns: 1fr; } }
 .add-card .card__head { flex-wrap: nowrap; }
 @media (max-width: 560px) { .plug { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.8fr) 36px; } .plug__del { width: 36px; height: 36px; } }
+
+/* Several destinations / round trip */
+.dests { display: grid; gap: 6px; }
+.dests:empty { display: none; }
+.dot--c { border-color: var(--tile-lav-ink); }
+.place__del { width: 46px; height: 46px; flex: none; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--muted); cursor: pointer; font-size: 20px; }
+.place__del:hover { color: var(--crit); }
+.place-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 12px 0 0 24px; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.toggle input { position: absolute; opacity: 0; }
+.toggle__ui { position: relative; width: 40px; height: 24px; flex: none; border-radius: 999px; background: var(--line); transition: background 0.15s; }
+.toggle__ui::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 25%); transition: transform 0.15s; }
+.toggle input:checked + .toggle__ui { background: var(--accent); }
+.toggle input:checked + .toggle__ui::after { transform: translateX(16px); }
+.toggle input:focus-visible + .toggle__ui { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pin--d { background: var(--tile-lav-ink); }
+.row--dest { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--tile-lav); }
+.row--dest div { display: grid; min-width: 0; }
+.row--dest b { font-weight: 600; }
+.row--dest div span { font-size: 12.5px; color: var(--muted); }
+.track__dest { position: absolute; bottom: 0; width: 16px; height: 16px; margin-left: -8px; border-radius: 4px; background: var(--tile-lav-ink); border: 3px solid var(--surface); }
+.chart .dest-line { stroke: var(--tile-lav-ink); stroke-width: 1.5; stroke-dasharray: 2 4; }
+.chart .dest-label { fill: var(--tile-lav-ink); font-size: 11px; font-weight: 700; }

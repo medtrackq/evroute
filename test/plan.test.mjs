@@ -118,3 +118,25 @@ test('bundled OSM snapshot parses', () => {
   const list = d.elements.map(fromOSM).filter(Boolean);
   assert.ok(list.length > 150, list.length);
 });
+
+test('round trip: stations count on both legs, destinations need no charge', async () => {
+  const round = JSON.parse(readFileSync(new URL('./fixtures/round-kan.json', import.meta.url))).trip;
+  const rp = P.profile(round.legs);
+  assert.equal(rp.legEnds.length, 2);
+  assert.ok(Math.abs(rp.km - round.summary.length) < 3, rp.km);
+  // One station right beside the road half way out (and so half way back too).
+  const half = rp.cum.findIndex((c) => c >= rp.cum[rp.legEnds[0]] / 2);
+  const [lat, lng] = rp.pts[half];
+  const st = [{ id: 'mid', name: 'Mid', op: 'T', lat: lat + 0.002, lng, plugs: [{ type: 'CCS2', kw: 100, n: 2, dc: true }] }];
+  const c = car('neta-v'); // ~38 kWh: 328 km needs a charge
+  const cands = P.candidates(rp, st, c);
+  assert.equal(cands.length, 2);
+  assert.ok(cands[1].along > rp.cum[rp.legEnds[0]]);
+  const r = P.plan(rp, cands, c, { startSoc: 95, minSoc: 15, targetSoc: 90 });
+  assert.ok(r.ok, JSON.stringify(r.fail));
+  assert.ok(r.stops.length >= 1);
+  // Replay with no charging at the turnaround point.
+  const legs = P.replay(rp, c, 95, [null]);
+  assert.equal(legs.length, 2);
+  assert.ok(legs[1].arrive < legs[0].arrive);
+});

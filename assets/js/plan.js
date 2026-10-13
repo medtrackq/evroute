@@ -82,11 +82,12 @@
     return arr[lo] + (span ? (arr[hi] - arr[lo]) * (along - c[lo]) / span : 0);
   }
 
-  // Distance from p to the route, and how far along the route that closest point is (km).
-  function nearest(pts, cum, p) {
+  // Distance from p to the route (or to shape points from..to of it), and how far along the
+  // route that closest point is (km).
+  function nearest(pts, cum, p, from, to) {
     var best = { d: Infinity, along: 0 };
     var kx = Math.cos(p.lat * Math.PI / 180) * 111.32, ky = 110.57;
-    for (var i = 1; i < pts.length; i++) {
+    for (var i = (from || 0) + 1; i <= (to == null ? pts.length - 1 : to); i++) {
       var ax = (pts[i - 1][1] - p.lng) * kx, ay = (pts[i - 1][0] - p.lat) * ky;
       var bx = (pts[i][1] - p.lng) * kx, by = (pts[i][0] - p.lat) * ky;
       var dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
@@ -123,10 +124,15 @@
       if (st.guess && opts.noGuess) return;
       var plug = usable(st, car);
       if (!plug) return;
-      var n = nearest(prof.pts, prof.cum, st);
-      if (n.d > maxOff) return;
-      var detourKm = n.d < 0.15 ? 0 : n.d * 2 * ROAD_FACTOR;
-      out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: detourKm, detourMin: detourKm / DETOUR_KMH * 60 });
+      // Leg by leg, so on a round trip a station is a candidate on the way out and on the way back.
+      var from = 0;
+      (prof.legEnds || [prof.pts.length - 1]).forEach(function (end) {
+        var n = nearest(prof.pts, prof.cum, st, from, end);
+        from = end;
+        if (n.d > maxOff) return;
+        var detourKm = n.d < 0.15 ? 0 : n.d * 2 * ROAD_FACTOR;
+        out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: detourKm, detourMin: detourKm / DETOUR_KMH * 60 });
+      });
     });
     return out.sort(function (a, b) { return a.along - b.along; });
   }
@@ -260,13 +266,14 @@
   }
 
   // After routing through the chosen stations, recompute battery levels leg by leg on the real route.
+  // departs[i] is the charge level when leaving the end of leg i, or null where the car doesn't charge.
   function replay(prof, car, startSoc, departs) {
     var soc = startSoc, out = [], prev = 0;
     prof.legEnds.forEach(function (end, i) {
       var to = prof.cum[end];
       soc -= energy(prof, car, prev, to, 0) / car.kwh * 100;
       out.push({ km: to, arrive: soc });
-      if (i < departs.length) soc = Math.max(soc, departs[i]);
+      if (departs[i] != null) soc = Math.max(soc, departs[i]);
       prev = to;
     });
     return out;

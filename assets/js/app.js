@@ -8,11 +8,13 @@
   var GEO_URLS = ['/api/geocode?q=', 'https://photon.komoot.io/api/?limit=5&bbox=97.3,5.6,105.7,20.5&q='];
   var MAX_GMAPS_WAYPOINTS = 9;  // Google Maps URL limit (mobile apps may honour only 3)
   var MOBILE_WAYPOINTS = 3;
+  var MAX_DESTS = 5;
+  var MAX_ROUTE_POINTS = 20;    // public Valhalla's location limit
   var BOLT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
 
   var R = {
     stations: [], operators: {}, ready: null,
-    a: null, b: null, car: null, busy: false,
+    a: null, dests: [null], round: false, car: null, busy: false,
     pinned: [], excluded: {}, result: null, chart: 'soc',
   };
   var $ = function (id) { return document.getElementById(id); };
@@ -45,12 +47,25 @@
   var stopLayer = L.layerGroup().addTo(map);
   var pins = { a: null, b: null };
 
+  // Destinations are lettered from B: dests[0] = B, dests[1] = C ...
+  function letter(i) { return String.fromCharCode(66 + i); }
+  function pinClass(i) { return i === 'a' ? 'a' : i === 0 ? 'b' : 'd'; }
+
   function pin(which, p) {
-    if (pins[which]) map.removeLayer(pins[which]);
-    pins[which] = p ? L.marker([p.lat, p.lng], {
-      icon: L.divIcon({ className: '', html: '<span class="pin pin--' + which + '">' + which.toUpperCase() + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] }),
+    var key = String(which);
+    if (pins[key]) map.removeLayer(pins[key]);
+    pins[key] = p ? L.marker([p.lat, p.lng], {
+      icon: L.divIcon({ className: '', html: '<span class="pin pin--' + pinClass(which) + '">' + (which === 'a' ? 'A' : letter(which)) + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] }),
       zIndexOffset: 1000, keyboard: false
     }).bindTooltip(esc(p.label)).addTo(map) : null;
+  }
+
+  // The places the trip visits after A, in order; a round trip ends back at A.
+  function trip() {
+    var dests = R.dests.filter(Boolean);
+    var targets = dests.map(function (p, i) { return { lat: p.lat, lng: p.lng, label: p.label, letter: letter(R.dests.indexOf(p)) }; });
+    if (R.round && R.a && dests.length) targets.push({ lat: R.a.lat, lng: R.a.lng, label: R.a.label, letter: 'A', home: true });
+    return { dests: dests, targets: targets, end: targets[targets.length - 1] || null, round: R.round };
   }
 
   // ---------- car ----------
@@ -210,8 +225,9 @@
   }
 
   function plan() {
-    if (!R.a || !R.b) { say('เลือกต้นทางและปลายทางก่อน'); return; }
-    if (P.km(R.a, R.b) < 1) { say('ต้นทางกับปลายทางใกล้กันเกินไป'); return; }
+    var t = trip();
+    if (!R.a || !t.dests.length) { say('เลือกต้นทางและปลายทางก่อน'); return; }
+    if (t.targets.length === 1 && P.km(R.a, t.end) < 1) { say('ต้นทางกับปลายทางใกล้กันเกินไป'); return; }
     readTune();
     var soc = startSoc();
     if (soc == null) { say('ใส่แบตที่เหลือตอนออกเดินทาง'); return; }
@@ -225,24 +241,38 @@
     shareURL();
     var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice() };
 
-    R.ready.then(function () { return route([R.a, R.b]); }).then(function (d) {
+    R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
       var prof = P.profile(d.trip.legs);
       var cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
       var res = P.plan(prof, cands, R.car, opts);
       res.prof = prof;
       res.cands = cands;
       res.opts = opts;
-      if (!res.stops.length) return res;
-      // Route again through the chosen stations for real distances, times and battery levels.
-      var pts = [R.a].concat(res.stops.map(function (s) { return s.st; }), [R.b]);
-      return route(pts).then(function (d2) {
-        var prof2 = P.profile(d2.trip.legs);
-        var legs = P.replay(prof2, R.car, soc, res.stops.map(function (s) { return s.depart; }));
-        res.final = prof2;
+      res.trip = t;
+      // Everything the car stops at on the way, in order: charging stops and the user's own destinations.
+      var items = res.stops.map(function (s) { return { kind: 'stop', s: s, p: s.st, along: s.along }; })
+        .concat(t.targets.slice(0, -1).map(function (p, i) { return { kind: 'dest', p: p, along: prof.cum[prof.legEnds[i]] }; }))
+        .sort(function (x, y) { return x.along - y.along; });
+      res.items = items;
+      var departs = items.map(function (it) { return it.kind === 'stop' ? it.s.depart : null; });
+      var settle = function (pr) {
+        var legs = P.replay(pr, R.car, soc, departs);
+        res.final = pr;
         res.legs = legs;
-        res.stops.forEach(function (s, i) { s.arriveReal = legs[i].arrive; s.kmReal = legs[i].km; });
+        items.forEach(function (it, i) {
+          it.km = legs[i].km;
+          it.arrive = legs[i].arrive;
+          if (it.s) { it.s.arriveReal = legs[i].arrive; it.s.kmReal = legs[i].km; }
+        });
         res.arriveReal = legs[legs.length - 1].arrive;
         return res;
+      };
+      if (!res.ok) return res;
+      if (!res.stops.length) return settle(prof);
+      if (items.length + 2 > MAX_ROUTE_POINTS) return res;
+      // Route again through the chosen stations for real distances, times and battery levels.
+      return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end])).then(function (d2) {
+        return settle(P.profile(d2.trip.legs));
       }, function (err) {
         console.warn('route via stops failed', err);
         return res;
@@ -257,7 +287,7 @@
     }).then(function () { setBusy(false); });
   }
 
-  function replan() { if (R.a && R.b && !R.busy) plan(); }
+  function replan() { if (R.a && trip().dests.length && !R.busy) plan(); }
 
   // ---------- render ----------
   function dur(min) {
@@ -309,17 +339,23 @@
   }
 
   // Two cards above the map: destination + verdict, and a trip track with the stops on it.
+  function tripTitle(tr) {
+    var first = tr.dests[0].label;
+    if (tr.round) return 'ไป-กลับ ' + first + (tr.dests.length > 1 ? ' +' + (tr.dests.length - 1) + ' จุด' : '');
+    return tr.end.label + (tr.dests.length > 1 ? ' (ผ่าน ' + (tr.dests.length - 1) + ' จุด)' : '');
+  }
+
   function summary(res) {
     var t = totals(res);
     if (!res.ok) {
       return '<div class="sum-card sum-card--bad"><span class="sum-card__ico">' + BOLT + '</span><div class="sum-card__main">' +
-        '<span class="sum-card__title">' + esc(R.b.label) + '</span>' +
+        '<span class="sum-card__title">' + esc(tripTitle(res.trip)) + '</span>' +
         '<span class="sum-card__sub">' + km1(res.km) + ' กม. <span class="chip chip--crit">ไปไม่ถึง</span></span></div></div>' + track(res, t);
     }
     var chip = !res.stops.length ? '<span class="chip">ไม่ต้องแวะชาร์จ</span>'
       : '<span class="chip">' + BOLT.replace('<svg', '<svg width="12" height="12" fill="currentColor"') + ' แวะ ' + res.stops.length + ' จุด</span>';
     return '<div class="sum-card"><span class="sum-card__ico">' + BOLT + '</span><div class="sum-card__main">' +
-      '<span class="sum-card__title">' + esc(R.b.label) + '</span>' +
+      '<span class="sum-card__title">' + esc(tripTitle(res.trip)) + '</span>' +
       '<span class="sum-card__sub">' + dur(t.total) + ' · ' + km1(t.km) + ' กม. ' + chip + '</span></div></div>' + track(res, t);
   }
 
@@ -328,6 +364,9 @@
     var stops = res.stops.map(function (s) {
       var k = s.kmReal != null ? s.kmReal : s.along;
       return '<span class="track__stop" style="left:' + (k / len * 100).toFixed(1) + '%" title="' + esc(s.st.name) + '"></span>';
+    }).join('') + (res.items || []).filter(function (it) { return it.kind === 'dest'; }).map(function (it) {
+      var k = it.km != null ? it.km : it.along;
+      return '<span class="track__dest" style="left:' + (k / len * 100).toFixed(1) + '%" title="' + esc(it.p.label) + '"></span>';
     }).join('');
     return '<div class="sum-card track"><div class="track__line"><span class="track__bar"></span>' +
       '<svg class="track__car" viewBox="0 0 30 16" aria-hidden="true"><path fill="currentColor" d="M4 9.5 7 5c.6-.8 1.5-1.2 2.5-1.2h8.2c1 0 2 .4 2.6 1.2L23.5 9H26c1.6 0 3 1.3 3 2.9V13h-2.2a2.8 2.8 0 0 0-5.5 0H9.7a2.8 2.8 0 0 0-5.5 0H1v-1.4C1 10.4 2.4 9.5 4 9.5z"/></svg>' +
@@ -345,7 +384,7 @@
       '<button type="button" class="btn btn--soft" data-addopen>รู้จักสถานีแถวนี้? เพิ่มสถานีชาร์จ</button></div>';
   }
 
-  function stopRow(s, i, res) {
+  function stopRow(s, i, res, prev) {
     var st = s.st, arrive = s.arriveReal != null ? s.arriveReal : s.arrive;
     var off = s.c.off < 0.15 ? 'ติดเส้นทาง' : 'ห่าง ' + km1(s.c.off) + ' กม.';
     var a = Math.max(0, Math.min(100, arrive));
@@ -369,11 +408,24 @@
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)</span>' +
         '<div class="row__acts">' +
-          '<a class="btn" href="' + gmapsDir(i ? res.stops[i - 1].st : R.a, st) + '" target="_blank" rel="noopener">นำทางมาที่นี่</a>' +
+          '<a class="btn" href="' + gmapsDir(prev, st) + '" target="_blank" rel="noopener">นำทางมาที่นี่</a>' +
           appLink(st.op) +
           '<button type="button" class="btn" data-skip="' + esc(st.id) + '">ไม่แวะที่นี่</button>' +
         '</div>' + alts +
       '</div></li>';
+  }
+
+  // Charging stops and the user's own destinations, in driving order.
+  function itemRows(res) {
+    var prev = R.a;
+    return (res.items || res.stops.map(function (s) { return { kind: 'stop', s: s, p: s.st }; })).map(function (it) {
+      var html = it.kind === 'stop'
+        ? stopRow(it.s, res.stops.indexOf(it.s), res, prev)
+        : '<li class="row row--dest" data-lat="' + it.p.lat + '" data-lng="' + it.p.lng + '"><span class="pin pin--d">' + it.p.letter + '</span><div><b>' + esc(it.p.label) + '</b>' +
+          '<span>จุดหมาย · กม. ' + km1(it.km != null ? it.km : it.along) + (it.arrive != null ? ' · ถึงแล้วแบตเหลือราว ' + pct(it.arrive) : '') + '</span></div></li>';
+      prev = it.p;
+      return html;
+    }).join('');
   }
 
   function resultCard(res) {
@@ -388,11 +440,11 @@
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
-      '<div class="list-head"><h2>' + (res.stops.length ? 'จุดแวะชาร์จ' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
+      '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
       '<ol class="list">' +
         '<li class="row row--end"><span class="pin pin--a">A</span><div><b>' + esc(R.a.label) + '</b><span>ออกเดินทาง แบต ' + pct(o.startSoc) + '</span></div></li>' +
-        res.stops.map(function (s, i) { return stopRow(s, i, res); }).join('') +
-        (res.ok ? '<li class="row row--end"><span class="pin pin--b">B</span><div><b>' + esc(R.b.label) + '</b><span>ถึงปลายทาง แบตเหลือราว ' + pct(t.arrive) + '</span></div></li>' : '') +
+        itemRows(res) +
+        (res.ok ? '<li class="row row--end"><span class="pin pin--' + (res.trip.end.home ? 'a' : 'b') + '">' + res.trip.end.letter + '</span><div><b>' + esc(res.trip.end.label) + '</b><span>' + (res.trip.end.home ? 'กลับถึงต้นทาง' : 'ถึงปลายทาง') + ' แบตเหลือราว ' + pct(t.arrive) + '</span></div></li>' : '') +
       '</ol>';
     if (R.pinned.length || Object.keys(R.excluded).length) {
       html += '<button type="button" class="link-btn" id="reset">ล้างการเลือกสถานีเอง แล้วให้ระบบเลือกใหม่</button>';
@@ -402,17 +454,20 @@
 
   function navCard(res) {
     if (!res.ok) return '';
-    var via = res.stops.map(function (s) { return s.st; });
+    // Charging stations and the user's own stops go in as Google Maps waypoints, in driving order.
+    var via = (res.items || []).map(function (it) { return it.p; });
+    var end = res.trip.end;
+    var name = function (p) { return p.name || p.label; };
     var html = '<section class="card nav-card">';
     if (via.length <= MAX_GMAPS_WAYPOINTS) {
-      html += '<a class="btn btn--primary" href="' + gmapsDir(R.a, R.b, via) + '" target="_blank" rel="noopener">' + BOLT + 'เปิดเส้นทางทั้งหมดใน Google Maps</a>';
+      html += '<a class="btn btn--primary" href="' + gmapsDir(R.a, end, via) + '" target="_blank" rel="noopener">' + BOLT + 'เปิดเส้นทางทั้งหมดใน Google Maps</a>' +
+        (via.length ? '<p class="hint">จุดชาร์จ ' + res.stops.length + ' จุด' + (via.length > res.stops.length ? ' และจุดหมายของคุณ' : '') + ' ถูกใส่เป็นจุดแวะ (Add destination) ให้แล้ว</p>' : '');
     }
     if (via.length > MOBILE_WAYPOINTS || via.length > MAX_GMAPS_WAYPOINTS) {
-      html += '<p class="hint">แอป Google Maps บนมือถือบางเครื่องรับจุดแวะได้ไม่เกิน ' + MOBILE_WAYPOINTS + ' จุด ถ้าจุดแวะหายไป ให้นำทางทีละช่วง:</p><ol class="legs">';
-      var pts = [R.a].concat(via, [R.b]);
+      html += '<p class="hint">' + (via.length > MAX_GMAPS_WAYPOINTS ? 'จุดแวะเกิน ' + MAX_GMAPS_WAYPOINTS + ' จุด ซึ่ง Google Maps รับไม่ได้ ให้นำทางทีละช่วง:' : 'แอป Google Maps บนมือถือบางเครื่องรับจุดแวะได้ไม่เกิน ' + MOBILE_WAYPOINTS + ' จุด ถ้าจุดแวะหายไป ให้นำทางทีละช่วง:') + '</p><ol class="legs">';
+      var pts = [R.a].concat(via, [end]);
       for (var i = 0; i + 1 < pts.length; i++) {
-        html += '<li><a href="' + gmapsDir(pts[i], pts[i + 1]) + '" target="_blank" rel="noopener">' +
-          esc(i ? via[i - 1].name : R.a.label) + ' → ' + esc(i < via.length ? via[i].name : R.b.label) + '</a></li>';
+        html += '<li><a href="' + gmapsDir(pts[i], pts[i + 1]) + '" target="_blank" rel="noopener">' + esc(name(pts[i])) + ' → ' + esc(name(pts[i + 1])) + '</a></li>';
       }
       html += '</ol>';
     }
@@ -460,9 +515,14 @@
   function socChart(res) {
     var t = totals(res), o = res.opts, len = t.km;
     var pts = [[0, o.startSoc]];
-    res.stops.forEach(function (s) {
-      var k = s.kmReal != null ? s.kmReal : s.along, a = s.arriveReal != null ? s.arriveReal : s.arrive;
-      pts.push([k, a], [k, s.depart]);
+    (res.items || []).forEach(function (it) {
+      var k = it.km != null ? it.km : it.along;
+      if (it.kind === 'stop') {
+        var s = it.s, a = s.arriveReal != null ? s.arriveReal : s.arrive;
+        pts.push([k, a], [k, s.depart]);
+      } else if (it.arrive != null) {
+        pts.push([k, it.arrive]);
+      }
     });
     if (res.ok) pts.push([len, t.arrive]);
     else pts.push([res.fail.reach, o.minSoc]);
@@ -482,8 +542,12 @@
       var k = s.kmReal != null ? s.kmReal : s.along;
       return '<circle class="stop-dot" cx="' + x(k) + '" cy="' + y(s.depart) + '" r="6"/>' +
         '<text class="val" x="' + x(k) + '" y="' + (y(s.depart) - 11) + '" text-anchor="middle">' + (i + 1) + '</text>';
+    }).join('') + (res.items || []).filter(function (it) { return it.kind === 'dest'; }).map(function (it) {
+      var k = it.km != null ? it.km : it.along;
+      return '<line class="dest-line" x1="' + x(k) + '" x2="' + x(k) + '" y1="' + PAD.t + '" y2="' + y(0) + '"/>' +
+        '<text class="dest-label" x="' + x(k) + '" y="' + (PAD.t - 4) + '" text-anchor="middle">' + it.p.letter + '</text>';
     }).join('');
-    $('chart-kpi').innerHTML = 'ถึงปลายทางเหลือแบต<b>' + (res.ok ? pct(t.arrive) : '–') + '<small>จาก ' + pct(o.startSoc) + '</small></b>';
+    $('chart-kpi').innerHTML = (res.trip.round ? 'กลับถึงต้นทางเหลือแบต' : 'ถึงปลายทางเหลือแบต') + '<b>' + (res.ok ? pct(t.arrive) : '–') + '<small>จาก ' + pct(o.startSoc) + '</small></b>';
     $('chart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="ระดับแบตตลอดเส้นทาง">' +
       '<defs><linearGradient id="g-soc" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="' + css('accent') + '" stop-opacity=".35"/><stop offset="1" stop-color="' + css('accent') + '" stop-opacity="0"/></linearGradient></defs>' +
       grid + ticks +
@@ -614,11 +678,42 @@
   }
 
   // ---------- inputs ----------
+  function destInput(i) { return i === 0 ? $('to') : $('dest-' + i); }
+
   function setPoint(which, p) {
-    R[which] = p;
-    $(which === 'a' ? 'from' : 'to').value = p ? p.label : '';
+    if (which === 'a') { R.a = p; $('from').value = p ? p.label : ''; }
+    else { R.dests[which] = p; destInput(which).value = p ? p.label : ''; }
     pin(which, p);
-    if (p && !(R.a && R.b)) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 11));
+    if (p && !(R.a && R.dests[0])) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 11));
+  }
+
+  // Inputs for destinations C, D ... (B is the fixed "to" field).
+  function renderDests() {
+    var box = $('dests');
+    box.innerHTML = '';
+    for (var i = 1; i < R.dests.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'place';
+      div.innerHTML = '<span class="dot dot--c" aria-hidden="true"></span>' +
+        '<label class="sr-only" for="dest-' + i + '">จุดหมาย ' + letter(i) + '</label>' +
+        '<input id="dest-' + i + '" class="search" type="text" placeholder="จุดหมาย ' + letter(i) + ': จะไปต่อที่ไหน" enterkeyhint="next">' +
+        '<button type="button" class="place__del" data-del="' + i + '" aria-label="ลบจุดหมาย ' + letter(i) + '">×</button>' +
+        '<ul class="sug" id="dest-' + i + '-sug" role="listbox" hidden></ul>';
+      box.appendChild(div);
+      $('dest-' + i).value = R.dests[i] ? R.dests[i].label : '';
+      suggest($('dest-' + i), $('dest-' + i + '-sug'), i);
+    }
+    Object.keys(pins).forEach(function (k) { if (k !== 'a') { if (pins[k]) map.removeLayer(pins[k]); delete pins[k]; } });
+    R.dests.forEach(function (p, i) { pin(i, p); });
+    $('to').placeholder = R.dests.length > 1 ? 'จุดหมาย B: แวะที่ไหนก่อน' : 'ปลายทาง: จะไปที่ไหน';
+    $('add-dest').hidden = R.dests.length >= MAX_DESTS;
+    $('swap').hidden = R.dests.length > 1;
+  }
+
+  function nextField(which) {
+    if (which === 'a') return $('to');
+    var n = destInput(which + 1);
+    return n && !R.dests[which + 1] ? n : null;
   }
 
   function newTrip() { R.pinned = []; R.excluded = {}; }
@@ -626,7 +721,7 @@
   function suggest(input, list, which) {
     var timer, last = '';
     input.addEventListener('input', function () {
-      R[which] = null;
+      if (which === 'a') R.a = null; else R.dests[which] = null;
       pin(which, null);
       var q = input.value.trim();
       clearTimeout(timer);
@@ -650,7 +745,8 @@
       setPoint(which, list._res[+li.dataset.i]);
       newTrip();
       list.hidden = true;
-      if (which === 'a') $('to').focus();
+      var nx = nextField(which);
+      if (nx) nx.focus();
     });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !list.hidden && list._res && list._res.length) {
@@ -658,7 +754,8 @@
         setPoint(which, list._res[0]);
         newTrip();
         list.hidden = true;
-        if (which === 'a') $('to').focus(); else if (R.a) plan();
+        var nx = nextField(which);
+        if (nx) nx.focus(); else if (R.a) plan();
       }
       if (e.key === 'Escape') list.hidden = true;
     });
@@ -683,11 +780,13 @@
   function shareURL() {
     try {
       var c = R.car;
-      var q = new URLSearchParams({
-        from: R.a.lat.toFixed(5) + ',' + R.a.lng.toFixed(5), fn: R.a.label,
-        to: R.b.lat.toFixed(5) + ',' + R.b.lng.toFixed(5), tn: R.b.label,
-        car: c.id, soc: $('soc').value, u: unit(), min: radio('min'), tgt: radio('target'),
+      var q = new URLSearchParams({ from: R.a.lat.toFixed(5) + ',' + R.a.lng.toFixed(5), fn: R.a.label });
+      R.dests.filter(Boolean).forEach(function (p) {
+        q.append('to', p.lat.toFixed(5) + ',' + p.lng.toFixed(5));
+        q.append('tn', p.label);
       });
+      if (R.round) q.set('rt', '1');
+      [['car', c.id], ['soc', $('soc').value], ['u', unit()], ['min', radio('min')], ['tgt', radio('target')]].forEach(function (kv) { q.set(kv[0], kv[1]); });
       var base = CARS.filter(function (x) { return x.id === c.id; })[0];
       if (c.kwh !== base.kwh || c.use !== base.use || c.dc !== base.dc || c.margin !== 10) q.set('tune', [c.kwh, c.use, c.dc, c.margin].join(','));
       if (R.pinned.length) q.set('pin', R.pinned.join(','));
@@ -719,10 +818,15 @@
     if (!q.get('car') && !saved) togglePicker(true);
     if (q.get('pin')) R.pinned = q.get('pin').split(',').filter(Boolean);
     if (q.get('ex')) q.get('ex').split(',').forEach(function (id) { if (id) R.excluded[id] = true; });
-    var a = parse(q.get('from'), q.get('fn')), b = parse(q.get('to'), q.get('tn'));
+    var a = parse(q.get('from'), q.get('fn'));
+    var names = q.getAll('tn');
+    var ds = q.getAll('to').map(function (v, i) { return parse(v, names[i]); }).filter(Boolean).slice(0, MAX_DESTS);
+    R.round = q.get('rt') === '1';
+    $('round').checked = R.round;
+    R.dests = ds.length ? ds : [null];
+    renderDests();
     if (a) setPoint('a', a);
-    if (b) setPoint('b', b);
-    if (a && b) plan();
+    if (a && ds.length) plan();
   }
 
   function togglePicker(open) {
@@ -760,23 +864,44 @@
   });
 
   suggest($('from'), $('from-sug'), 'a');
-  suggest($('to'), $('to-sug'), 'b');
+  suggest($('to'), $('to-sug'), 0);
+  $('add-dest').addEventListener('click', function () {
+    if (R.dests.length >= MAX_DESTS) return;
+    R.dests.push(null);
+    renderDests();
+    destInput(R.dests.length - 1).focus();
+  });
+  $('dests').addEventListener('click', function (e) {
+    var del = e.target.closest('[data-del]');
+    if (!del) return;
+    R.dests.splice(+del.dataset.del, 1);
+    renderDests();
+    newTrip();
+    if (R.result) replan();
+  });
+  $('round').addEventListener('change', function () {
+    R.round = this.checked;
+    newTrip();
+    if (R.result) replan();
+  });
   $('from-gps').addEventListener('click', gps);
   $('swap').addEventListener('click', function () {
-    var a = R.a, b = R.b;
+    var a = R.a, b = R.dests[0];
     setPoint('a', b);
-    setPoint('b', a);
+    setPoint(0, a);
     newTrip();
-    if (R.a && R.b && R.result) plan();
+    if (R.a && R.dests[0] && R.result) plan();
   });
   $('form').addEventListener('submit', function (e) { e.preventDefault(); if (!R.busy) plan(); });
   map.on('click', function (e) {
     if (A.open) { setAddPoint({ lat: e.latlng.lat, lng: e.latlng.lng }); return; }
     if (R.result) return; // with a plan on screen, taps open station popups instead
     var p = { lat: e.latlng.lat, lng: e.latlng.lng, label: 'จุดที่เลือก (' + e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4) + ')' };
-    setPoint(!R.a ? 'a' : 'b', p);
+    var free = R.dests.indexOf(null);
+    if (R.a && free < 0) return;
+    setPoint(!R.a ? 'a' : free, p);
     newTrip();
-    if (R.a && R.b && !R.busy) plan();
+    if (R.a && R.dests.indexOf(null) < 0 && !R.busy) plan();
   });
 
   // "แวะชาร์จที่นี่" in a station popup on the map.

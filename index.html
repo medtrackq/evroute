@@ -122,8 +122,15 @@
                 <input id="to" class="search" type="text" placeholder="ปลายทาง: จะไปที่ไหน" enterkeyhint="search">
                 <ul class="sug" id="to-sug" role="listbox" hidden></ul>
               </div>
+              <div id="dests" class="dests"></div>
             </div>
-            <p class="hint">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง)</p>
+            <div class="place-acts">
+              <button type="button" class="pill-btn" id="add-dest">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>เพิ่มจุดหมาย
+              </button>
+              <label class="toggle"><input type="checkbox" id="round"><span class="toggle__ui" aria-hidden="true"></span><span>ไป-กลับ (กลับมาที่ต้นทาง)</span></label>
+            </div>
+            <p class="hint">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง) · จุดชาร์จจะถูกแทรกให้อัตโนมัติ</p>
             <button type="submit" class="btn btn--primary btn--block" id="go">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
               <span>วางแผนการเดินทาง</span>
