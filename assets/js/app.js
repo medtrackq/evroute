@@ -475,6 +475,66 @@
       (o.booking ? 'จองผ่านแอป ' : 'เปิดแอป ') + esc(o.app || o.name) + '</a>';
   }
 
+  // Operator apps can't be opened at a given station, so "จองผ่านแอป" copies a search word for the
+  // app's search box. Operators name sites their own way ("พีทีทีอาร์เอ็ม สาขาอินทร์บุรี กม.104"),
+  // but their names and addresses carry the district, so that finds the site in a few results.
+  // "เมือง…" districts are in every province, so there the subdistrict is used instead.
+  var BRANDS = /PEA\s*VOLTA|EV\s*Station\s*PluZ|PluZ|PTT|ปตท\.?|EleXA|Elex(\s*by\s*EGAT)?|EGAT|EA\s*Anywhere|E[Vv]olt|Altervim|MEA\s*EV|Sharge|Shell\s*Recharge|Tesla\s*Supercharger|สถานีชาร์จ(ไฟฟ้า)?|ปั๊ม(น้ำมัน)?|(EV\s*)?Charg(ing|e)\s*Station|\bEV\b/gi;
+
+  function placeName(st) {
+    var n = String(st.name || '').replace(/\([^)]*\)/g, ' ').replace(BRANDS, ' ').replace(/[·\-–]+/g, ' ').replace(/\s+/g, ' ').trim();
+    return n.length >= 2 ? n : '';
+  }
+
+  function searchKey(st) {
+    var a = String(st.addr || '');
+    var amphoe = /(?:อำเภอ|อ\.)\s*([^\s,]+)/.exec(a) || /เขต\s*([^\s,]+)/.exec(a);
+    var tambon = /(?:ตำบล|ต\.|แขวง)\s*([^\s,]+)/.exec(a);
+    if (amphoe && !/^เมือง/.test(amphoe[1])) return amphoe[1];
+    if (amphoe && tambon && !/^(ใน)?เมือง/.test(tambon[1])) return tambon[1];
+    return placeName(st) || (tambon && tambon[1]) || st.name;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (ok, fail) {
+      var t = document.createElement('textarea');
+      t.value = text;
+      t.setAttribute('readonly', '');
+      t.style.cssText = 'position:fixed;opacity:0;top:0';
+      document.body.appendChild(t);
+      t.select();
+      var done = false;
+      try { done = document.execCommand('copy'); } catch (e) {}
+      t.remove();
+      if (done) ok(); else fail(new Error('copy failed'));
+    });
+  }
+
+  var toastTimer;
+  function toast(html, ms) {
+    var el = $('toast');
+    el.innerHTML = html;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, ms || 4000);
+  }
+
+  function openApp(a, st, e) {
+    e.preventDefault();
+    var name = searchKey(st), href = a.href;
+    // A new tab must open inside the tap or the browser blocks it; an app or store link in the same
+    // tab waits a moment so the copy finishes and the driver sees what was copied.
+    if (a.target === '_blank') window.open(href, '_blank', 'noopener');
+    copyText(name).then(function () {
+      toast('คัดลอก <b>"' + esc(name) + '"</b> แล้ว วางในช่องค้นหาของแอป<br>แล้วเลือก ' + esc(st.name), 6000);
+    }, function () {
+      toast('ค้นหาในแอปด้วยคำว่า <b>"' + esc(name) + '"</b><br>แล้วเลือก ' + esc(st.name), 6000);
+    }).then(function () {
+      if (a.target !== '_blank') setTimeout(function () { location.href = href; }, 900);
+    });
+  }
+
   // Map popup for a station: details plus the same actions as its row in the plan.
   function popupActions(st, extra) {
     return '<div class="popup-acts">' + appLink(st) + favButton(st) +
@@ -578,6 +638,7 @@
         (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
         (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
+        (R.operators[st.op] ? '<span class="row__addr">คำค้นในแอป: <b>' + esc(searchKey(st)) + '</b> <button type="button" class="link-btn" data-copy="' + esc(searchKey(st)) + '">คัดลอก</button></span>' : '') +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
@@ -1230,7 +1291,12 @@
     var f = e.target.closest('[data-fav]');
     if (f) { if (!R.favs[f.dataset.fav]) logEvent('fav', stationById(f.dataset.fav)); map.closePopup(); toggleFav(f.dataset.fav); return; }
     var ev = e.target.closest('[data-ev]');
-    if (ev) { logEvent(ev.dataset.ev, stationById(ev.dataset.sid)); return; }
+    if (ev) {
+      var evSt = stationById(ev.dataset.sid);
+      logEvent(ev.dataset.ev, evSt);
+      if (ev.dataset.ev === 'app' && evSt) openApp(ev, evSt, e);
+      return;
+    }
     var b = e.target.closest('[data-add]');
     if (!b) return;
     var id = b.dataset.add;
@@ -1259,8 +1325,18 @@
     if ((t = e.target.closest('[data-fav]'))) { if (!R.favs[t.dataset.fav]) logEvent('fav', stationById(t.dataset.fav)); toggleFav(t.dataset.fav); return; }
     if (e.target.closest('#save-plan')) { logEvent('save'); savePlan(); return; }
     if ((t = e.target.closest('[data-report]'))) { openReport(t); return; }
+    if ((t = e.target.closest('[data-copy]'))) {
+      var word = t.dataset.copy;
+      copyText(word).then(function () { toast('คัดลอก <b>"' + esc(word) + '"</b> แล้ว'); }, function () {});
+      return;
+    }
     if ((t = e.target.closest('[data-report-close]'))) { t.closest('.report-slot').innerHTML = ''; return; }
-    if ((t = e.target.closest('[data-ev]'))) { logEvent(t.dataset.ev, stationById(t.dataset.sid)); return; }
+    if ((t = e.target.closest('[data-ev]'))) {
+      var evSt = stationById(t.dataset.sid);
+      logEvent(t.dataset.ev, evSt);
+      if (t.dataset.ev === 'app' && evSt) openApp(t, evSt, e);
+      return;
+    }
     if ((t = e.target.closest('[data-skip]'))) {
       logEvent('skip', stationById(t.dataset.skip));
       R.excluded[t.dataset.skip] = true;
