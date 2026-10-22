@@ -66,3 +66,38 @@ test('supabase insert sends the secret key and the row', async () => {
   const fail = supabase({ url: 'https://p.supabase.co', key: 'S', fetchFn: async () => ({ ok: false, status: 401, text: async () => 'bad key' }) });
   await assert.rejects(fail.insert('plans', {}), /401 bad key/);
 });
+
+test('charge reports keep the socket only when charging worked', async () => {
+  const { cleanCharge: cc } = await import('../lib/stats.mjs');
+  assert.equal(cc({ sid: 's', ok: true, plug: 'CHAdeMO' }).plug, 'CHAdeMO');
+  assert.equal(cc({ sid: 's', ok: true, plug: 'HDMI' }).plug, null);
+  assert.equal(cc({ sid: 's', ok: false, plug: 'CCS2', problem: 'broken' }).plug, null);
+});
+
+test('reports are summed per station, with a recent failure flagged', async () => {
+  const { summarize } = await import('../lib/stats.mjs');
+  const now = Date.parse('2026-10-22T12:00:00Z');
+  const day = (n) => new Date(now - n * 864e5).toISOString();
+  const s = summarize([ // newest first, as the server asks Supabase for them
+    { station_id: 'a', ok: false, problem: 'broken', created_at: day(2) },
+    { station_id: 'a', ok: true, plug: 'CCS2', max_kw: 88, created_at: day(5) },
+    { station_id: 'a', ok: true, plug: 'CCS2', max_kw: 120, created_at: day(9) },
+    { station_id: 'b', ok: false, problem: 'queue', created_at: day(30) },
+    { station_id: 'b', ok: true, plug: 'CHAdeMO', max_kw: null, created_at: day(31) },
+  ], now);
+  assert.deepEqual(s.a.plugs, { CCS2: 120 });
+  assert.equal(s.a.ok, 2);
+  assert.equal(s.a.fail, 1);
+  assert.equal(s.a.last, Date.parse(day(5)));
+  assert.deepEqual(s.a.prob, { problem: 'broken', at: Date.parse(day(2)) });
+  assert.equal(s.b.prob, null); // the failure is too old to warn about
+  assert.deepEqual(s.b.plugs, { CHAdeMO: 0 });
+});
+
+test('a reverse geocode gives the district for the search word', async () => {
+  const { areaFromPhoton } = await import('../lib/stations.mjs');
+  assert.deepEqual(areaFromPhoton({ features: [{ properties: { city: 'อินทร์บุรี', county: 'อำเภออินทร์บุรี', state: 'จังหวัดสิงห์บุรี' } }] }),
+    { amphoe: 'อินทร์บุรี', sub: 'อินทร์บุรี', province: 'สิงห์บุรี' });
+  assert.deepEqual(areaFromPhoton({ features: [{ properties: { county: 'เขตจตุจักร' } }] }), { amphoe: 'จตุจักร', sub: null, province: null });
+  assert.deepEqual(areaFromPhoton({}), { amphoe: null, sub: null, province: null });
+});

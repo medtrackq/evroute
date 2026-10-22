@@ -8,10 +8,10 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fromOSM, fromOCM, fromCurated, fromUser, merge } from './lib/stations.mjs';
+import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from './lib/stations.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces } from './lib/google.mjs';
-import { record, supabase } from './lib/stats.mjs';
+import { record, supabase, summarize } from './lib/stats.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -37,6 +37,7 @@ const UA = 'evroute (EV trip planner for Thailand)';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
 const PHOTON = 'https://photon.komoot.io/api/?limit=5&bbox=97.3,5.6,105.7,20.5&q=';
+const PHOTON_REVERSE = 'https://photon.komoot.io/reverse?limit=1&';
 const OVERPASS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -46,6 +47,7 @@ const OVERPASS_Q = '[out:json][timeout:180];area["ISO3166-1"="TH"][admin_level=2
 const OCM_URL = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=TH&maxresults=5000&compact=true&verbose=false';
 
 const GEO_TTL = 10 * 60 * 1000;
+const AREA_TTL = 30 * 24 * 60 * 60 * 1000; // districts don't move
 const STATION_TTL = 24 * 60 * 60 * 1000;
 const RETRY_MS = 30 * 60 * 1000; // after a failed refresh, keep serving what we have and try again later
 const MAX_BODY = 64 * 1024;
@@ -253,7 +255,24 @@ async function logStat(req, res) {
   try { rec = record(JSON.parse(await readBody(req))); } catch { rec = null; }
   if (!rec) { res.writeHead(400).end(); return; }
   res.writeHead(204).end();
-  stats.insert(rec[0], rec[1]).catch((err) => console.error(new Date().toISOString(), 'stats', err.message));
+  stats.insert(rec[0], rec[1])
+    .then(() => { if (rec[0] === 'charges') reloadReports(); })
+    .catch((err) => console.error(new Date().toISOString(), 'stats', err.message));
+}
+
+// Drivers' charging reports from the last 90 days, summed up per station for the page.
+const REPORTS_TTL = 10 * 60 * 1000;
+let reportsBody = '{"reports":{}}', reportsAt = 0;
+async function reloadReports() {
+  reportsAt = Date.now();
+  if (!stats) return;
+  try {
+    const since = new Date(Date.now() - 90 * 864e5).toISOString();
+    const rows = await stats.select('charges', 'select=station_id,ok,plug,max_kw,problem,created_at&created_at=gte.' + since + '&order=created_at.desc&limit=5000');
+    reportsBody = JSON.stringify({ reports: summarize(rows) });
+  } catch (err) {
+    console.error(new Date().toISOString(), 'reports', err.message);
+  }
 }
 
 // ---------- route ----------
@@ -356,6 +375,23 @@ createServer(async (req, res) => {
     }, { 'Cache-Control': 'no-store' });
     return;
   }
+  if (url.pathname === '/api/reports') {
+    if (Date.now() - reportsAt > REPORTS_TTL) reloadReports(); // stale-while-revalidate
+    json(res, 200, reportsBody, { 'Cache-Control': 'public, max-age=60' });
+    return;
+  }
+  if (url.pathname === '/api/area') {
+    const lat = Number(url.searchParams.get('lat')), lng = Number(url.searchParams.get('lng'));
+    if (!(lat > 5 && lat < 21 && lng > 97 && lng < 106)) { res.writeHead(400).end(); return; }
+    try {
+      const r = await cached(PHOTON_REVERSE + 'lat=' + lat.toFixed(4) + '&lon=' + lng.toFixed(4), AREA_TTL);
+      json(res, 200, areaFromPhoton(JSON.parse(r.body)), { 'Cache-Control': 'public, max-age=86400' });
+    } catch (err) {
+      console.error(new Date().toISOString(), '/api/area', err.message);
+      json(res, 502, { error: 'geocoder unavailable' });
+    }
+    return;
+  }
   if (url.pathname === '/api/geocode') {
     const q = (url.searchParams.get('q') || '').trim().slice(0, 100);
     if (!q) { res.writeHead(400).end(); return; }
@@ -374,4 +410,5 @@ createServer(async (req, res) => {
 });
 
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
+reloadReports();
 Promise.all([loadOSMSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));

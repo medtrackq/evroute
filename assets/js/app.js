@@ -15,7 +15,7 @@
   var R = {
     stations: [], operators: {}, ready: null,
     a: null, dests: [null], round: false, car: null, busy: false,
-    pinned: [], excluded: {}, result: null, chart: 'soc', reported: {},
+    pinned: [], excluded: {}, result: null, chart: 'soc', reported: {}, reports: {},
   };
   var $ = function (id) { return document.getElementById(id); };
 
@@ -242,8 +242,46 @@
       $('notice').textContent = 'โหลดข้อมูลสถานีชาร์จไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้ง';
       throw err;
     });
-    return Promise.all([ops, st]);
+    var reps = getJSON('/api/reports').then(function (d) { R.reports = (d && d.reports) || {}; }, function () {});
+    return Promise.all([ops, st, reps]).then(function () { R.stations.forEach(applyReport); });
   }
+
+  // Drivers' charging reports (from "บันทึกการชาร์จจริง"): a socket a driver charged on counts as
+  // seen, with the highest power they saw, so the plan stops warning about it.
+  function applyReport(st) {
+    var r = R.reports[st.id];
+    if (!r) return st;
+    st.rep = r;
+    Object.keys(r.plugs || {}).forEach(function (type) {
+      var kw = +r.plugs[type] || 0, dc = type !== 'Type2';
+      var p = st.plugs.filter(function (x) { return x.type === type; })[0];
+      if (!p) st.plugs.push(p = { type: type, kw: kw || (dc ? 50 : 22), n: 1, dc: dc });
+      else if (kw && (st.guess || !p.kw)) p.kw = kw;
+      p.seen = true;
+    });
+    if (st.guess && st.plugs.every(function (p) { return !p.dc || p.seen; })) st.guess = false;
+    return st;
+  }
+
+  // Whether to warn that this station's plug details are unconfirmed: a guess, unless a driver
+  // reported charging on the very socket the plan uses (or on any socket, without one).
+  function doubtful(st, plug) {
+    if (!st.guess) return false;
+    return plug ? !plug.seen : !st.plugs.some(function (p) { return p.seen; });
+  }
+
+  function daysAgo(t) {
+    var d = Math.floor((Date.now() - t) / 864e5);
+    return d <= 0 ? 'วันนี้' : d === 1 ? 'เมื่อวาน' : d + ' วันก่อน';
+  }
+
+  function repLines(st) {
+    var r = st.rep;
+    if (!r) return '';
+    return (r.prob ? '<span class="row__warn">⚠ ผู้ใช้รายงาน (' + daysAgo(r.prob.at) + '): ' + esc(problemText(r.prob.problem)) + '</span>' : '') +
+      (r.ok ? '<span class="row__good">✓ ผู้ใช้ชาร์จได้จริง ' + r.ok + ' ครั้ง · ล่าสุด ' + daysAgo(r.last) + '</span>' : '');
+  }
+
 
   // ---------- plan ----------
   function setBusy(on) {
@@ -368,7 +406,7 @@
     var added = 0;
     list.forEach(function (st) {
       var same = R.stations.filter(function (o) { return Math.abs(o.lat - st.lat) < 0.002 && P.km(o, st) < 0.12; })[0];
-      if (!same) { R.stations.push(st); added++; return; }
+      if (!same) { R.stations.push(applyReport(st)); added++; return; }
       if (same.guess && !st.guess) { same.plugs = st.plugs; same.guess = false; }
       if (st.url && !same.url) same.url = st.url;
     });
@@ -472,7 +510,7 @@
     if (!o) return '';
     var u = appUrl(o);
     return '<a class="btn btn--soft" href="' + esc(u.url) + '"' + (u.blank ? ' target="_blank" rel="noopener"' : '') + evAttr('app', st) + '>' +
-      (o.booking ? 'จองผ่านแอป ' : 'เปิดแอป ') + esc(o.app || o.name) + '</a>';
+      'เปิดแอป ' + esc(o.app || o.name) + '</a>';
   }
 
   // Operator apps can't be opened at a given station, so "จองผ่านแอป" copies a search word for the
@@ -490,9 +528,39 @@
     var a = String(st.addr || '');
     var amphoe = /(?:อำเภอ|อ\.)\s*([^\s,]+)/.exec(a) || /เขต\s*([^\s,]+)/.exec(a);
     var tambon = /(?:ตำบล|ต\.|แขวง)\s*([^\s,]+)/.exec(a);
-    if (amphoe && !/^เมือง/.test(amphoe[1])) return amphoe[1];
-    if (amphoe && tambon && !/^(ใน)?เมือง/.test(tambon[1])) return tambon[1];
+    var generic = /^(ใน)?เมือง/, area = st.area || {};
+    if (amphoe && !generic.test(amphoe[1])) return amphoe[1];
+    if (amphoe && tambon && !generic.test(tambon[1])) return tambon[1];
+    // No district in the address: what /api/area found from the station's position, if it's back.
+    if (!amphoe && area.amphoe && !generic.test(area.amphoe)) return area.amphoe;
+    if (!amphoe && area.sub && !generic.test(area.sub)) return area.sub;
     return placeName(st) || (tambon && tambon[1]) || st.name;
+  }
+
+  // Name and address in one line, to paste into LINE, Google Maps or any other app.
+  function fullText(st) {
+    var a = st.addr || (st.area ? [st.area.amphoe && 'อ.' + st.area.amphoe, st.area.province && 'จ.' + st.area.province].filter(Boolean).join(' ') : '');
+    return st.name + (a ? ' ' + a : '');
+  }
+
+  function keyLine(st) {
+    var k = searchKey(st);
+    return 'คำค้น: <b>' + esc(k) + '</b> <button type="button" class="link-btn" data-copy="' + esc(k) + '">คัดลอก</button>' +
+      ' · <button type="button" class="link-btn" data-copy="' + esc(fullText(st)) + '">คัดลอกชื่อและที่อยู่</button>';
+  }
+
+  // Stations in the plan whose address has no district: look it up from their position, then
+  // refresh their search word in place.
+  function fillAreas(res) {
+    res.stops.forEach(function (s) {
+      var st = s.st;
+      if (st.area !== undefined || /(?:อำเภอ|อ\.|เขต)\s*\S/.test(st.addr || '')) return;
+      st.area = null;
+      getJSON('/api/area?lat=' + st.lat + '&lng=' + st.lng).then(function (a) {
+        st.area = a;
+        document.querySelectorAll('[data-key-for]').forEach(function (el) { if (el.dataset.keyFor === st.id) el.innerHTML = keyLine(st); });
+      }, function () {});
+    });
   }
 
   function copyText(text) {
@@ -624,7 +692,7 @@
     var alts = s.alts.length ? '<details class="alts"><summary>เปลี่ยนสถานี (' + s.alts.length + ')</summary><ul>' +
       s.alts.map(function (x) {
         return '<li><button type="button" class="alt" data-swap="' + i + '" data-id="' + esc(x.c.st.id) + '">' +
-          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (x.c.st.guess ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + '</span></button></li>';
+          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (doubtful(x.c.st, x.c.plug) ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + '</span></button></li>';
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
@@ -633,12 +701,13 @@
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
         '<span class="row__plug">' + esc(plugText(st)) + '</span>' +
-        (st.guess ? '<span class="row__warn">ข้อมูลหัวชาร์จ/กำลังไฟยังไม่ยืนยัน ตรวจในแอปก่อน</span>' : '') +
+        (doubtful(st, s.c.plug) ? '<span class="row__warn">ข้อมูลหัวชาร์จ/กำลังไฟยังไม่ยืนยัน ตรวจในแอปก่อน</span>' : '') +
+        repLines(st) +
         (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
         (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
         (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
-        (R.operators[st.op] ? '<span class="row__addr">คำค้นในแอป: <b>' + esc(searchKey(st)) + '</b> <button type="button" class="link-btn" data-copy="' + esc(searchKey(st)) + '">คัดลอก</button></span>' : '') +
+        '<span class="row__addr" data-key-for="' + esc(st.id) + '">' + keyLine(st) + '</span>' +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
@@ -747,6 +816,7 @@
     $('chart-card').hidden = !res.ok && !res.stops.length;
     chart();
     draw();
+    fillAreas(res);
   }
 
   function clearResult() {
@@ -817,6 +887,9 @@
   var PROBLEMS = [['broken', 'ตู้เสีย / ชาร์จไม่เข้า'], ['no_plug', 'ไม่มีหัวชาร์จที่รถใช้ได้'], ['queue', 'คิวยาว'],
     ['slow', 'ชาร์จช้ากว่าที่ระบุมาก'], ['closed', 'สถานีปิด / หาไม่เจอ'], ['blocked', 'มีรถจอดขวาง'], ['app', 'แอปมีปัญหา / จ่ายเงินไม่ได้'], ['other', 'อื่น ๆ']];
 
+  var REPORT_PLUGS = [['CCS2', 'CCS2'], ['CHAdeMO', 'CHAdeMO'], ['GBT', 'GB/T'], ['Type2', 'Type 2 (AC)'], ['Tesla', 'Tesla']];
+  function problemText(code) { var p = PROBLEMS.filter(function (x) { return x[0] === code; })[0]; return p ? p[1] : 'อื่น ๆ'; }
+
   function numField(name, label, unit, val, max) {
     return '<label class="report__f"><span>' + label + '</span><span class="report__in"><input class="field" name="' + name + '" type="number" inputmode="decimal" min="0" max="' + max + '" step="any"' +
       (val != null ? ' value="' + Math.round(val) + '"' : '') + '><em>' + unit + '</em></span></label>';
@@ -829,6 +902,8 @@
       '<div class="report__seg" role="radiogroup"><label><input type="radio" name="ok" value="1" checked><span>ชาร์จได้</span></label>' +
         '<label><input type="radio" name="ok" value="0"><span>ชาร์จไม่ได้</span></label></div>' +
       '<div class="report__grid" data-when="ok">' +
+        '<label class="report__f"><span>หัวที่ใช้</span><select class="field" name="plug">' +
+          REPORT_PLUGS.map(function (p) { return '<option value="' + p[0] + '"' + (s.c.plug && s.c.plug.type === p[0] ? ' selected' : '') + '>' + p[1] + '</option>'; }).join('') + '</select></label>' +
         numField('socFrom', 'แบตก่อนชาร์จ', '%', Math.max(0, arrive), 100) +
         numField('socTo', 'แบตหลังชาร์จ', '%', s.depart, 100) +
         numField('kwh', 'ไฟที่ได้', 'kWh', null, 250) +
@@ -864,6 +939,7 @@
     };
     if (ok) {
       ['socFrom', 'socTo', 'kwh', 'baht', 'minutes', 'maxKw', 'odo'].forEach(function (n) { d[n] = v(n); });
+      d.plug = f.elements.plug.value;
       if (d.socFrom != null && d.socTo != null && d.socTo <= d.socFrom) { msg.textContent = 'แบตหลังชาร์จต้องมากกว่าก่อนชาร์จ'; return; }
       if (d.kwh == null && d.socTo == null) { msg.textContent = 'ใส่แบตหลังชาร์จ หรือไฟที่ได้ (kWh) อย่างน้อยหนึ่งช่อง'; return; }
     }
@@ -1016,7 +1092,7 @@
     res.stops.forEach(function (s) { chosen[s.st.id] = true; });
     res.cands.forEach(function (c) {
       if (chosen[c.st.id]) return;
-      map.dot(c.st.lat, c.st.lng, { radius: R.favs[c.st.id] ? 8 : 6, fill: R.favs[c.st.id] ? FAV_COLOR : c.st.guess ? css('unk') : css('accent'), popup: stationPopup(c), layer: candLayer });
+      map.dot(c.st.lat, c.st.lng, { radius: R.favs[c.st.id] ? 8 : 6, fill: R.favs[c.st.id] ? FAV_COLOR : doubtful(c.st, c.plug) ? css('unk') : css('accent'), popup: stationPopup(c), layer: candLayer });
     });
     res.stops.forEach(function (s, i) {
       map.pin(s.st.lat, s.st.lng, {
@@ -1044,7 +1120,9 @@
     var st = c.st;
     return '<b>' + esc(st.name) + '</b>' + userTag(st) + '<br>' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '<br>' + esc(plugText(st)) +
       '<br><span class="hint">กม. ' + km1(c.along) + ' · ' + (c.off < 0.15 ? 'ติดเส้นทาง' : 'ห่างเส้นทาง ' + km1(c.off) + ' กม.') + '</span>' +
-      (st.guess ? '<br><span class="hint">ข้อมูลหัวชาร์จยังไม่ยืนยัน</span>' : '') +
+      (doubtful(st) ? '<br><span class="hint">ข้อมูลหัวชาร์จยังไม่ยืนยัน</span>' : '') +
+      (st.rep && st.rep.prob ? '<br><span class="hint">⚠ ผู้ใช้รายงาน (' + daysAgo(st.rep.prob.at) + '): ' + esc(problemText(st.rep.prob.problem)) + '</span>' : '') +
+      (st.rep && st.rep.ok ? '<br><span class="hint">✓ ผู้ใช้ชาร์จได้จริง ' + st.rep.ok + ' ครั้ง</span>' : '') +
       googleLink(st) +
       popupActions(st, '<button type="button" class="btn btn--primary" data-add="' + esc(st.id) + '">แวะชาร์จที่นี่</button>');
   }
@@ -1471,7 +1549,7 @@
   function drawAll() {
     A.layer.clear();
     R.stations.forEach(function (st) {
-      map.dot(st.lat, st.lng, { radius: 4, fill: st.guess ? css('unk') : css('accent'), tooltip: st.name + (st.src === 'user' ? ' (ผู้ใช้เพิ่ม)' : ''), layer: A.layer });
+      map.dot(st.lat, st.lng, { radius: 4, fill: doubtful(st) ? css('unk') : css('accent'), tooltip: st.name + (st.src === 'user' ? ' (ผู้ใช้เพิ่ม)' : ''), layer: A.layer });
     });
   }
 

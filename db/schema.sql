@@ -72,6 +72,7 @@ from charges group by station_id order by reports desc;
 alter table plans add column if not exists car_uid text;
 alter table events add column if not exists car_uid text;
 alter table charges add column if not exists car_uid text;
+alter table charges add column if not exists plug text; -- socket the driver used (CCS2, CHAdeMO, GBT, Type2, Tesla)
 create index if not exists plans_uid on plans (car_uid);
 create index if not exists charges_uid on charges (car_uid, created_at);
 
