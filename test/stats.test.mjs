@@ -53,12 +53,14 @@ test('a charge report needs a station and whether it worked', () => {
 
 test('supabase insert sends the secret key and the row', async () => {
   const calls = [];
-  const db = supabase({ url: 'https://p.supabase.co/', key: 'S', fetchFn: async (url, o) => { calls.push({ url, o }); return { ok: true }; } });
-  await db.insert('plans', { a: 1 });
+  const fetchFn = async (url, o) => { calls.push({ url, o }); return { ok: true }; };
+  await supabase({ url: 'https://p.supabase.co/', key: 'sb_secret_S', fetchFn }).insert('plans', { a: 1 });
   assert.equal(calls[0].url, 'https://p.supabase.co/rest/v1/plans');
-  assert.equal(calls[0].o.headers.apikey, 'S');
-  assert.equal(calls[0].o.headers.Authorization, 'Bearer S');
+  assert.equal(calls[0].o.headers.apikey, 'sb_secret_S');
+  assert.equal(calls[0].o.headers.Authorization, undefined); // new keys aren't JWTs
   assert.equal(calls[0].o.body, '{"a":1}');
+  await supabase({ url: 'https://p.supabase.co', key: 'eyJlegacy', fetchFn }).insert('plans', {});
+  assert.equal(calls[1].o.headers.Authorization, 'Bearer eyJlegacy');
   const fail = supabase({ url: 'https://p.supabase.co', key: 'S', fetchFn: async () => ({ ok: false, status: 401, text: async () => 'bad key' }) });
   await assert.rejects(fail.insert('plans', {}), /401 bad key/);
 });
