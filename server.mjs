@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge } from './lib/stations.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces } from './lib/google.mjs';
+import { record, supabase } from './lib/stats.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -26,6 +27,12 @@ const GOOGLE_MAP_ID = process.env.GOOGLE_MAP_ID || 'DEMO_MAP_ID';
 const GOOGLE_DAILY_LIMIT = Number(process.env.GOOGLE_DAILY_LIMIT) || 30;
 const places = GOOGLE_PLACES_KEY && GOOGLE_MAPS_KEY ? googlePlaces({ key: GOOGLE_PLACES_KEY, dailyLimit: GOOGLE_DAILY_LIMIT }) : null;
 const allowGoogle = rateLimiter(20, 60 * 60 * 1000);
+// Anonymous usage statistics (lib/stats.mjs): off unless both are set. The key is the project's
+// secret (service role) key and stays on the server.
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
+const stats = SUPABASE_URL && SUPABASE_KEY ? supabase({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
+const allowLog = rateLimiter(300, 60 * 60 * 1000);
 const UA = 'evroute (EV trip planner for Thailand)';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
@@ -237,6 +244,18 @@ async function googleStations(req, res) {
   }
 }
 
+// ---------- usage statistics ----------
+// Answers at once and writes in the background: the page sends these with sendBeacon and never waits.
+async function logStat(req, res) {
+  if (!stats) { res.writeHead(204).end(); return; }
+  if (!allowLog(clientIp(req))) { res.writeHead(429).end(); return; }
+  let rec;
+  try { rec = record(JSON.parse(await readBody(req))); } catch { rec = null; }
+  if (!rec) { res.writeHead(400).end(); return; }
+  res.writeHead(204).end();
+  stats.insert(rec[0], rec[1]).catch((err) => console.error(new Date().toISOString(), 'stats', err.message));
+}
+
 // ---------- route ----------
 function readBody(req) {
   return new Promise((ok, fail) => {
@@ -310,6 +329,10 @@ createServer(async (req, res) => {
     await addStation(req, res);
     return;
   }
+  if (url.pathname === '/api/log' && req.method === 'POST') {
+    await logStat(req, res);
+    return;
+  }
   if (url.pathname === '/api/google/ev' && req.method === 'POST') {
     await googleStations(req, res);
     return;
@@ -329,6 +352,7 @@ createServer(async (req, res) => {
     json(res, 200, {
       maps: places ? { key: GOOGLE_MAPS_KEY, mapId: GOOGLE_MAP_ID } : null,
       places: places ? { left: places.counter.remaining } : null,
+      stats: !!stats,
     }, { 'Cache-Control': 'no-store' });
     return;
   }
