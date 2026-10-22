@@ -704,10 +704,25 @@
   // Sent only when the server has statistics switched on, and not at all after "ไม่ร่วมส่งสถิติ";
   // a charging report is the driver's own choice to send, so it goes either way.
   function send(t, d, always) {
-    if (!R.cfg || !R.cfg.stats || (!always && load('nostats'))) return;
+    var off = load('nostats');
+    if (!R.cfg || !R.cfg.stats || (!always && off)) return;
+    if (!off && R.car) d.cu = carUid(R.car.id); // a report sent after opting out isn't linked to the car
     var body = JSON.stringify({ t: t, d: d });
     try { if (navigator.sendBeacon && navigator.sendBeacon('/api/log', new Blob([body], { type: 'application/json' }))) return; } catch (e) {}
     fetch('/api/log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+  }
+
+  // One random id per car model in this browser, made the first time it's needed. "เริ่มรหัสใหม่"
+  // forgets them, so later records can't be linked to earlier ones.
+  function carUid(carId) {
+    var ids = load('cuids') || {};
+    if (!/^c-[a-z0-9]{8}$/.test(ids[carId] || '')) {
+      var r = '';
+      while (r.length < 8) r += Math.random().toString(36).slice(2);
+      ids[carId] = 'c-' + r.slice(0, 8);
+      store('cuids', ids);
+    }
+    return ids[carId];
   }
 
   function newPid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
@@ -1468,6 +1483,10 @@
     $('stats-note').hidden = !(R.cfg && R.cfg.stats);
     $('stats-toggle').textContent = load('nostats') ? 'กลับมาร่วมส่งสถิติ' : 'ไม่ร่วมส่งสถิติ';
   }
+  $('stats-reset').addEventListener('click', function () {
+    store('cuids', {});
+    this.textContent = 'เริ่มรหัสใหม่แล้ว ✓';
+  });
   $('stats-toggle').addEventListener('click', function () {
     store('nostats', !load('nostats'));
     showStatsNote();

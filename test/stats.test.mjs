@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { record, cleanPlan, cleanCharge, supabase } from '../lib/stats.mjs';
 
 const plan = {
-  pid: 'abc123', car: 'byd-atto3-std', brand: 'BYD', model: 'Atto 3 Standard', kwh: 49.9, use: 17.5, useBase: 16.5, dc: 70, tuned: true,
+  pid: 'abc123', cu: 'c-7f3k9x2m', car: 'byd-atto3-std', brand: 'BYD', model: 'Atto 3 Standard', kwh: 49.9, use: 17.5, useBase: 16.5, dc: 70, tuned: true,
   soc: 80, min: 20, target: 80, fromLat: 13.75634, fromLng: 100.50177, toLat: 18.7834, toLng: 100.7789,
   dests: 1, round: false, km: 668.4, driveMin: 540, chargeMin: 95, stops: 3, kwhTotal: 75, cost: 520, arrive: 19, ok: true, google: 5,
   stations: [{ id: 'g:xyz', op: 'PTT EV Station PluZ', src: 'google', kw: 50, guess: true, pinned: false, arrive: 22, depart: 71, kwh: 24.5, min: 40, baht: 166 }],
@@ -14,6 +14,8 @@ test('a plan keeps only whitelisted fields and coarse trip ends', () => {
   const [table, row] = record({ t: 'plan', d: plan });
   assert.equal(table, 'plans');
   assert.equal(row.car_id, 'byd-atto3-std');
+  assert.equal(row.car_uid, 'c-7f3k9x2m');
+  assert.equal(cleanPlan({ ...plan, cu: 'someone@example.com' }).car_uid, null); // only our own format
   assert.equal(row.use_set, 17.5);
   assert.equal(row.use_factory, 16.5);
   assert.equal(row.from_lat, 13.8);
@@ -48,7 +50,7 @@ test('a charge report needs a station and whether it worked', () => {
   assert.equal(bad.problem, 'other');
   assert.equal(bad.note.length, 200);
   assert.deepEqual(record({ t: 'event', d: { kind: 'app', pid: 'abc', sid: 'cur:1', op: 'PEA VOLTA' } }),
-    ['events', { plan_id: 'abc', kind: 'app', station_id: 'cur:1', op: 'PEA VOLTA', car_id: null }]);
+    ['events', { plan_id: 'abc', kind: 'app', station_id: 'cur:1', op: 'PEA VOLTA', car_id: null, car_uid: null }]);
 });
 
 test('supabase insert sends the secret key and the row', async () => {
