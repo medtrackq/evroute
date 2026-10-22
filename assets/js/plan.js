@@ -9,6 +9,7 @@
   var PLUG_MIN = 5;        // parking, plugging in and paying
   var STOP_PENALTY = 10;   // planning cost of an extra stop beyond its real minutes
   var FAV_BONUS = 12;      // minutes a favourite station is "worth", so it wins close calls
+  var AVOID_PENALTY = 60;  // minutes a station with a recent problem report "costs": used only when nothing near is better
   var MAX_STOPS = 12;
   var DC_TYPES = ['CCS2', 'CHAdeMO', 'GBT', 'Tesla'];
 
@@ -166,7 +167,9 @@
   // At each stop the car charges only as much as the next hop needs (plus a small buffer), never
   // past targetSoc; each stop also costs PLUG_MIN plus STOP_PENALTY so fewer stops win close calls.
   // o.pinned: station ids the plan must use (kept in route order). o.favs: { id: true } of the
-  // user's favourite stations, preferred when they cost little extra time.
+  // user's favourite stations, preferred when they cost little extra time. o.avoid: { id: true } of
+  // stations drivers recently reported they couldn't charge at, used only when the alternatives cost
+  // far more time (a station the user pinned is still used).
   function plan(prof, cands, car, o) {
     var cap = car.kwh, minSoc = o.minSoc, target = o.targetSoc;
     var start = { along: 0, kw: 0, detourKm: 0, detourMin: 0, start: true };
@@ -194,7 +197,8 @@
       if (need <= arrive + 1) return null; // no need to stop here: going straight past is better
       var depart = Math.max(need, arrive);
       var fav = o.favs && a.st && o.favs[a.st.id] ? FAV_BONUS : 0;
-      return { depart: depart, min: chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN + STOP_PENALTY - fav };
+      var avoid = o.avoid && a.st && o.avoid[a.st.id] && (o.pinned || []).indexOf(a.st.id) < 0 ? AVOID_PENALTY : 0;
+      return { depart: depart, min: chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN + STOP_PENALTY - fav + avoid };
     }
 
     var best = nodes.map(function () { return null; }); // { time, arrive, prev, depart }

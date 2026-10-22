@@ -384,7 +384,7 @@
     box.hidden = false;
     box.innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
     shareURL();
-    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds() };
+    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds(), avoid: avoidIds() };
 
     R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
       var prof = P.profile(d.trip.legs);
@@ -504,6 +504,13 @@
   function favIds() {
     var o = {};
     Object.keys(R.favs).forEach(function (id) { o[id] = true; });
+    return o;
+  }
+
+  // Stations whose newest driver report (last 14 days) says charging failed: the planner avoids them.
+  function avoidIds() {
+    var o = {};
+    Object.keys(R.reports).forEach(function (id) { if (R.reports[id].prob) o[id] = true; });
     return o;
   }
 
@@ -771,7 +778,7 @@
     var alts = s.alts.length ? '<details class="alts"><summary>เปลี่ยนสถานี (' + s.alts.length + ')</summary><ul>' +
       s.alts.map(function (x) {
         return '<li><button type="button" class="alt" data-swap="' + i + '" data-id="' + esc(x.c.st.id) + '">' +
-          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (doubtful(x.c.st, x.c.plug) ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + '</span></button></li>';
+          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (doubtful(x.c.st, x.c.plug) ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + (x.c.st.rep && x.c.st.rep.prob ? ' · ⚠ มีรายงานปัญหา' : '') + '</span></button></li>';
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +

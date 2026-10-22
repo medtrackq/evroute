@@ -199,3 +199,25 @@ test('charging cost uses the operator price and off-peak hours', () => {
   assert.equal(unknown.known, false);
   assert.equal(P.chargeCost(0, 'PEA VOLTA', prices, weekdayNoon), null);
 });
+
+test('a station with a recent problem report is avoided unless pinned', () => {
+  const c = car('byd-atto3-std');
+  const o = { startSoc: 90, minSoc: 20, targetSoc: 80 };
+  const cands = P.candidates(prof, stationsEvery(30), c);
+  const base = P.plan(prof, cands, c, o);
+  const bad = base.stops[0].st.id;
+  const r = P.plan(prof, cands, c, { ...o, avoid: { [bad]: true } });
+  assert.ok(r.ok);
+  assert.ok(!r.stops.some((s) => s.st.id === bad), 'should route around ' + bad);
+  // The user's own choice wins over the report.
+  const pinned = P.plan(prof, cands, c, { ...o, avoid: { [bad]: true }, pinned: [bad] });
+  assert.ok(pinned.stops.some((s) => s.st.id === bad));
+  // With no other station in reach, the reported one is still used rather than failing.
+  const ids = base.stops.map((s) => s.st.id);
+  const only = cands.filter((x) => ids.includes(x.st.id)); // just the stations of the first plan: each one is needed
+  const free = P.plan(prof, only, c, o);
+  const forced = P.plan(prof, only, c, { ...o, avoid: { [bad]: true } });
+  assert.ok(free.stops.some((s) => s.st.id === bad), 'the lone station should be needed');
+  assert.equal(forced.ok, free.ok);
+  assert.deepEqual(forced.stops.map((s) => s.st.id), free.stops.map((s) => s.st.id));
+});
