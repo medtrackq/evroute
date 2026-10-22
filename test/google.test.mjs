@@ -20,8 +20,12 @@ test('Google place becomes a station with plugs', () => {
   assert.equal(st.guess, false);
   assert.equal(fromGoogle(place('x', { businessStatus: 'CLOSED_PERMANENTLY' })), null);
   const bare = fromGoogle(place('y', { evChargeOptions: undefined }));
+  // A known DC network with no connector details gets the usual CCS2 guess; an unknown one stays empty.
   assert.equal(bare.guess, true);
-  assert.deepEqual(bare.plugs, []);
+  assert.deepEqual(bare.plugs, [{ type: 'CCS2', kw: 50, n: 1, dc: true }]);
+  const unknown = fromGoogle(place('z', { evChargeOptions: undefined, displayName: { text: 'สถานีชาร์จ OneCharge' } }));
+  assert.equal(unknown.guess, true);
+  assert.deepEqual(unknown.plugs, []);
 });
 
 test('daily counter resets on a new Bangkok day', () => {
