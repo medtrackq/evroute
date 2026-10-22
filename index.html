@@ -54,11 +54,13 @@
               <label class="sr-only" for="model">รุ่น</label>
               <select id="model" class="field"></select>
             </div>
-            <figure class="car-photo" id="car-photo" hidden>
-              <img id="car-img" alt="" loading="lazy" decoding="async">
-              <figcaption id="car-credit"></figcaption>
-            </figure>
-            <div class="tiles" id="spec"></div>
+            <div class="car-hero" id="car-hero">
+              <figure class="car-photo" id="car-photo" hidden>
+                <img id="car-img" alt="" loading="lazy" decoding="async">
+                <figcaption id="car-credit"></figcaption>
+              </figure>
+              <div class="tiles tiles--spec" id="spec"></div>
+            </div>
             <div class="tune-bar">
               <button type="button" class="pill-btn" id="tune-btn" aria-expanded="false" aria-controls="spec">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z"/></svg><span>ปรับค่ารถ</span>
@@ -67,36 +69,55 @@
             </div>
           </section>
 
-          <section class="card" aria-labelledby="bat-title">
-            <h2 class="card__title" id="bat-title">แบตเตอรี่</h2>
-            <div class="soc">
-              <div class="soc__now">
-                <label class="sr-only" for="soc">แบตตอนออกเดินทาง</label>
-                <input id="soc" class="soc__num" type="number" inputmode="numeric" min="1" max="100" value="90">
-                <div class="tabs tabs--sm" role="radiogroup" aria-label="หน่วย">
-                  <label><input type="radio" name="unit" value="pct" checked><span>%</span></label>
-                  <label><input type="radio" name="unit" value="km"><span>กม.</span></label>
+          <section class="card batt-card" aria-labelledby="bat-title">
+            <div class="card__head">
+              <h2 class="card__title" id="bat-title">แบตเตอรี่</h2>
+              <div class="tabs tabs--sm unit-tabs" role="radiogroup" aria-label="หน่วย">
+                <label><input type="radio" name="unit" value="pct" checked><span>%</span></label>
+                <label><input type="radio" name="unit" value="km"><span>กม.</span></label>
+              </div>
+            </div>
+            <div class="batt">
+              <div class="batt__opts">
+                <div class="opt">
+                  <span class="opt__label">แวะชาร์จเมื่อเหลือ</span>
+                  <div class="tabs tabs--v" role="radiogroup" aria-label="แวะชาร์จเมื่อแบตเหลือ">
+                    <label><input type="radio" name="min" value="10"><span>10%</span></label>
+                    <label><input type="radio" name="min" value="15"><span>15%</span></label>
+                    <label><input type="radio" name="min" value="20" checked><span>20%</span></label>
+                    <label><input type="radio" name="min" value="30"><span>30%</span></label>
+                  </div>
+                </div>
+                <div class="opt">
+                  <span class="opt__label">ชาร์จถึง</span>
+                  <div class="tabs tabs--v" role="radiogroup" aria-label="ชาร์จถึง">
+                    <label><input type="radio" name="target" value="70"><span>70%</span></label>
+                    <label><input type="radio" name="target" value="80" checked><span>80%</span></label>
+                    <label><input type="radio" name="target" value="90"><span>90%</span></label>
+                    <label><input type="radio" name="target" value="100"><span>100%</span></label>
+                  </div>
                 </div>
               </div>
-              <input id="soc-range" class="range" type="range" min="5" max="100" step="1" value="90" aria-label="แบตตอนออกเดินทาง">
-              <p class="hint" id="soc-hint">แบตตอนออกเดินทาง</p>
-            </div>
-            <div class="opt">
-              <span class="opt__label">แวะชาร์จเมื่อแบตเหลือ</span>
-              <div class="tabs" role="radiogroup" aria-label="แวะชาร์จเมื่อแบตเหลือ">
-                <label><input type="radio" name="min" value="10"><span>10%</span></label>
-                <label><input type="radio" name="min" value="15"><span>15%</span></label>
-                <label><input type="radio" name="min" value="20" checked><span>20%</span></label>
-                <label><input type="radio" name="min" value="30"><span>30%</span></label>
-              </div>
-            </div>
-            <div class="opt">
-              <span class="opt__label">ชาร์จถึง</span>
-              <div class="tabs" role="radiogroup" aria-label="ชาร์จถึง">
-                <label><input type="radio" name="target" value="70"><span>70%</span></label>
-                <label><input type="radio" name="target" value="80" checked><span>80%</span></label>
-                <label><input type="radio" name="target" value="90"><span>90%</span></label>
-                <label><input type="radio" name="target" value="100"><span>100%</span></label>
+              <div class="gauge">
+                <svg class="gauge__svg" id="gauge" viewBox="0 0 240 240" role="slider" tabindex="0" aria-label="แบตตอนออกเดินทาง (ลากหรือใช้ปุ่มลูกศร)" aria-valuemin="5" aria-valuemax="100" aria-valuenow="90">
+                  <defs>
+                    <linearGradient id="gauge-grad" x1="0" y1="1" x2="1" y2="0">
+                      <stop offset="0" class="gauge__stop1"/><stop offset="1" class="gauge__stop2"/>
+                    </linearGradient>
+                  </defs>
+                  <g id="gauge-ticks"></g>
+                  <path class="gauge__track" id="gauge-track"/>
+                  <path class="gauge__fill" id="gauge-fill"/>
+                  <line class="gauge__mark gauge__mark--min" id="gauge-min"/>
+                  <line class="gauge__mark gauge__mark--tgt" id="gauge-tgt"/>
+                  <circle class="gauge__knob" id="gauge-knob" r="11"/>
+                </svg>
+                <div class="gauge__center">
+                  <label class="sr-only" for="soc">แบตตอนออกเดินทาง</label>
+                  <input id="soc" class="gauge__num" type="number" inputmode="numeric" min="1" max="100" value="90">
+                  <span class="gauge__unit" id="gauge-unit">%</span>
+                </div>
+                <p class="gauge__hint"><b id="soc-hint">แบตตอนออกเดินทาง</b><span>แบตตอนออกเดินทาง · ลากบนวงเพื่อปรับ</span></p>
               </div>
             </div>
           </section>

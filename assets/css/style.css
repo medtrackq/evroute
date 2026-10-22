@@ -578,3 +578,66 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
   width: max-content; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--radius-sm);
   background: var(--text); color: var(--surface); box-shadow: var(--shadow-lg); font-size: 14px; line-height: 1.5; text-align: center; }
 .toast[hidden] { display: none; }
+
+/* ---------- car hero: photo with spec tiles called out on the right ---------- */
+.car-hero { margin-top: 16px; }
+.car-hero .car-photo { margin: 0; }
+.car-hero.has-photo { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 34px; align-items: stretch; }
+.car-hero.has-photo .car-photo { aspect-ratio: auto; height: 100%; min-height: 240px; }
+.car-hero.has-photo .tiles--spec { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 0; }
+.car-hero.has-photo .tiles--spec .tile { position: relative; grid-template-columns: 30px minmax(0, 1fr); grid-template-areas: "ico k" "ico v" "ico sub"; column-gap: 10px; row-gap: 0; padding: 9px 12px; align-items: center; }
+.car-hero.has-photo .tiles--spec .tile__ico { grid-area: ico; margin: 0; align-self: center; }
+.car-hero.has-photo .tiles--spec .tile__k { grid-area: k; }
+.car-hero.has-photo .tiles--spec .tile__v { grid-area: v; font-size: 19px; }
+.car-hero.has-photo .tiles--spec .tile__sub { grid-area: sub; }
+/* Leader lines from each tile into the photo, ending in a dot on the car. */
+.car-hero.has-photo .tiles--spec .tile::before { content: ""; position: absolute; right: 100%; top: 50%; width: 46px; border-top: 1.5px solid color-mix(in srgb, var(--text) 55%, transparent); pointer-events: none; }
+.car-hero.has-photo .tiles--spec .tile::after { content: ""; position: absolute; right: calc(100% + 42px); top: calc(50% - 4px); width: 8px; height: 8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--text); box-sizing: border-box; pointer-events: none; }
+.car-hero.has-photo .tiles--spec .tile:nth-child(1)::before { width: 58px; } .car-hero.has-photo .tiles--spec .tile:nth-child(1)::after { right: calc(100% + 54px); }
+.car-hero.has-photo .tiles--spec .tile:nth-child(3)::before { width: 70px; } .car-hero.has-photo .tiles--spec .tile:nth-child(3)::after { right: calc(100% + 66px); }
+
+/* ---------- battery: vertical choices beside a speedometer-style gauge ---------- */
+.batt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; margin-top: 12px; }
+.batt__opts { display: grid; gap: 16px; }
+.batt__opts .opt { margin: 0; }
+.batt__opts .opt__label { font-size: 12.5px; }
+.tabs.tabs--v { display: grid; grid-auto-flow: row; grid-auto-columns: auto; gap: 4px; padding: 4px; border-radius: 16px; background: var(--surface-2); }
+.tabs--v span { display: block; text-align: center; min-width: 64px; padding: 7px 12px; border-radius: 11px; }
+.unit-tabs { background: var(--surface-2); border-radius: 999px; padding: 3px; }
+.gauge { position: relative; width: 100%; max-width: 300px; justify-self: center; }
+.gauge__svg { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.gauge__svg.is-drag { cursor: grabbing; }
+.gauge__svg:focus { outline: none; }
+.gauge__svg:focus-visible .gauge__knob { stroke-width: 6; }
+.gauge__track { fill: none; stroke: var(--surface-3); stroke-width: 16; stroke-linecap: round; }
+.gauge__fill { fill: none; stroke: url(#gauge-grad); stroke-width: 16; stroke-linecap: round; }
+.gauge__stop1 { stop-color: var(--accent); } .gauge__stop2 { stop-color: var(--tile-lav-ink); }
+.gauge.is-low .gauge__fill, .gauge__svg.is-low .gauge__fill { stroke: var(--warn); }
+.gauge__tick { stroke: var(--muted); stroke-width: 1.2; opacity: 0.6; }
+.gauge__tick.is-major { stroke: var(--text); stroke-width: 2; opacity: 0.85; }
+.gauge__label { fill: var(--text); font-size: 14px; font-weight: 600; text-anchor: middle; }
+.gauge__mark { stroke-width: 3.5; stroke-linecap: round; }
+.gauge__mark--min { stroke: var(--warn); }
+.gauge__mark--tgt { stroke: var(--ok); }
+.gauge__knob { fill: var(--surface); stroke: var(--accent); stroke-width: 5; filter: drop-shadow(0 2px 4px rgb(20 40 90 / 30%)); }
+.gauge__center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%); display: grid; justify-items: center; pointer-events: none; text-align: center; }
+.gauge__num { pointer-events: auto; width: 3.6ch; font: inherit; font-size: 46px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; text-align: center; color: var(--text);
+  background: transparent; border: 0; border-bottom: 2px dashed transparent; padding: 0; font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield; }
+.gauge__num::-webkit-inner-spin-button, .gauge__num::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.gauge__num:hover { border-bottom-color: var(--line); }
+.gauge__num:focus { outline: none; border-bottom-color: var(--accent); }
+.gauge__unit { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+.gauge__hint { display: grid; gap: 2px; margin: -14px 0 0; text-align: center; font-size: 12px; color: var(--muted); }
+.gauge__hint b { font-size: 15px; font-weight: 600; color: var(--text); }
+
+@media (max-width: 1100px) {
+  .car-hero.has-photo { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .car-hero.has-photo .car-photo { aspect-ratio: 16 / 8; height: auto; min-height: 0; }
+  .car-hero.has-photo .tiles--spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .car-hero.has-photo .tiles--spec .tile::before, .car-hero.has-photo .tiles--spec .tile::after { display: none; }
+}
+@media (max-width: 400px) {
+  .batt { gap: 12px; }
+  .tabs--v span { min-width: 54px; padding: 7px 8px; }
+  .gauge__num { font-size: 38px; }
+}

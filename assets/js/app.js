@@ -159,6 +159,7 @@
     var id = R.car.id, img = null;
     Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
     $('car-photo').hidden = !img;
+    $('car-hero').classList.toggle('has-photo', !!img);
     if (!img) return;
     $('car-img').src = img.thumb;
     $('car-img').alt = R.car.brand + ' ' + R.car.model;
@@ -173,20 +174,98 @@
     return unit() === 'km' ? P.kmToSoc(v, R.car) : Math.min(100, v);
   }
 
-  // The slider mirrors the number box in whichever unit is selected.
-  function syncRange() {
-    var r = $('soc-range'), km = unit() === 'km';
-    var max = km ? Math.round(rangeKm(100)) : 100;
-    r.min = km ? 5 : 5;
-    r.max = max;
-    var v = parseFloat($('soc').value);
-    if (isFinite(v)) r.value = Math.min(max, v);
-    r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min) * 100) + '%');
-    var soc = startSoc();
-    $('soc-hint').textContent = soc == null ? 'แบตตอนออกเดินทาง'
-      : km ? 'แบตตอนออกเดินทาง ≈ ' + Math.round(soc) + '%'
-      : 'แบตตอนออกเดินทาง · วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.';
+  // ---------- battery gauge ----------
+  // A 270° dial from bottom left (0%) round to bottom right (100%), like a speedometer. It shows the
+  // battery at departure and the "แวะชาร์จ" / "ชาร์จถึง" levels, and dragging on it sets the battery.
+  var G = { cx: 120, cy: 120, r: 92, a0: 135, sweep: 270 };
+
+  function gPoint(f, r) {
+    var a = (G.a0 + G.sweep * f) * Math.PI / 180;
+    return [G.cx + (r || G.r) * Math.cos(a), G.cy + (r || G.r) * Math.sin(a)];
   }
+
+  function gArc(f) {
+    var p0 = gPoint(0), p1 = gPoint(Math.max(0.0001, f));
+    return 'M' + p0[0].toFixed(1) + ' ' + p0[1].toFixed(1) + 'A' + G.r + ' ' + G.r + ' 0 ' + (G.sweep * f > 180 ? 1 : 0) + ' 1 ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
+  }
+
+  function gMark(el, f) {
+    var a = gPoint(f, G.r - 13), b = gPoint(f, G.r + 13);
+    el.setAttribute('x1', a[0]); el.setAttribute('y1', a[1]); el.setAttribute('x2', b[0]); el.setAttribute('y2', b[1]);
+  }
+
+  function drawTicks() {
+    var html = '';
+    for (var i = 0; i <= 20; i++) {
+      var f = i / 20, major = i % 4 === 0, a = gPoint(f, G.r + 17), b = gPoint(f, G.r + (major ? 25 : 21));
+      html += '<line class="gauge__tick' + (major ? ' is-major' : '') + '" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) + '"/>';
+      if (major) {
+        var t = gPoint(f, G.r - 28);
+        html += '<text class="gauge__label" x="' + t[0].toFixed(1) + '" y="' + (t[1] + 4).toFixed(1) + '">' + (i * 5) + '</text>';
+      }
+    }
+    $('gauge-ticks').innerHTML = html;
+    $('gauge-track').setAttribute('d', gArc(1));
+  }
+
+  // Name kept from the slider it replaced: redraws the gauge from the number box, in either unit.
+  function syncRange() {
+    var km = unit() === 'km', soc = startSoc(), f = Math.max(0, Math.min(1, (soc || 0) / 100));
+    $('gauge-fill').setAttribute('d', gArc(f));
+    var k = gPoint(f);
+    $('gauge-knob').setAttribute('cx', k[0]);
+    $('gauge-knob').setAttribute('cy', k[1]);
+    gMark($('gauge-min'), +radio('min') / 100);
+    gMark($('gauge-tgt'), +radio('target') / 100);
+    $('gauge').setAttribute('aria-valuenow', Math.round(soc || 0));
+    $('gauge').setAttribute('aria-valuetext', soc == null ? '' : Math.round(soc) + '% วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.');
+    $('gauge-unit').textContent = km ? 'กม.' : '%';
+    $('soc-hint').textContent = soc == null ? 'ใส่แบตที่เหลือ' : km ? '≈ ' + Math.round(soc) + '% ของแบต' : 'วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.';
+    $('gauge').classList.toggle('is-low', soc != null && soc <= +radio('min'));
+  }
+
+  // Sets the battery from a fraction of the dial (5–100%), written in the box's unit.
+  function setSocFraction(f) {
+    var soc = Math.max(5, Math.min(100, Math.round(f * 100)));
+    $('soc').value = unit() === 'km' ? Math.round(rangeKm(soc)) : soc;
+    syncRange();
+  }
+
+  function wireGauge() {
+    var svg = $('gauge'), dragging = false, moved = false;
+    var fromEvent = function (e) {
+      var box = svg.getBoundingClientRect();
+      var x = (e.clientX - box.left) / box.width * 240 - G.cx, y = (e.clientY - box.top) / box.height * 240 - G.cy;
+      var rel = (Math.atan2(y, x) * 180 / Math.PI - G.a0 + 720) % 360;
+      if (rel > G.sweep) rel = rel > G.sweep + (360 - G.sweep) / 2 ? 0 : G.sweep; // the gap at the bottom: nearest end
+      return rel / G.sweep;
+    };
+    svg.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      moved = false;
+      svg.setPointerCapture(e.pointerId);
+      svg.classList.add('is-drag');
+      setSocFraction(fromEvent(e));
+      e.preventDefault();
+    });
+    svg.addEventListener('pointermove', function (e) { if (dragging) { moved = true; setSocFraction(fromEvent(e)); } });
+    var end = function () {
+      if (!dragging) return;
+      dragging = false;
+      svg.classList.remove('is-drag');
+      if (R.result) replan();
+    };
+    svg.addEventListener('pointerup', end);
+    svg.addEventListener('pointercancel', end);
+    svg.addEventListener('keydown', function (e) {
+      var step = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 10, PageDown: -10 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      setSocFraction(((startSoc() || 0) + step) / 100);
+    });
+    svg.addEventListener('keyup', function (e) { if (/Arrow|Page/.test(e.key) && R.result) replan(); });
+  }
+
 
   // ---------- services ----------
   function postRoute(body, i) {
@@ -1306,9 +1385,10 @@
   $('spec').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('.tile__in')) { e.preventDefault(); setTuning(false); } });
   getJSON('data/car-images.json').then(function (d) { R.photos = d.images || {}; showPhoto(); }, function () {});
 
+  drawTicks();
+  wireGauge();
   $('soc').addEventListener('input', syncRange);
-  $('soc-range').addEventListener('input', function () { $('soc').value = this.value; syncRange(); });
-  $('soc-range').addEventListener('change', function () { if (R.result) replan(); });
+  $('soc').addEventListener('change', function () { if (R.result) replan(); });
   document.querySelectorAll('input[name="unit"]').forEach(function (el) {
     el.addEventListener('change', function () {
       // Convert the number in the box so it keeps meaning the same charge.
@@ -1319,7 +1399,7 @@
     });
   });
   document.querySelectorAll('input[name="min"], input[name="target"]').forEach(function (el) {
-    el.addEventListener('change', function () { if (R.result) replan(); });
+    el.addEventListener('change', function () { syncRange(); if (R.result) replan(); });
   });
 
   suggest($('from'), $('from-sug'), 'a');
