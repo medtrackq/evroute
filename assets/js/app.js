@@ -547,8 +547,11 @@
     });
     store('plans', list.slice(0, MAX_SAVED));
     renderSaved();
+    pushTrips();
     var b = $('save-plan');
     if (b) b.textContent = '★ บันทึกแล้ว';
+    var card = b && b.closest('.nav-card');
+    if (card && !card.querySelector('.nudge')) card.insertAdjacentHTML('beforeend', nudge('save'));
   }
 
   function routeKey(q) {
@@ -577,7 +580,8 @@
         : '<span class="saved-when">ยังไม่ระบุวัน · บันทึก ' + esc(new Date(p.at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })) + '</span>';
       return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b>' + tag + '<span>จาก ' + esc(p.from) + ' · ' + esc(p.car) + ' · ' + p.km + ' กม. · ชาร์จ ' + p.stops + ' จุด</span></a>' +
         '<button type="button" class="saved-del" data-unsave="' + x.i + '" aria-label="ลบแผนนี้">×</button></li>';
-    }).join('');
+    }).join('') + (list.length && accountsOn() && !signedIn()
+      ? '<li class="saved-foot">เก็บในเครื่องนี้ · <button type="button" class="link-btn" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button></li>' : '');
   }
 
   function replan() { if (R.a && trip().dests.length && !R.busy) plan(); }
@@ -969,6 +973,11 @@
     if (!R.cfg || !R.cfg.stats || (!always && off)) return;
     if (!off && R.car) d.cu = carUid(R.car.id); // a report sent after opting out isn't linked to the car
     var body = JSON.stringify({ t: t, d: d });
+    // A signed-in driver's charging report goes with their token so it joins their history.
+    if (t === 'charge' && accountsOn() && signedIn()) {
+      authFetch('/api/log', { method: 'POST', body: body }).catch(function () {});
+      return;
+    }
     try { if (navigator.sendBeacon && navigator.sendBeacon('/api/log', new Blob([body], { type: 'application/json' }))) return; } catch (e) {}
     fetch('/api/log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
   }
@@ -990,8 +999,8 @@
   function stationById(id) { return R.stations.filter(function (x) { return x.id === id; })[0] || null; }
   function evAttr(kind, st) { return ' data-ev="' + kind + '"' + (st ? ' data-sid="' + esc(st.id) + '"' : ''); }
 
-  function logEvent(kind, st) {
-    send('event', { kind: kind, pid: R.result && R.result.pid, sid: st ? st.id : null, op: st ? st.op : null, car: R.car && R.car.id });
+  function logEvent(kind, st, ctx) {
+    send('event', { kind: kind, pid: R.result && R.result.pid, sid: st ? st.id : null, op: st ? st.op : null, car: R.car && R.car.id, ctx: ctx || null });
   }
 
   function logPlan(res) {
@@ -1077,7 +1086,7 @@
     R.reported[s.st.id] = true;
     var btn = f.closest('.row').querySelector('[data-report]');
     if (btn) btn.textContent = 'บันทึกการชาร์จแล้ว ✓';
-    f.parentNode.innerHTML = '<p class="report__done">ขอบคุณ! บันทึกการชาร์จที่ ' + esc(s.st.name) + ' แล้ว</p>';
+    f.parentNode.innerHTML = '<p class="report__done">ขอบคุณ! บันทึกการชาร์จที่ ' + esc(s.st.name) + ' แล้ว</p>' + nudge('charge');
   }
 
   // ---------- charts ----------
@@ -1494,6 +1503,7 @@
   if (!$('depart').min) $('depart').min = localInput(Date.now());
   $('depart').addEventListener('change', function () {
     showDepart();
+    $('depart-nudge').innerHTML = departAt() > Date.now() + 60000 ? nudge('depart') : '';
     if (R.result) { shareURL(); render(); } // same route, new times and prices
   });
   $('depart-now').addEventListener('click', function () {
@@ -1604,6 +1614,7 @@
     list.splice(+d.dataset.unsave, 1);
     store('plans', list);
     renderSaved();
+    pushTrips();
   });
   renderSaved();
   $('nav').addEventListener('click', onResultClick);
@@ -1790,6 +1801,289 @@
     showStatsNote();
   });
 
+  // ---------- optional account ----------
+  // Everything works without one. Signing in (email + a one-time code, no password) keeps saved
+  // trips on every device and turns charging reports into the driver's own history. Sign-up is
+  // offered only right after the user does something worth keeping, once per kind of moment.
+  var A = { s: load('auth'), me: null, step: 'email', email: '', from: 'menu', busy: false, shown: {} };
+
+  function signedIn() { return !!(A.s && A.s.access_token); }
+  function accountsOn() { return !!(R.cfg && R.cfg.accounts); }
+
+  function saveSession(s) {
+    A.s = s && s.access_token ? { access_token: s.access_token, refresh_token: s.refresh_token, expires_at: s.expires_at, user: s.user } : null;
+    try { if (A.s) localStorage.setItem('auth', JSON.stringify(A.s)); else localStorage.removeItem('auth'); } catch (e) {}
+    showAcctBtn();
+  }
+
+  function postJSON(url, body) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) { var err = new Error(d.error || 'ลองใหม่อีกครั้ง'); err.status = r.status; throw err; }
+        return d;
+      });
+    });
+  }
+
+  var refreshing = null;
+  function refreshSession() {
+    if (!refreshing) {
+      refreshing = postJSON('/api/auth/refresh', { refresh_token: A.s && A.s.refresh_token }).then(saveSession, function (err) {
+        if (err.status === 401) saveSession(null); // the session ended: back to using the site without an account
+        throw err;
+      }).then(function () { refreshing = null; }, function (err) { refreshing = null; throw err; });
+    }
+    return refreshing;
+  }
+
+  // fetch() with the user's token, refreshed when it's about to run out or the server says it has.
+  function authFetch(url, opts, retried) {
+    if (!signedIn()) return Promise.reject(new Error('signed out'));
+    var ready = A.s.expires_at * 1000 - Date.now() < 60000 ? refreshSession() : Promise.resolve();
+    return ready.then(function () {
+      var o = Object.assign({}, opts);
+      o.headers = Object.assign({ 'Content-Type': 'application/json' }, o.headers, { Authorization: 'Bearer ' + A.s.access_token });
+      return fetch(url, o);
+    }).then(function (r) {
+      if (r.status === 401 && !retried) return refreshSession().then(function () { return authFetch(url, opts, true); });
+      if (r.status === 401) saveSession(null);
+      return r;
+    });
+  }
+
+  // Saved trips: the server's list wins when signed in; local ones are merged in on sign-in.
+  function pushTrips() {
+    if (!signedIn()) return Promise.resolve();
+    return authFetch('/api/me/trips', { method: 'PUT', body: JSON.stringify({ trips: savedPlans() }) }).then(function (r) {
+      if (!r.ok) throw new Error('trips ' + r.status);
+    }).catch(function (err) { console.warn('saving trips', err); });
+  }
+
+  function loadMe(merge) {
+    if (!signedIn()) return Promise.resolve();
+    return authFetch('/api/me', {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d) return;
+      A.me = d;
+      var local = savedPlans(), server = d.trips || [], moved = 0;
+      if (merge) {
+        var have = {};
+        server.forEach(function (t) { have[t.q] = true; });
+        local.forEach(function (t) { if (!have[t.q]) { server.push(t); moved++; } });
+        server.sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
+      }
+      store('plans', server.slice(0, 50));
+      renderSaved();
+      if (merge && moved) pushTrips();
+      if (!$('acct').hidden) renderAcct();
+      return moved;
+    }).catch(function (err) { console.warn('account', err); });
+  }
+
+  function showAcctBtn() {
+    var b = $('acct-btn');
+    b.hidden = !accountsOn();
+    var email = signedIn() && A.s.user && A.s.user.email || '';
+    b.classList.toggle('is-in', !!email);
+    b.textContent = email ? email.charAt(0).toUpperCase() : 'เข้าสู่ระบบ';
+    b.setAttribute('aria-label', email ? 'บัญชีของฉัน (' + email + ')' : 'เข้าสู่ระบบ');
+    b.title = email || 'เข้าสู่ระบบด้วยอีเมล';
+    showDeviceNudge();
+    renderSaved();
+  }
+
+  function openAcct(from) {
+    A.from = from || 'menu';
+    if (!signedIn()) A.step = 'email';
+    $('acct').hidden = false;
+    document.body.classList.add('no-scroll');
+    renderAcct();
+    if (signedIn()) loadMe();
+    var f = $('acct-body').querySelector('input');
+    if (f) f.focus();
+  }
+
+  function closeAcct() {
+    $('acct').hidden = true;
+    document.body.classList.remove('no-scroll');
+  }
+
+  function carName(id) {
+    var c = CARS.filter(function (x) { return x.id === id; })[0];
+    return c ? c.brand + ' ' + c.model : id;
+  }
+
+  function renderAcct() {
+    var b = $('acct-body');
+    if (!signedIn()) {
+      b.innerHTML = A.step === 'email'
+        ? '<h2 class="sheet__title" id="acct-title">เก็บทริปของคุณไว้ทุกเครื่อง</h2>' +
+          '<ul class="sheet__perks"><li>ทริปที่บันทึกไว้ เปิดได้ทุกเครื่อง ไม่หายเมื่อล้างเบราว์เซอร์</li><li>ประวัติการชาร์จ และอัตรากินไฟจริงของรถคุณ</li></ul>' +
+          '<form class="sheet__form" id="acct-email"><label class="opt__label" for="acct-email-in">อีเมล</label>' +
+          '<input id="acct-email-in" class="field" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" value="' + esc(A.email) + '">' +
+          '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
+          '<button type="submit" class="btn btn--primary btn--block">ส่งรหัสเข้าอีเมล</button></form>' +
+          '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
+        : '<h2 class="sheet__title" id="acct-title">ใส่รหัสจากอีเมล</h2>' +
+          '<p class="hint">ส่งรหัสไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม)</p>' +
+          '<form class="sheet__form" id="acct-code"><label class="sr-only" for="acct-code-in">รหัส</label>' +
+          '<input id="acct-code-in" class="field sheet__code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="รหัส 6 หลัก">' +
+          '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
+          '<button type="submit" class="btn btn--primary btn--block">ยืนยัน</button></form>' +
+          '<p class="hint"><button type="button" class="link-btn" data-acct-step="email">เปลี่ยนอีเมล</button> · <button type="button" class="link-btn" data-acct-resend>ส่งรหัสอีกครั้ง</button></p>';
+      return;
+    }
+    var me = A.me || {}, trips = savedPlans().length, charges = me.charges || [], use = me.use || {};
+    var month = new Date().toISOString().slice(0, 7), mBaht = 0, mKwh = 0;
+    charges.forEach(function (c) { if (c.ok && String(c.created_at).slice(0, 7) === month) { mBaht += +c.baht || 0; mKwh += +c.kwh || 0; } });
+    var useHtml = Object.keys(use).map(function (id) {
+      var u = use[id];
+      return '<li><b>' + esc(carName(id)) + '</b> กินไฟจริง <b>' + u.kwh100 + '</b> kWh/100 กม. <span class="hint">(จาก ' + u.km.toLocaleString('th-TH') + ' กม.)</span>' +
+        (R.car && R.car.id === id && Math.abs(R.car.use - u.kwh100) >= 0.1 ? ' <button type="button" class="link-btn" data-use-real="' + u.kwh100 + '">ใช้ค่านี้วางแผน</button>' : '') + '</li>';
+    }).join('');
+    b.innerHTML = '<h2 class="sheet__title" id="acct-title">บัญชีของฉัน</h2><p class="hint">' + esc(A.s.user && A.s.user.email || '') + '</p>' +
+      '<div class="sheet__stats"><div><b>' + trips + '</b><span>ทริปที่บันทึกไว้</span></div><div><b>' + charges.length + '</b><span>บันทึกการชาร์จ</span></div>' +
+      '<div><b>฿' + Math.round(mBaht).toLocaleString('th-TH') + '</b><span>ค่าชาร์จเดือนนี้' + (mKwh ? ' · ' + Math.round(mKwh) + ' kWh' : '') + '</span></div></div>' +
+      '<h3 class="sheet__h">อัตรากินไฟจริงของรถคุณ</h3>' +
+      (useHtml ? '<ul class="sheet__list">' + useHtml + '</ul>' : '<p class="hint">ใส่ <b>เลขไมล์</b> ตอน "บันทึกการชาร์จจริง" ตั้งแต่ 2 ครั้งขึ้นไป ระบบจะคำนวณให้ แม่นกว่าค่าจากโรงงาน</p>') +
+      '<h3 class="sheet__h">ประวัติการชาร์จ</h3>' +
+      (charges.length ? '<ul class="sheet__list sheet__hist">' + charges.slice(0, 20).map(function (c) {
+        return '<li><span>' + esc(new Date(c.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })) + '</span><b>' + esc(c.station_name || c.op || 'สถานี') + '</b>' +
+          '<span>' + (c.ok ? [c.kwh != null ? c.kwh + ' kWh' : '', c.baht != null ? '฿' + c.baht : '', c.max_kw ? c.max_kw + ' kW' : ''].filter(Boolean).join(' · ') || 'ชาร์จได้' : '⚠ ' + esc(problemText(c.problem))) + '</span></li>';
+      }).join('') + '</ul>' : '<p class="hint">ยังไม่มี กด "บันทึกการชาร์จจริง" ที่จุดชาร์จในแผน หลังชาร์จเสร็จ</p>') +
+      '<div class="sheet__premium">' + (load('premium') ? '<b>ขอบคุณที่สนใจ!</b> เราจะแจ้งทางอีเมลเมื่อเปิดสมาชิกรุ่นแรก'
+        : '<b>สมาชิกรุ่นแรก ฿49/ปี</b> · เปิดเร็ว ๆ นี้ ราคานี้ตลอดไปสำหรับคนที่ลงชื่อไว้ <button type="button" class="btn btn--soft" data-premium>สนใจ</button>') + '</div>' +
+      '<div class="row__acts"><button type="button" class="btn" data-signout>ออกจากระบบ</button><button type="button" class="btn sheet__danger" data-delete-acct>ลบบัญชีและข้อมูล</button></div>';
+  }
+
+  function acctMsg(text) { var m = $('acct-msg'); if (m) m.textContent = text || ''; }
+
+  function busyBtn(form, on, label) {
+    var btn = form.querySelector('button[type=submit]');
+    A.busy = on;
+    btn.disabled = on;
+    if (label) btn.textContent = label;
+  }
+
+  function askCode(form) {
+    var email = $('acct-email-in').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { acctMsg('อีเมลไม่ถูกต้อง'); return; }
+    busyBtn(form, true, 'กำลังส่ง…');
+    postJSON('/api/auth/code', { email: email }).then(function () {
+      A.busy = false;
+      A.email = email;
+      A.step = 'code';
+      renderAcct();
+      $('acct-code-in').focus();
+    }, function (err) {
+      acctMsg(err.message);
+      busyBtn(form, false, 'ส่งรหัสเข้าอีเมล');
+    });
+  }
+
+  function checkCode(form) {
+    var code = $('acct-code-in').value.replace(/\s+/g, '');
+    if (!/^\d{6,10}$/.test(code)) { acctMsg('ใส่รหัสตัวเลขจากอีเมล'); return; }
+    busyBtn(form, true, 'กำลังตรวจ…');
+    postJSON('/api/auth/verify', { email: A.email, code: code }).then(function (s) {
+      A.busy = false;
+      saveSession(s);
+      logEvent('signin', null, A.from);
+      return loadMe(true);
+    }).then(function (moved) {
+      closeAcct();
+      toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
+      document.querySelectorAll('.nudge').forEach(function (n) { n.remove(); });
+    }, function (err) {
+      acctMsg(err.message);
+      busyBtn(form, false, 'ยืนยัน');
+    });
+  }
+
+  function signOut() {
+    saveSession(null);
+    A.me = null;
+    closeAcct();
+    toast('ออกจากระบบแล้ว · แผนที่บันทึกไว้ยังอยู่ในเครื่องนี้');
+  }
+
+  function deleteAccount() {
+    if (!confirm('ลบบัญชี ทริปที่บันทึกไว้บนระบบ และการเชื่อมประวัติการชาร์จกับอีเมลนี้ทั้งหมด?\n\nบันทึกการชาร์จจะยังอยู่แบบไม่ระบุตัวตนเพื่อช่วยข้อมูลสถานี ลบแล้วกู้คืนไม่ได้')) return;
+    authFetch('/api/me', { method: 'DELETE' }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      saveSession(null);
+      A.me = null;
+      closeAcct();
+      toast('ลบบัญชีแล้ว');
+    }).catch(function () { toast('ลบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
+  }
+
+  // ---------- sign-up prompts ----------
+  var NUDGES = {
+    save: '★ บันทึกในเครื่องนี้แล้ว · <b>ใส่อีเมลเพื่อเก็บไว้ถาวร</b> เปิดได้ทุกเครื่อง',
+    depart: '🗓 วางแผนล่วงหน้า? <b>ใส่อีเมลเพื่อเก็บทริปนี้</b> ไว้เปิดได้ทุกเครื่อง',
+    charge: '<b>เก็บเป็นประวัติของคุณ</b> ดูค่าชาร์จรวม และอัตรากินไฟจริงของรถคุณ',
+    device: 'เคยบันทึกแผนไว้ในเครื่องอื่น? <b>เข้าสู่ระบบเพื่อดึงกลับมา</b>',
+  };
+
+  function nudge(ctx) {
+    if (!accountsOn() || signedIn() || (load('nudged') || {})[ctx]) return '';
+    if (!A.shown[ctx]) { A.shown[ctx] = true; logEvent('nudge', null, ctx); }
+    return '<div class="nudge" data-nudge="' + ctx + '"><span>' + NUDGES[ctx] + '</span><span class="nudge__acts">' +
+      '<button type="button" class="btn btn--primary" data-nudge-go="' + ctx + '">ใส่อีเมล</button>' +
+      '<button type="button" class="link-btn" data-nudge-no="' + ctx + '">ไว้ทีหลัง</button></span></div>';
+  }
+
+  function showDeviceNudge() {
+    $('device-nudge').innerHTML = savedPlans().length ? '' : nudge('device');
+  }
+
+  document.addEventListener('click', function (e) {
+    var t;
+    if ((t = e.target.closest('[data-nudge-go]'))) { logEvent('nudge_go', null, t.dataset.nudgeGo); openAcct(t.dataset.nudgeGo); return; }
+    if ((t = e.target.closest('[data-nudge-no]'))) {
+      var n = load('nudged') || {};
+      n[t.dataset.nudgeNo] = 1;
+      store('nudged', n);
+      t.closest('.nudge').remove();
+      return;
+    }
+    if ((t = e.target.closest('[data-acct-open]'))) { openAcct(t.dataset.acctOpen); }
+  });
+
+  $('acct-btn').addEventListener('click', function () { openAcct('menu'); });
+  $('acct').addEventListener('click', function (e) {
+    var t;
+    if (e.target.closest('[data-acct-close]')) { closeAcct(); return; }
+    if ((t = e.target.closest('[data-acct-step]'))) { A.step = t.dataset.acctStep; renderAcct(); return; }
+    if (e.target.closest('[data-acct-resend]')) {
+      postJSON('/api/auth/code', { email: A.email }).then(function () { acctMsg('ส่งรหัสใหม่แล้ว'); }, function (err) { acctMsg(err.message); });
+      return;
+    }
+    if (e.target.closest('[data-signout]')) { signOut(); return; }
+    if (e.target.closest('[data-delete-acct]')) { deleteAccount(); return; }
+    if (e.target.closest('[data-premium]')) { store('premium', 1); logEvent('premium', null, 'menu'); renderAcct(); return; }
+    if ((t = e.target.closest('[data-use-real]'))) {
+      R.car.use = +t.dataset.useReal;
+      store('car', { id: R.car.id, kwh: R.car.kwh, use: R.car.use, dc: R.car.dc, margin: R.car.margin });
+      showSpec();
+      renderAcct();
+      toast('ใช้อัตรากินไฟจริงของรถคุณในการวางแผนแล้ว');
+      if (R.result) replan();
+    }
+  });
+  $('acct').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (A.busy) return;
+    if (e.target.id === 'acct-email') askCode(e.target);
+    else if (e.target.id === 'acct-code') checkCode(e.target);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('acct').hidden) closeAcct(); });
+
+  function initAccount() {
+    showAcctBtn();
+    if (accountsOn() && signedIn()) loadMe(false);
+  }
+
   // Start: stations load in the background; the map is Google Maps when the server has Google
   // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.
   R.ready = loadStations();
@@ -1807,6 +2101,7 @@
     map = view;
     $('map').classList.add('map--' + view.kind);
     showStatsNote();
+    initAccount();
     if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
     routeLayer = map.layer();
     candLayer = map.layer();

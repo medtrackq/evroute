@@ -103,4 +103,25 @@ select car_id, count(distinct car_uid) as cars, count(*) as plans,
 from (select car_id, car_uid, count(*) over (partition by car_uid) as n from plans where car_uid is not null) p
 group by car_id order by cars desc;
 
-revoke all on plans, events, charges, car_usage, app_opens, station_reports, car_consumption, car_returns from anon, authenticated;
+-- Optional accounts (sign in with an emailed code). A user's saved trips, and their own charging
+-- reports linked to them. Deleting the user deletes their trips and unlinks their reports, which
+-- stay as anonymous station data.
+create table if not exists trips (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  q text not null,
+  data jsonb not null,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, q)
+);
+alter table trips enable row level security;
+alter table charges add column if not exists user_id uuid references auth.users (id) on delete set null;
+create index if not exists charges_user on charges (user_id, created_at);
+alter table events add column if not exists ctx text; -- where a sign-up prompt was shown or used
+
+-- Sign-up prompts: how often each was shown, tapped, and led to signing in.
+create or replace view signup_funnel with (security_invoker = true) as
+select ctx, count(*) filter (where kind = 'nudge') as shown, count(*) filter (where kind = 'nudge_go') as tapped,
+       count(*) filter (where kind = 'signin') as signed_in, count(*) filter (where kind = 'premium') as premium_interest
+from events where kind in ('nudge', 'nudge_go', 'signin', 'premium') group by ctx order by shown desc;
+
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel from anon, authenticated;

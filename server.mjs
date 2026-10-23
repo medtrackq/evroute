@@ -12,6 +12,7 @@ import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from '
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces } from './lib/google.mjs';
 import { record, supabase, summarize } from './lib/stats.mjs';
+import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse } from './lib/account.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -33,6 +34,11 @@ const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
 const stats = SUPABASE_URL && SUPABASE_KEY ? supabase({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
 const allowLog = rateLimiter(300, 60 * 60 * 1000);
+// Optional accounts ride on the same Supabase project (lib/account.mjs).
+const accounts = stats ? supabaseAuth({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page
+const HOUR = 60 * 60 * 1000;
+const allowCode = rateLimiter(6, HOUR), allowCodeTo = rateLimiter(3, HOUR), allowVerify = rateLimiter(30, HOUR), allowMe = rateLimiter(600, HOUR);
 const UA = 'evroute (EV trip planner for Thailand)';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
@@ -254,6 +260,11 @@ async function logStat(req, res) {
   let rec;
   try { rec = record(JSON.parse(await readBody(req))); } catch { rec = null; }
   if (!rec) { res.writeHead(400).end(); return; }
+  // A signed-in driver's charging report joins their own history.
+  if (rec[0] === 'charges' && accounts) {
+    const user = await bearerUser(req).catch(() => null);
+    if (user) rec[1].user_id = user.id;
+  }
   res.writeHead(204).end();
   stats.insert(rec[0], rec[1])
     .then(() => { if (rec[0] === 'charges') reloadReports(); })
@@ -272,6 +283,90 @@ async function reloadReports() {
     reportsBody = JSON.stringify({ reports: summarize(rows) });
   } catch (err) {
     console.error(new Date().toISOString(), 'reports', err.message);
+  }
+}
+
+// ---------- accounts ----------
+async function bodyJSON(req) {
+  try { return JSON.parse(await readBody(req)); } catch { return null; }
+}
+
+function bearerUser(req) {
+  const h = String(req.headers.authorization || '');
+  return h.startsWith('Bearer ') ? accounts.user(h.slice(7)) : Promise.resolve(null);
+}
+
+const say = (err) => console.error(new Date().toISOString(), 'account', err.message);
+
+async function sendCode(req, res) {
+  const email = cleanEmail((await bodyJSON(req))?.email);
+  if (!email) { json(res, 400, { error: 'อีเมลไม่ถูกต้อง' }); return; }
+  if (!allowCode(clientIp(req)) || !allowCodeTo(email)) { json(res, 429, { error: 'ขอรหัสบ่อยเกินไป รอสักครู่แล้วลองใหม่' }); return; }
+  try {
+    await accounts.sendCode(email);
+    res.writeHead(204).end();
+  } catch (err) {
+    say(err);
+    json(res, err.status === 429 ? 429 : 502, { error: err.status === 429 ? 'ขอรหัสบ่อยเกินไป รอสักครู่แล้วลองใหม่' : 'ส่งอีเมลไม่สำเร็จ ลองใหม่อีกครั้ง' });
+  }
+}
+
+async function verifyCode(req, res) {
+  if (!allowVerify(clientIp(req))) { json(res, 429, { error: 'ลองหลายครั้งเกินไป รอสักครู่' }); return; }
+  const b = await bodyJSON(req), email = cleanEmail(b?.email), code = cleanCode(b?.code);
+  if (!email || !code) { json(res, 400, { error: 'รหัสไม่ถูกต้อง' }); return; }
+  try {
+    json(res, 200, await accounts.verify(email, code), { 'Cache-Control': 'no-store' });
+  } catch (err) {
+    if (err.status >= 400 && err.status < 500) { json(res, 400, { error: 'รหัสไม่ถูกต้องหรือหมดอายุ ขอรหัสใหม่ได้' }); return; }
+    say(err);
+    json(res, 502, { error: 'ตรวจรหัสไม่สำเร็จ ลองใหม่อีกครั้ง' });
+  }
+}
+
+async function refreshSession(req, res) {
+  const t = (await bodyJSON(req))?.refresh_token;
+  if (typeof t !== 'string' || !t || t.length > 2000) { res.writeHead(401).end(); return; }
+  try {
+    json(res, 200, await accounts.refresh(t), { 'Cache-Control': 'no-store' });
+  } catch (err) {
+    if (!(err.status >= 400 && err.status < 500)) say(err);
+    res.writeHead(err.status >= 400 && err.status < 500 ? 401 : 502).end();
+  }
+}
+
+// GET: the user's trips and charging history. PUT trips: replace the saved list. DELETE: the account.
+async function me(req, res, url) {
+  if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
+  let user;
+  try { user = await bearerUser(req); } catch (err) { say(err); res.writeHead(502).end(); return; }
+  if (!user) { json(res, 401, { error: 'เข้าสู่ระบบใหม่อีกครั้ง' }); return; }
+  const uid = encodeURIComponent(user.id);
+  try {
+    if (req.method === 'GET' && url.pathname === '/api/me') {
+      const [trips, charges] = await Promise.all([
+        stats.select('trips', 'select=data&user_id=eq.' + uid + '&order=updated_at.desc&limit=50'),
+        stats.select('charges', 'select=created_at,station_id,station_name,op,ok,problem,plug,soc_from,soc_to,kwh,baht,minutes,max_kw,odometer,car_id,battery_kwh&user_id=eq.' + uid + '&order=created_at.desc&limit=200'),
+      ]);
+      json(res, 200, { user, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
+    } else if (req.method === 'PUT' && url.pathname === '/api/me/trips') {
+      const trips = cleanTrips((await bodyJSON(req))?.trips);
+      if (!trips) { res.writeHead(400).end(); return; }
+      // The page sends its whole list (newest first); keep that order through updated_at.
+      const t0 = Date.now();
+      await stats.remove('trips', 'user_id=eq.' + uid);
+      await stats.insertMany('trips', trips.map((t, i) => ({ user_id: user.id, q: t.q, data: t, updated_at: new Date(t0 - i * 1000).toISOString() })));
+      json(res, 200, { trips }, { 'Cache-Control': 'no-store' });
+    } else if (req.method === 'DELETE' && url.pathname === '/api/me') {
+      await accounts.deleteUser(user.id); // trips go with it; charging reports stay, unlinked
+      console.log(new Date().toISOString(), 'account deleted');
+      res.writeHead(204).end();
+    } else {
+      res.writeHead(405).end();
+    }
+  } catch (err) {
+    say(err);
+    json(res, 502, { error: 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง' });
   }
 }
 
@@ -348,6 +443,15 @@ createServer(async (req, res) => {
     await addStation(req, res);
     return;
   }
+  if (url.pathname.startsWith('/api/auth/') || url.pathname === '/api/me' || url.pathname === '/api/me/trips') {
+    if (!accounts) { json(res, 404, { error: 'accounts disabled' }); return; }
+    if (req.method === 'POST' && url.pathname === '/api/auth/code') await sendCode(req, res);
+    else if (req.method === 'POST' && url.pathname === '/api/auth/verify') await verifyCode(req, res);
+    else if (req.method === 'POST' && url.pathname === '/api/auth/refresh') await refreshSession(req, res);
+    else if (url.pathname.startsWith('/api/me')) await me(req, res, url);
+    else res.writeHead(404).end();
+    return;
+  }
   if (url.pathname === '/api/log' && req.method === 'POST') {
     await logStat(req, res);
     return;
@@ -372,6 +476,8 @@ createServer(async (req, res) => {
       maps: places ? { key: GOOGLE_MAPS_KEY, mapId: GOOGLE_MAP_ID } : null,
       places: places ? { left: places.counter.remaining } : null,
       stats: !!stats,
+      accounts: !!accounts,
+      contact: CONTACT_EMAIL || null,
     }, { 'Cache-Control': 'no-store' });
     return;
   }

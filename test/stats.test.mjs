@@ -50,7 +50,7 @@ test('a charge report needs a station and whether it worked', () => {
   assert.equal(bad.problem, 'other');
   assert.equal(bad.note.length, 200);
   assert.deepEqual(record({ t: 'event', d: { kind: 'app', pid: 'abc', sid: 'cur:1', op: 'PEA VOLTA' } }),
-    ['events', { plan_id: 'abc', kind: 'app', station_id: 'cur:1', op: 'PEA VOLTA', car_id: null, car_uid: null }]);
+    ['events', { plan_id: 'abc', kind: 'app', station_id: 'cur:1', op: 'PEA VOLTA', car_id: null, car_uid: null, ctx: null }]);
 });
 
 test('supabase insert sends the secret key and the row', async () => {
