@@ -2102,6 +2102,19 @@
     return true;
   }
 
+  // Signing in or out in another tab (the email link opens one) applies here too.
+  window.addEventListener('storage', function (e) {
+    if (e.key !== 'auth') return;
+    var was = signedIn();
+    A.s = load('auth');
+    showAcctBtn();
+    if (signedIn() && !was) {
+      if (!$('acct').hidden) closeAcct();
+      loadMe(true).then(function (moved) { toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : '')); });
+    }
+    if (!signedIn()) A.me = null;
+  });
+
   function initAccount() {
     showAcctBtn();
     if (!accountsOn()) return;
