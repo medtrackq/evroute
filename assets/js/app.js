@@ -160,6 +160,7 @@
     Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
     $('car-photo').hidden = !img;
     $('car-hero').classList.toggle('has-photo', !!img);
+    renderHome();
     if (!img) return;
     $('car-img').src = img.thumb;
     $('car-img').alt = R.car.brand + ' ' + R.car.model;
@@ -222,6 +223,7 @@
     $('gauge-unit').textContent = km ? 'กม.' : '%';
     $('soc-hint').textContent = soc == null ? 'ใส่แบตที่เหลือ' : km ? '≈ ' + Math.round(soc) + '% ของแบต' : 'วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.';
     $('gauge').classList.toggle('is-low', soc != null && soc <= +radio('min'));
+    if (soc != null) store('soc', Math.round(soc));
   }
 
   // Sets the battery from a fraction of the dial (5–100%), written in the box's unit.
@@ -308,7 +310,7 @@
 
   function loadStations() {
     var ops = getJSON('data/operators.json').then(function (d) { R.operators = d; }, function () {});
-    getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; if (R.result) render(); }, function () {});
+    getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; if (R.result) render(); renderHome(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
       $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
@@ -446,6 +448,7 @@
       R.result = res;
       res.pid = newPid();
       render();
+      setView('result');
       logPlan(res);
     }).catch(function (err) {
       console.error(err);
@@ -544,6 +547,7 @@
     list.unshift({
       q: q, title: tripTitle(res.trip), from: R.a.label, car: R.car.brand + ' ' + R.car.model,
       km: Math.round(t.km), stops: res.stops.length, at: new Date().toISOString(), dep: dep || '',
+      cost: res.cost != null ? Math.round(res.cost) : null, mins: Math.round(t.total),
     });
     store('plans', list.slice(0, MAX_SAVED));
     renderSaved();
@@ -582,6 +586,7 @@
         '<button type="button" class="saved-del" data-unsave="' + x.i + '" aria-label="ลบแผนนี้">×</button></li>';
     }).join('') + (list.length && accountsOn() && !signedIn()
       ? '<li class="saved-foot">เก็บในเครื่องนี้ · <button type="button" class="link-btn" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button></li>' : '');
+    renderHome();
   }
 
   function replan() { if (R.a && trip().dests.length && !R.busy) plan(); }
@@ -835,23 +840,28 @@
         '<span class="row__meta">กม. ' + km1(s.kmReal != null ? s.kmReal : s.along) + ' · ' + off + ' · ' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '</span></div>' +
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
-        '<span class="row__plug">' + esc(plugText(st)) + '</span>' +
-        (doubtful(st, s.c.plug) ? '<span class="row__warn">ข้อมูลหัวชาร์จ/กำลังไฟยังไม่ยืนยัน ตรวจในแอปก่อน</span>' : '') +
-        repLines(st) +
-        (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
-        (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
-        (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
-        (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
+        repLines(st) +
+        (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') + // Google's data shows with its credit
         '<div class="row__acts">' +
-          '<a class="btn" href="' + gmapsDir(prev, st) + '" target="_blank" rel="noopener"' + evAttr('nav_stop', st) + '>นำทางมาที่นี่</a>' +
           appLink(st) +
-          favButton(st) +
-          '<button type="button" class="btn" data-skip="' + esc(st.id) + '">ไม่แวะที่นี่</button>' +
-          (R.cfg && R.cfg.stats ? '<button type="button" class="btn report-btn" data-report="' + i + '">' + (R.reported[st.id] ? 'บันทึกการชาร์จแล้ว ✓' : 'บันทึกการชาร์จจริง') + '</button>' : '') +
-        '</div>' + '<div class="report-slot"></div>' + alts +
+          '<a class="btn" href="' + gmapsDir(prev, st) + '" target="_blank" rel="noopener"' + evAttr('nav_stop', st) + '>นำทาง</a>' +
+        '</div>' + '<div class="report-slot"></div>' +
+        // Details and less used actions fold away so the plan reads as a short timeline.
+        '<details class="row__more"><summary>รายละเอียด · ตัวเลือก' + (doubtful(st, s.c.plug) ? ' <span class="row__doubt">ⓘ ยังไม่ยืนยันหัวชาร์จ</span>' : '') + '</summary>' +
+          '<span class="row__plug">' + esc(plugText(st)) + '</span>' +
+          (doubtful(st, s.c.plug) ? '<span class="row__addr">ข้อมูลหัวชาร์จหรือกำลังไฟยังไม่มีคนยืนยัน ตรวจในแอปผู้ให้บริการก่อน</span>' : '') +
+          (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
+          (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
+          (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
+          '<div class="row__acts">' +
+            favButton(st) +
+            '<button type="button" class="btn" data-skip="' + esc(st.id) + '">ไม่แวะที่นี่</button>' +
+            (R.cfg && R.cfg.stats ? '<button type="button" class="btn report-btn" data-report="' + i + '">' + (R.reported[st.id] ? 'บันทึกการชาร์จแล้ว ✓' : 'บันทึกการชาร์จจริง') + '</button>' : '') +
+          '</div>' + alts +
+        '</details>' +
       '</div></li>';
   }
 
@@ -951,6 +961,7 @@
     chart();
     draw();
     fillAreas(res);
+    if (R.view === 'result') { renderTripbar(); showDock(); }
   }
 
   function clearResult() {
@@ -1407,6 +1418,7 @@
     }
     if (q.get('u') === 'km') setRadio('unit', 'km');
     if (q.get('soc')) $('soc').value = q.get('soc');
+    else if (load('soc') && q.get('u') !== 'km') $('soc').value = load('soc'); // the battery last set here
     if (q.get('min')) setRadio('min', q.get('min'));
     if (q.get('tgt')) setRadio('target', q.get('tgt'));
     setCar(carId, tune);
@@ -1427,9 +1439,11 @@
     $('depart').value = isFinite(depT) && depT > Date.now() ? dep : '';
     showDepart();
     if (isFinite(depT) && depT <= Date.now() && a && ds.length) {
-      toast('แผนนี้เคยตั้งไว้วันที่ ' + esc(thaiDate(depT)) + '<br>เลือกวันเดินทางใหม่ได้ที่ช่อง “ออกเดินทาง”', 7000);
+      toast('แผนนี้เคยตั้งไว้วันที่ ' + esc(thaiDate(depT)) + ' <button type="button" class="toast__btn" data-go="plan" data-focus="depart">เลือกวันใหม่</button>', 9000);
     }
-    if (a && ds.length) plan();
+    var hasTrip = a && ds.length;
+    setView(hasTrip ? 'result' : q.get('from') || q.get('to') ? 'plan' : 'home');
+    if (hasTrip) plan();
   }
 
   function togglePicker(open) {
@@ -1801,6 +1815,192 @@
     store('nostats', !load('nostats'));
     showStatsNote();
   });
+
+  // ---------- views: home (widgets) · planning form · results ----------
+  // Home is a dashboard of widgets; the form is for setting a trip up; after planning, the form
+  // folds into a one-line trip bar so the results come first. The map stays in every view.
+  var DEMO = '?from=13.75630,100.50180&fn=' + encodeURIComponent('กรุงเทพฯ') + '&to=18.78830,98.98530&tn=' + encodeURIComponent('เชียงใหม่') + '&soc=90&u=pct&min=20&tgt=80';
+
+  function setView(v) {
+    var was = R.view;
+    R.view = v;
+    document.body.dataset.view = v;
+    $('home').hidden = v !== 'home';
+    $('tripbar').hidden = v !== 'result';
+    if (v === 'home') renderHome();
+    if (v === 'result') renderTripbar();
+    showDock();
+    if (was && was !== v) window.scrollTo(0, 0);
+  }
+
+  function routeText() {
+    var names = [R.a && R.a.label].concat(R.dests.filter(Boolean).map(function (p) { return p.label; }));
+    if (R.round) names.push('กลับต้นทาง');
+    return names.filter(Boolean).join(' → ');
+  }
+
+  function renderTripbar() {
+    var soc = startSoc();
+    $('tripbar').innerHTML = '<button type="button" class="tripbar__home" data-go="home" aria-label="กลับหน้าแรก">‹</button>' +
+      '<div class="tripbar__main"><b>' + esc(routeText()) + '</b><span>' + esc(R.car.brand + ' ' + R.car.model) +
+      (soc != null ? ' · แบต ' + Math.round(soc) + '%' : '') + ' · ' + ($('depart').value ? 'ออก ' + esc(thaiDate(departAt(), true)) : 'ออกตอนนี้') + '</span></div>' +
+      '<button type="button" class="pill-btn" data-go="plan">แก้ไข</button>';
+  }
+
+  // On phones the main actions stay at the bottom of the screen while scrolling the plan.
+  function showDock() {
+    var link = R.view === 'result' && document.querySelector('#nav .nav-card .btn--primary');
+    $('dock').hidden = !link;
+    document.body.classList.toggle('has-dock', !!link);
+    if (!link) return;
+    $('dock').innerHTML = '<a class="btn btn--primary" href="' + esc(link.href) + '" target="_blank" rel="noopener" data-ev="nav">' + BOLT + 'เปิดใน Google Maps</a>' +
+      '<button type="button" class="btn" data-dock-save>' + (isSaved() ? '★ บันทึกแล้ว' : '☆ บันทึก') + '</button>';
+  }
+
+  function upcomingFirst(list) {
+    return list.slice().sort(function (a, b) {
+      var x = upcoming(a), y = upcoming(b);
+      if (x !== y) return x ? -1 : 1;
+      return x ? new Date(a.dep) - new Date(b.dep) : 0;
+    });
+  }
+
+  function tripFacts(km, stops, cost, mins) {
+    return [km != null ? Math.round(km).toLocaleString('th-TH') + ' กม.' : '', mins ? dur(mins) : '', stops != null ? (stops ? 'ชาร์จ ' + stops + ' จุด' : 'ไม่ต้องชาร์จ') : '',
+      cost != null ? '฿' + Math.round(cost).toLocaleString('th-TH') : ''].filter(Boolean).join(' · ');
+  }
+
+  function carPhoto() {
+    var id = R.car && R.car.id, img = null;
+    Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
+    return img;
+  }
+
+  function heroWidget(next) {
+    var cur = R.result && R.result.ok ? R.result : null, img = carPhoto();
+    var pic = img ? '<img class="w-hero__car" src="' + esc(img.thumb) + '" alt="" loading="lazy">' : '';
+    if (cur) {
+      var t = totals(cur);
+      return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">แผนที่เปิดอยู่</span><h2 class="w-hero__title">' + esc(tripTitle(cur.trip)) + '</h2>' +
+        '<p class="w-hero__sub">' + ($('depart').value ? esc(thaiDate(departAt(), true)) : 'ออกตอนนี้') + '<br>' + esc(tripFacts(t.km, cur.stops.length, cur.cost, t.total)) + '</p>' +
+        '<div class="w-hero__acts"><button type="button" class="btn btn--light" data-go="result">ดูแผน</button></div></article>';
+    }
+    if (next) {
+      var ahead = upcoming(next);
+      return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">' + (ahead ? 'ทริปถัดไป' : 'ทริปล่าสุด') + '</span><h2 class="w-hero__title">' + esc(next.title) + '</h2>' +
+        '<p class="w-hero__sub">' + (ahead ? esc(thaiDate(new Date(next.dep).getTime(), true)) : 'จาก ' + esc(next.from)) + '<br>' + esc(tripFacts(next.km, next.stops, next.cost, next.mins)) + '</p>' +
+        '<div class="w-hero__acts"><a class="btn btn--light" href="' + esc(next.q) + '">เปิดแผน</a></div></article>';
+    }
+    return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">เริ่มต้น</span><h2 class="w-hero__title">วางแผนทริปแรก</h2>' +
+      '<p class="w-hero__sub">เลือกรถ ใส่แบต บอกว่าจะไปไหน<br>ระบบหาจุดชาร์จ เวลา และค่าไฟให้</p>' +
+      '<div class="w-hero__acts"><button type="button" class="btn btn--light" data-go="plan" data-focus="from">วางแผนทริป</button>' +
+      '<a class="btn btn--ghost" href="' + esc(DEMO + '&car=' + encodeURIComponent(R.car.id)) + '">ลองดูตัวอย่าง</a></div></article>';
+  }
+
+  function dateWidget(next) {
+    if (next && upcoming(next)) {
+      var t = new Date(next.dep).getTime();
+      return '<a class="w w-date" href="' + esc(next.q) + '"><span class="w__label w__label--red">วันเดินทาง</span><b class="w-date__big">อีก ' + esc(aheadText(t - Date.now())) + '</b>' +
+        '<span class="w__sub">' + esc(thaiDate(t, true)) + '</span><span class="w__chip">' + esc(next.title) + '</span></a>';
+    }
+    var d = new Date();
+    return '<button type="button" class="w w-date" data-go="plan" data-focus="depart"><span class="w__label w__label--red">' + esc(d.toLocaleDateString('th-TH', { weekday: 'long' })) + '</span>' +
+      '<b class="w-date__day">' + d.getDate() + '</b><span class="w__sub">วางแผนล่วงหน้าได้ ค่าไฟคิดตามวันนั้น</span></button>';
+  }
+
+  function carWidget() {
+    var soc = startSoc() || 0, f = Math.max(0, Math.min(1, soc / 100)), C = 2 * Math.PI * 30;
+    return '<button type="button" class="w w-car" data-go="plan" data-focus="car"><span class="w__label">รถของฉัน</span>' +
+      '<span class="w-car__ring"><svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" class="w-car__track"/>' +
+      '<circle cx="36" cy="36" r="30" class="w-car__fill' + (soc <= +radio('min') ? ' is-low' : '') + '" stroke-dasharray="' + (C * f).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg>' +
+      '<b>' + Math.round(soc) + '<small>%</small></b></span>' +
+      '<span class="w-car__name">' + esc(R.car.model) + '</span><span class="w__sub">วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.</span></button>';
+  }
+
+  function searchWidget() {
+    return '<div class="w w--wide w-search"><span class="w__label">ไปไหนดี?</span><div class="w-search__row">' +
+      '<button type="button" class="w-search__box" data-go="plan" data-focus="to"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>ค้นหาปลายทาง</button>' +
+      '<button type="button" class="w-search__btn" data-gps aria-label="ใช้ตำแหน่งของฉันเป็นต้นทาง" title="ใช้ตำแหน่งของฉันเป็นต้นทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></button>' +
+      '<button type="button" class="w-search__btn is-accent" data-go="plan" data-focus="from" aria-label="วางแผนทริปใหม่" title="วางแผนทริปใหม่">' + BOLT + '</button></div></div>';
+  }
+
+  // When the on-peak/off-peak price next changes, looking ahead in half hours.
+  function nextPriceSwitch(now) {
+    var off = P.isOffPeak(now), t = new Date(now.getTime());
+    t.setMinutes(t.getMinutes() < 30 ? 30 : 60, 0, 0);
+    for (var i = 0; i < 200 && P.isOffPeak(t) === off; i++) t = new Date(t.getTime() + 30 * 60000);
+    return t;
+  }
+
+  function priceWidget() {
+    var now = new Date(), off = P.isOffPeak(now), sw = nextPriceSwitch(now);
+    // On/off-peak hours are Thai time, whatever the device's clock is set to.
+    var bkk = { timeZone: 'Asia/Bangkok' }, day = function (d) { return d.toLocaleDateString('en-CA', bkk); };
+    var hm = sw.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
+    var when = day(sw) === day(now) ? hm : sw.toLocaleDateString('th-TH', { weekday: 'short', timeZone: 'Asia/Bangkok' }) + ' ' + hm;
+    var best = Object.keys(R.prices || {}).filter(function (k) { return k !== '_default' && R.prices[k].dc; }).map(function (k) {
+      var p = R.prices[k];
+      return { op: k, rate: off && p.dcOff ? p.dcOff : p.dc };
+    }).sort(function (a, b) { return a.rate - b.rate; })[0];
+    return '<div class="w w-price' + (off ? ' is-off' : '') + '"><span class="w__label">ค่าไฟตอนนี้</span><b class="w-price__big">' + (off ? 'Off-Peak' : 'On-Peak') + '</b>' +
+      '<span class="w__sub">' + (off ? 'ถูกกว่า ถึง ' : 'Off-Peak เริ่ม ') + esc(when) + '</span>' +
+      (best ? '<span class="w__chip">ถูกสุด ' + esc(best.op) + ' ฿' + best.rate + '/kWh</span>' : '') + '</div>';
+  }
+
+  var TIPS = [
+    'ชาร์จถึง 80% ก็พอสำหรับทางไกล ช่วง 80–100% ไฟเข้าช้าลงมาก',
+    'ขับ 120 กม./ชม. กินไฟมากกว่า 90 กม./ชม. ราว 30% ลดความเร็วนิดเดียว ไปได้ไกลขึ้นเยอะ',
+    'ชาร์จช่วง Off-Peak (หลัง 22:00 และเสาร์–อาทิตย์) ถูกกว่าราว ฿1 ต่อ kWh',
+    'ตั้งแอร์ 25°C ประหยัดไฟกว่าตั้งเย็นจัด โดยเฉพาะตอนรถติด',
+    'ไปชาร์จแล้วกด “บันทึกการชาร์จจริง” ช่วยยืนยันข้อมูลสถานีให้ทุกคน',
+    'สถานีที่มีคนรายงานว่าเสีย ระบบจะเลี่ยงให้เอง ถ้ามีที่อื่นใกล้ ๆ',
+  ];
+
+  function tipWidget() {
+    var day = Math.floor((Date.now() + 7 * 3600e3) / 864e5);
+    return '<div class="w w-tip"><span class="w__label">เคล็ดลับ</span><p class="w-tip__text">' + esc(TIPS[day % TIPS.length]) + '</p></div>';
+  }
+
+  function savedWidget(list) {
+    var rows = list.slice(0, 3).map(function (p) {
+      var when = upcoming(p) ? thaiDate(new Date(p.dep).getTime()) : p.dep ? 'เคยไป ' + thaiDate(new Date(p.dep).getTime()) : 'ยังไม่ระบุวัน';
+      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span' + (upcoming(p) ? ' class="is-ahead"' : '') + '>' + esc(when) + '</span><span>' + (p.km ? Math.round(p.km).toLocaleString('th-TH') + ' กม.' : '') + '</span></a></li>';
+    }).join('');
+    return '<div class="w w--wide w-saved"><div class="w-saved__head"><span class="w__label">ทริปที่บันทึกไว้</span>' +
+      (list.length > 3 ? '<button type="button" class="link-btn" data-go="plan" data-open="saved">ดูทั้งหมด (' + list.length + ')</button>' : '') + '</div>' +
+      (rows ? '<ul class="w-saved__list">' + rows + '</ul>' : '<p class="w__sub">ยังไม่มี · กด “บันทึกแผนนี้” หลังวางแผน เพื่อใช้ซ้ำหรือเปลี่ยนวันเดินทางภายหลัง</p>' + nudge('device')) +
+      (accountsOn() && !signedIn() && list.length ? '<button type="button" class="link-btn w-saved__acct" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button>' : '') + '</div>';
+  }
+
+  function renderHome() {
+    if (R.view !== 'home' || !R.car) return;
+    var list = upcomingFirst(savedPlans()), next = list[0] || null;
+    $('widgets').innerHTML = heroWidget(next) + dateWidget(next) + carWidget() + searchWidget() + priceWidget() + tipWidget() + savedWidget(list);
+  }
+
+  // Buttons that move between views, optionally landing on a field.
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go]');
+    if (t) {
+      e.preventDefault();
+      setView(t.dataset.go);
+      var f = t.dataset.focus;
+      if (t.dataset.open === 'saved' && $('saved-list').hidden) $('saved-btn').click();
+      if (f === 'car') document.querySelector('.car-card').scrollIntoView({ block: 'start' });
+      else if (f) setTimeout(function () { var el = $(f); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50);
+      return;
+    }
+    if (e.target.closest('[data-gps]')) {
+      setView('plan');
+      gps();
+      setTimeout(function () { $('to').focus(); }, 50);
+    }
+  });
+  $('dock').addEventListener('click', function (e) {
+    if (e.target.closest('[data-ev]')) logEvent('nav');
+    if (e.target.closest('[data-dock-save]')) { logEvent('save'); savePlan(); showDock(); }
+  });
+  document.querySelector('.brand').addEventListener('click', function (e) { e.preventDefault(); setView('home'); });
 
   // ---------- optional account ----------
   // Everything works without one. Signing in (email + a one-time code, no password) keeps saved

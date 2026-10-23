@@ -16,7 +16,7 @@ test('saved trips keep only their own fields, deduplicated and capped', () => {
   const t = { q: '?from=13.7,100.5&to=17.8,102.7', title: 'หนองคาย', from: 'BKK', car: 'BYD Atto 3', km: 632, stops: 4, at: '2026-10-23T01:00:00Z', dep: '2026-12-14T10:00', evil: '<script>' };
   const out = cleanTrips([t, { ...t }, { q: 'javascript:alert(1)' }, null, ...Array.from({ length: 60 }, (_, i) => ({ ...t, q: '?n=' + i }))]);
   assert.equal(out.length, 50);
-  assert.deepEqual(out[0], { q: t.q, title: 'หนองคาย', from: 'BKK', car: 'BYD Atto 3', km: 632, stops: 4, at: t.at, dep: t.dep });
+  assert.deepEqual(out[0], { q: t.q, title: 'หนองคาย', from: 'BKK', car: 'BYD Atto 3', km: 632, stops: 4, at: t.at, dep: t.dep, cost: null, mins: 0 });
   assert.equal(cleanTrips('x'), null);
 });
 
