@@ -641,3 +641,11 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
   .tabs--v span { min-width: 54px; padding: 7px 8px; }
   .gauge__num { font-size: 38px; }
 }
+
+/* ---------- departure time ---------- */
+.depart { display: grid; gap: 6px; margin-top: 14px; }
+.depart__row { display: flex; gap: 8px; align-items: center; }
+.depart__in { flex: 1; min-width: 0; color-scheme: light dark; }
+.depart .hint { margin: 0; }
+.saved-when { color: var(--muted); font-size: 12px; }
+.saved-when.is-ahead { color: var(--accent); font-weight: 600; }

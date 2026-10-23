@@ -538,11 +538,12 @@
     var res = R.result;
     if (!res) return;
     shareURL();
-    var q = location.search, t = totals(res);
-    var list = savedPlans().filter(function (p) { return p.q !== q; });
+    var q = location.search, t = totals(res), route = routeKey(q), dep = $('depart').value;
+    // The same trip saved again for a new date replaces its old, past copy; future dates stay separate.
+    var list = savedPlans().filter(function (p) { return p.q !== q && !(routeKey(p.q) === route && !upcoming(p)); });
     list.unshift({
       q: q, title: tripTitle(res.trip), from: R.a.label, car: R.car.brand + ' ' + R.car.model,
-      km: Math.round(t.km), stops: res.stops.length, at: new Date().toISOString(),
+      km: Math.round(t.km), stops: res.stops.length, at: new Date().toISOString(), dep: dep || '',
     });
     store('plans', list.slice(0, MAX_SAVED));
     renderSaved();
@@ -550,16 +551,32 @@
     if (b) b.textContent = '★ บันทึกแล้ว';
   }
 
+  function routeKey(q) {
+    var u = new URLSearchParams(q);
+    u.delete('dep');
+    return u.toString();
+  }
+
+  function upcoming(p) { return !!p.dep && new Date(p.dep).getTime() > Date.now(); }
+
+  // Trips with a date ahead first (soonest first), then the rest, newest saved first.
   function renderSaved() {
-    var list = savedPlans();
+    var list = savedPlans().map(function (p, i) { return { p: p, i: i }; }).sort(function (x, y) {
+      var a = upcoming(x.p), b = upcoming(y.p);
+      if (a !== b) return a ? -1 : 1;
+      if (a) return new Date(x.p.dep) - new Date(y.p.dep);
+      return x.i - y.i;
+    });
     $('saved-btn').hidden = !list.length;
     $('saved-count').textContent = list.length ? '(' + list.length + ')' : '';
     if (!list.length) $('saved-list').hidden = true;
-    $('saved-list').innerHTML = list.map(function (p, i) {
-      var d = new Date(p.at);
-      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span>จาก ' + esc(p.from) + ' · ' + esc(p.car) + ' · ' + p.km + ' กม. · ชาร์จ ' + p.stops + ' จุด · ' +
-        d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + '</span></a>' +
-        '<button type="button" class="saved-del" data-unsave="' + i + '" aria-label="ลบแผนนี้">×</button></li>';
+    $('saved-list').innerHTML = list.map(function (x) {
+      var p = x.p, ahead = upcoming(p), when = p.dep ? new Date(p.dep).getTime() : NaN;
+      var tag = ahead ? '<span class="saved-when is-ahead">เดินทาง ' + esc(thaiDate(when, true)) + '</span>'
+        : isFinite(when) ? '<span class="saved-when">เคยเดินทาง ' + esc(thaiDate(when)) + ' · กดเพื่อใช้อีกครั้ง</span>'
+        : '<span class="saved-when">ยังไม่ระบุวัน · บันทึก ' + esc(new Date(p.at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })) + '</span>';
+      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b>' + tag + '<span>จาก ' + esc(p.from) + ' · ' + esc(p.car) + ' · ' + p.km + ' กม. · ชาร์จ ' + p.stops + ' จุด</span></a>' +
+        '<button type="button" class="saved-del" data-unsave="' + x.i + '" aria-label="ลบแผนนี้">×</button></li>';
     }).join('');
   }
 
@@ -572,9 +589,43 @@
   }
   function pct(v) { return Math.round(v) + '%'; }
   function km1(v) { return v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString('th-TH'); }
-  function clock(minFromNow) {
-    var d = new Date(Date.now() + minFromNow * 60000);
-    return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  // Arrival time, minutes after departure; with the date when that isn't today.
+  function clock(minAfterStart) {
+    var d = new Date(departAt() + minAfterStart * 60000);
+    var t = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + t;
+  }
+
+  // ---------- departure time ----------
+  // Empty box = leaving now. A date ahead prices each stop at the hour the car gets there and
+  // shows arrival times for that day.
+  function departAt() {
+    var t = $('depart').value ? new Date($('depart').value).getTime() : NaN;
+    return isFinite(t) && t > Date.now() ? t : Date.now();
+  }
+
+  function localInput(t) {
+    var d = new Date(t - new Date(t).getTimezoneOffset() * 60000);
+    return d.toISOString().slice(0, 16);
+  }
+
+  function thaiDate(t, withTime) {
+    var d = new Date(t);
+    return d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' }) +
+      (withTime ? ' ' + d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.' : '');
+  }
+
+  function showDepart() {
+    var v = $('depart').value, t = v ? new Date(v).getTime() : NaN, ahead = isFinite(t) && t > Date.now();
+    $('depart-now').hidden = !v;
+    $('depart-note').textContent = !v ? 'ตอนนี้ · เลือกวันเวลาล่วงหน้าได้ ค่าไฟและเวลาถึงจะคิดตามวันนั้น'
+      : ahead ? thaiDate(t, true) + ' · อีก ' + aheadText(t - Date.now())
+      : 'เวลานี้ผ่านไปแล้ว ระบบคิดเป็นออกตอนนี้ เลือกวันใหม่ได้';
+  }
+
+  function aheadText(ms) {
+    var h = ms / 36e5;
+    return h < 1 ? Math.max(1, Math.round(h * 60)) + ' นาที' : h < 48 ? Math.round(h) + ' ชั่วโมง' : Math.round(h / 24) + ' วัน';
   }
 
   // Button that opens the operator's app. Android: an intent link launches the installed app
@@ -623,29 +674,15 @@
     return placeName(st) || (tambon && tambon[1]) || st.name;
   }
 
-  // Name and address in one line, to paste into LINE, Google Maps or any other app.
-  function fullText(st) {
-    var a = st.addr || (st.area ? [st.area.amphoe && 'อ.' + st.area.amphoe, st.area.province && 'จ.' + st.area.province].filter(Boolean).join(' ') : '');
-    return st.name + (a ? ' ' + a : '');
-  }
 
-  function keyLine(st) {
-    var k = searchKey(st);
-    return 'คำค้น: <b>' + esc(k) + '</b> <button type="button" class="link-btn" data-copy="' + esc(k) + '">คัดลอก</button>' +
-      ' · <button type="button" class="link-btn" data-copy="' + esc(fullText(st)) + '">คัดลอกชื่อและที่อยู่</button>';
-  }
-
-  // Stations in the plan whose address has no district: look it up from their position, then
-  // refresh their search word in place.
+  // Stations in the plan whose address has no district: look it up from their position, so the
+  // word copied by "เปิดแอป" is ready by the time it's tapped.
   function fillAreas(res) {
     res.stops.forEach(function (s) {
       var st = s.st;
       if (st.area !== undefined || /(?:อำเภอ|อ\.|เขต)\s*\S/.test(st.addr || '')) return;
       st.area = null;
-      getJSON('/api/area?lat=' + st.lat + '&lng=' + st.lng).then(function (a) {
-        st.area = a;
-        document.querySelectorAll('[data-key-for]').forEach(function (el) { if (el.dataset.keyFor === st.id) el.innerHTML = keyLine(st); });
-      }, function () {});
+      getJSON('/api/area?lat=' + st.lat + '&lng=' + st.lng).then(function (a) { st.area = a; }, function () {});
     });
   }
 
@@ -674,18 +711,26 @@
     toastTimer = setTimeout(function () { el.hidden = true; }, ms || 4000);
   }
 
+  // The subdistrict, to tell apart the few stations the search word finds.
+  function pickHint(st, key) {
+    var m = /(ตำบล|ต\.|แขวง)\s*([^\s,]+)/.exec(st.addr || '');
+    if (m && m[2] !== key) return 'เลือกสถานีที่ ' + (m[1] === 'แขวง' ? 'แขวง' : 'ต.') + m[2];
+    var place = placeName(st);
+    return place && place !== key ? 'เลือกสถานี “' + place + '”' : 'เลือกสถานีที่ตรงกับแผน';
+  }
+
   function openApp(a, st, e) {
     e.preventDefault();
-    var name = searchKey(st), href = a.href;
+    var name = searchKey(st), href = a.href, pick = pickHint(st, name);
     // A new tab must open inside the tap or the browser blocks it; an app or store link in the same
     // tab waits a moment so the copy finishes and the driver sees what was copied.
     if (a.target === '_blank') window.open(href, '_blank', 'noopener');
     copyText(name).then(function () {
-      toast('คัดลอก <b>"' + esc(name) + '"</b> แล้ว วางในช่องค้นหาของแอป<br>แล้วเลือก ' + esc(st.name), 6000);
+      toast('คัดลอก <b>“' + esc(name) + '”</b> แล้ว<br>ในแอป: แตะช่องค้นหา → วาง → ' + esc(pick), 8000);
     }, function () {
-      toast('ค้นหาในแอปด้วยคำว่า <b>"' + esc(name) + '"</b><br>แล้วเลือก ' + esc(st.name), 6000);
+      toast('ในแอป: ค้นหาคำว่า <b>“' + esc(name) + '”</b><br>→ ' + esc(pick), 8000);
     }).then(function () {
-      if (a.target !== '_blank') setTimeout(function () { location.href = href; }, 900);
+      if (a.target !== '_blank') setTimeout(function () { location.href = href; }, 1600); // time to read the toast
     });
   }
 
@@ -793,7 +838,6 @@
         (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
         (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') +
-        '<span class="row__addr" data-key-for="' + esc(st.id) + '">' + keyLine(st) + '</span>' +
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
@@ -874,7 +918,7 @@
   // Estimated cost of each stop, at the operator's price for the hour the car gets there
   // (leaving now): on-peak or off-peak where the operator has both.
   function priceStops(res) {
-    var prof = res.final || res.prof, start = Date.now(), extra = 0, total = 0;
+    var prof = res.final || res.prof, start = departAt(), extra = 0, total = 0;
     res.stops.slice().sort(function (a, b) { return a.along - b.along; }).forEach(function (s) {
       var km = s.kmReal != null ? s.kmReal : s.along;
       var when = new Date(start + (P.at(prof, prof.tm, km) + extra) * 60000);
@@ -1327,6 +1371,7 @@
         q.append('tn', p.label);
       });
       if (R.round) q.set('rt', '1');
+      if ($('depart').value) q.set('dep', $('depart').value);
       [['car', c.id], ['soc', $('soc').value], ['u', unit()], ['min', radio('min')], ['tgt', radio('target')]].forEach(function (kv) { q.set(kv[0], kv[1]); });
       var base = CARS.filter(function (x) { return x.id === c.id; })[0];
       if (c.kwh !== base.kwh || c.use !== base.use || c.dc !== base.dc || c.margin !== 10) q.set('tune', [c.kwh, c.use, c.dc, c.margin].join(','));
@@ -1367,6 +1412,13 @@
     R.dests = ds.length ? ds : [null];
     renderDests();
     if (a) setPoint('a', a);
+    // A saved trip whose date has passed opens for leaving now, ready for a new date.
+    var dep = q.get('dep'), depT = dep ? new Date(dep).getTime() : NaN;
+    $('depart').value = isFinite(depT) && depT > Date.now() ? dep : '';
+    showDepart();
+    if (isFinite(depT) && depT <= Date.now() && a && ds.length) {
+      toast('แผนนี้เคยตั้งไว้วันที่ ' + esc(thaiDate(depT)) + '<br>เลือกวันเดินทางใหม่ได้ที่ช่อง “ออกเดินทาง”', 7000);
+    }
     if (a && ds.length) plan();
   }
 
@@ -1439,6 +1491,16 @@
     if (R.a && R.dests[0] && R.result) plan();
   });
   $('form').addEventListener('submit', function (e) { e.preventDefault(); if (!R.busy) plan(); });
+  if (!$('depart').min) $('depart').min = localInput(Date.now());
+  $('depart').addEventListener('change', function () {
+    showDepart();
+    if (R.result) { shareURL(); render(); } // same route, new times and prices
+  });
+  $('depart-now').addEventListener('click', function () {
+    $('depart').value = '';
+    showDepart();
+    if (R.result) { shareURL(); render(); }
+  });
   function wireMap() {
   map.onClick(function (lat, lng) {
     if (A.open) { setAddPoint({ lat: lat, lng: lng }); return; }
@@ -1490,11 +1552,6 @@
     if ((t = e.target.closest('[data-fav]'))) { if (!R.favs[t.dataset.fav]) logEvent('fav', stationById(t.dataset.fav)); toggleFav(t.dataset.fav); return; }
     if (e.target.closest('#save-plan')) { logEvent('save'); savePlan(); return; }
     if ((t = e.target.closest('[data-report]'))) { openReport(t); return; }
-    if ((t = e.target.closest('[data-copy]'))) {
-      var word = t.dataset.copy;
-      copyText(word).then(function () { toast('คัดลอก <b>"' + esc(word) + '"</b> แล้ว'); }, function () {});
-      return;
-    }
     if ((t = e.target.closest('[data-report-close]'))) { t.closest('.report-slot').innerHTML = ''; return; }
     if ((t = e.target.closest('[data-ev]'))) {
       var evSt = stationById(t.dataset.sid);
