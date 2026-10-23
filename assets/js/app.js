@@ -358,7 +358,7 @@
 
   function loadStations() {
     var ops = getJSON('data/operators.json').then(function (d) { R.operators = d; }, function () {});
-    getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; if (R.result) render(); renderHome(); }, function () {});
+    getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; R.petrol = d.petrol || null; if (R.result) render(); renderHome(); }, function () {});
     getJSON('data/holidays.json').then(function (d) { R.holidays = d; renderHome(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
@@ -2208,11 +2208,44 @@
       (accountsOn() && !signedIn() ? '<button type="button" class="link-btn w-saved__acct" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button>' : '') + '</div>';
   }
 
+  // Signed in: this month's charging from the driver's own reports, what the same distance would have
+  // cost in petrol, and the car's real consumption from odometer readings.
+  function myWidget() {
+    if (!accountsOn() || !signedIn() || !A.me) return '';
+    var charges = A.me.charges || [], month = bkkDay(Date.now()).slice(0, 7), baht = 0, kwh = 0;
+    charges.forEach(function (c) { if (c.ok && bkkDay(Date.parse(c.created_at)).slice(0, 7) === month) { baht += +c.baht || 0; kwh += +c.kwh || 0; } });
+    var real = (A.me.use || {})[R.car.id], base = CARS.filter(function (x) { return x.id === R.car.id; })[0] || R.car;
+    var use = real ? real.kwh100 : R.car.use, km = kwh / use * 100, pet = R.petrol;
+    var save = pet && kwh ? km / pet.kmPerLitre * pet.bahtPerLitre - baht : null;
+    var diff = real ? Math.round((real.kwh100 - base.use) / base.use * 100) : null;
+    return '<div class="w w--wide w-mine"><div class="w__top"><span class="w__title">รถของฉัน เดือนนี้</span><button type="button" class="link-btn" data-acct-open="menu">ดูประวัติ ›</button></div>' +
+      '<div class="w-mine__grid">' +
+        '<div><span class="w__sub">ค่าชาร์จ</span><b class="w__big">฿' + Math.round(baht).toLocaleString('th-TH') + '</b><span class="w__sub">' + (kwh ? Math.round(kwh) + ' kWh · ~' + Math.round(km).toLocaleString('th-TH') + ' กม.' : 'ยังไม่มีบันทึกเดือนนี้') + '</span></div>' +
+        '<div><span class="w__sub">ประหยัดกว่ารถน้ำมัน</span><b class="w__big' + (save > 0 ? ' is-good' : '') + '">' + (save != null ? '฿' + Math.round(Math.max(0, save)).toLocaleString('th-TH') : '–') + '</b>' +
+          '<span class="w__sub">' + (pet ? 'เทียบ ' + pet.kmPerLitre + ' กม./ลิตร ลิตรละ ฿' + pet.bahtPerLitre : '') + '</span></div>' +
+        '<div><span class="w__sub">กินไฟจริง</span><b class="w__big">' + (real ? real.kwh100 + ' <small>kWh/100 กม.</small>' : '–') + '</b>' +
+          '<span class="w__sub">' + (real ? (diff === 0 ? 'เท่าค่าจากโรงงาน' : (diff < 0 ? 'ดีกว่า' : 'มากกว่า') + 'ค่าโรงงาน ' + Math.abs(diff) + '%') : 'ใส่เลขไมล์ตอนบันทึกการชาร์จ 2 ครั้ง') + '</span>' +
+          (real && Math.abs(R.car.use - real.kwh100) >= 0.1 ? '<button type="button" class="link-btn" data-use-real-home="' + real.kwh100 + '">ใช้ค่านี้วางแผน</button>' : '') + '</div>' +
+      '</div></div>';
+  }
+
+  // "Add to home screen": Android/desktop Chrome offer it through an event; iPhone needs the share menu.
+  function standalone() { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+  function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+
+  function installWidget() {
+    if (standalone() || load('noinstall') || !(R.installEvt || isIOS())) return '';
+    return '<div class="w w--wide w-install"><img src="assets/icons/icon-192.png" alt="" width="52" height="52"><div class="w-install__text"><b>เพิ่ม EVROUTE ไปที่หน้าจอโฮม</b>' +
+      '<span class="w__sub">' + (R.installEvt ? 'เปิดได้ในแตะเดียวเหมือนแอป เต็มจอ ไม่มีแถบเบราว์เซอร์' : 'ใน Safari แตะปุ่มแชร์ <b>⬆︎</b> แล้วเลือก <b>“เพิ่มไปยังหน้าจอโฮม”</b>') + '</span></div>' +
+      '<div class="w-install__acts">' + (R.installEvt ? '<button type="button" class="btn btn--primary" data-install>ติดตั้ง</button>' : '') +
+      '<button type="button" class="link-btn" data-noinstall>ไม่ใช่ตอนนี้</button></div></div>';
+  }
+
   function renderHome() {
     if (R.view !== 'home' || !R.car) return;
     var list = upcomingFirst(savedPlans()), tr = homeTrip(), wx = tr && isFinite(tr.lat) && isFinite(tr.lng);
     $('widgets').innerHTML = headWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
-      nearWidget() + quickWidget() + (wx ? priceWidget() : '') + tipWidget() + savedWidget(list) +
+      myWidget() + nearWidget() + quickWidget() + installWidget() + (wx ? priceWidget() : '') + tipWidget() + savedWidget(list) +
       (list.length ? '' : '<div class="w--wide">' + nudge('device') + '</div>');
     if (wx) loadWeather(tr);
     drawNearMap();
@@ -2235,6 +2268,21 @@
       return;
     }
     if (e.target.closest('[data-near]')) { locateMe(false); return; }
+    if (e.target.closest('[data-install]') && R.installEvt) {
+      R.installEvt.prompt();
+      R.installEvt.userChoice.then(function (c) { logEvent(c.outcome === 'accepted' ? 'install' : 'install_no'); R.installEvt = null; renderHome(); }, function () {});
+      return;
+    }
+    if (e.target.closest('[data-noinstall]')) { store('noinstall', 1); renderHome(); return; }
+    var useReal = e.target.closest('[data-use-real-home]');
+    if (useReal) {
+      R.car.use = +useReal.dataset.useRealHome;
+      store('car', { id: R.car.id, kwh: R.car.kwh, use: R.car.use, dc: R.car.dc, margin: R.car.margin });
+      showSpec();
+      renderHome();
+      toast('ใช้อัตรากินไฟจริงของรถคุณในการวางแผนแล้ว');
+      return;
+    }
     if (e.target.closest('[data-addopen-home]')) { setView('plan'); openAdd(true); document.querySelector('.map-card').scrollIntoView({ block: 'center' }); return; }
     if (e.target.closest('[data-nick]')) {
       var n = prompt('ชื่อเล่นที่อยากให้ทักทาย (เว้นว่างเพื่อลบ)', load('nick') || '');
@@ -2654,6 +2702,12 @@
     if (!accountsOn()) return;
     if (!fromEmailLink() && signedIn()) { loadMe(false); checkWaiting(); }
   }
+
+  // Installable app: a service worker for offline use, and the browser's install offer kept for the
+  // home screen's "เพิ่มไปที่หน้าจอโฮม" card.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () {});
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); R.installEvt = e; renderHome(); });
+  window.addEventListener('appinstalled', function () { R.installEvt = null; renderHome(); });
 
   // Start: stations load in the background; the map is Google Maps when the server has Google
   // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.

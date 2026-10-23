@@ -888,3 +888,15 @@ button.w:active, a.w:active { transform: scale(0.98); }
 .tile.is-scrub .tile__in { width: 5.5ch; padding: 2px 6px; font: inherit; font-size: inherit; font-weight: 700; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface); color: var(--text); }
 .car-hero.has-photo .tiles--spec .tile.is-scrub { grid-template-areas: "ico k" "ico v" "ico sub" "track track"; }
 .car-hero.has-photo .tiles--spec .tile.is-scrub .tile__track { grid-area: track; }
+.w-mine__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.w-mine__grid > div { display: grid; align-content: start; gap: 2px; min-width: 0; padding: 12px; border-radius: 16px; background: var(--surface-2); }
+.w-mine__grid .w__big { font-size: 19px; }
+.w-mine__grid .w__big.is-good { color: var(--ok); }
+.w-mine__grid .link-btn { margin-top: 4px; font-size: 12px; }
+.w-install { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.w-install img { flex: none; border-radius: 14px; }
+.w-install__text { flex: 1 1 200px; display: grid; gap: 2px; min-width: 0; }
+.w-install__text b { font-size: 15px; }
+.w-install__acts { display: flex; align-items: center; gap: 12px; }
+.w-install .btn { padding: 9px 18px; font-size: 13.5px; }
+@media (max-width: 400px) { .w-mine__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .w-mine__grid > div:last-child { grid-column: span 2; } }
