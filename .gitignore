@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 *.log
 data/user-stations.json
+research_notes/
+reports/
