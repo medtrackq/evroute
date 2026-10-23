@@ -121,15 +121,18 @@
 
   // The same tile, adjustable for "ปรับค่ารถ": swipe right to raise the value, left to lower it (or use
   // the arrow keys); a tap types the number instead. The value sits in a hidden input readTune() reads.
-  function editTile(color, icon, k, id, v, unit, min, max, step, sub, drag) {
-    return '<div class="tile tile--' + color + ' is-edit is-scrub" role="slider" tabindex="0" aria-label="' + k + ' (ปัดซ้ายขวาหรือกดลูกศร)" aria-valuemin="' + min + '" aria-valuemax="' + max + '" aria-valuenow="' + v + '"' +
-      ' data-for="' + id + '" data-min="' + min + '" data-max="' + max + '" data-step="' + step + '" data-drag="' + drag + '">' +
+  // lo..hi is the stretch the bar covers (the usual values); min..max are the hard limits.
+  function editTile(color, icon, k, id, v, unit, min, max, step, sub, drag, lo, hi) {
+    return '<div class="tile tile--' + color + ' is-edit is-scrub" role="slider" tabindex="0" aria-label="' + k + ' (ลากแถบ ปัดซ้ายขวา หรือกดลูกศร)" aria-valuemin="' + min + '" aria-valuemax="' + max + '" aria-valuenow="' + v + '"' +
+      ' data-for="' + id + '" data-min="' + min + '" data-max="' + max + '" data-lo="' + lo + '" data-hi="' + hi + '" data-step="' + step + '" data-drag="' + drag + '">' +
       '<span class="tile__ico" aria-hidden="true">' + ICONS[icon] + '</span>' +
       '<span class="tile__k">' + k + '</span><span class="tile__v"><b class="tile__num">' + v + '</b><small>' + unit + '</small></span>' +
       (sub ? '<span class="tile__sub">' + sub + '</span>' : '') +
-      '<span class="tile__track" aria-hidden="true"><i style="width:' + ((v - min) / (max - min) * 100).toFixed(1) + '%"></i></span>' +
+      '<span class="tile__track" aria-hidden="true"><i style="width:' + barPct(v, lo, hi) + '%"></i><b style="left:' + barPct(v, lo, hi) + '%"></b></span>' +
       '<span class="tile__hint" aria-hidden="true">‹ ปัด ›</span><input type="hidden" id="' + id + '" value="' + v + '"></div>';
   }
+
+  function barPct(v, lo, hi) { return (Math.max(0, Math.min(1, (v - lo) / (hi - lo))) * 100).toFixed(1); }
 
   function scrubSet(el, v) {
     var min = +el.dataset.min, max = +el.dataset.max, step = +el.dataset.step;
@@ -138,7 +141,9 @@
     var num = el.querySelector('.tile__num');
     if (num) num.textContent = v;
     el.setAttribute('aria-valuenow', v);
-    el.querySelector('.tile__track i').style.width = ((v - min) / (max - min) * 100).toFixed(1) + '%';
+    var p = barPct(v, +el.dataset.lo, +el.dataset.hi) + '%';
+    el.querySelector('.tile__track i').style.width = p;
+    el.querySelector('.tile__track b').style.left = p;
     readTune();
   }
 
@@ -175,10 +180,10 @@
     $('car-name').textContent = c.id === 'custom' ? 'กำหนดเอง' : c.model;
     var plugs = esc(c.plugs.join(', ') || 'ไม่รองรับ DC'), range = '<span id="range-km">' + Math.round(rangeKm(100)) + '</span>';
     $('spec').innerHTML = R.tuning
-      ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1, '', 0.5) +
-        editTile('sun', 'use', 'กินไฟ', 'use', c.use, '/100กม.', 8, 40, 0.1, '', 0.1) +
-        editTile('mint', 'dc', 'DC สูงสุด', 'dc', c.dc, 'kW', 0, 400, 1, plugs, 5) +
-        editTile('sky', 'road', 'เผื่อไว้', 'margin', c.margin, '%', 0, 50, 1, 'วิ่งได้ราว ' + range + ' กม.', 1)
+      ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1, '', 0.5, 20, 120) +
+        editTile('sun', 'use', 'กินไฟ', 'use', c.use, '/100กม.', 8, 40, 0.1, '', 0.1, 10, 30) +
+        editTile('mint', 'dc', 'DC สูงสุด', 'dc', c.dc, 'kW', 0, 400, 1, plugs, 5, 0, 350) +
+        editTile('sky', 'road', 'เผื่อไว้', 'margin', c.margin, '%', 0, 50, 1, 'วิ่งได้ราว ' + range + ' กม.', 1, 0, 40)
       : tile('lav', 'bat', 'แบตเตอรี่', c.kwh, 'kWh') +
         tile('sun', 'use', 'กินไฟ', c.use, '/100กม.') +
         tile('mint', 'dc', 'DC สูงสุด', c.dc || '–', c.dc ? 'kW' : '', plugs) +
@@ -1512,10 +1517,23 @@
   $('spec').addEventListener('pointerdown', function (e) {
     var el = e.target.closest('.is-scrub');
     if (!el || e.target.closest('.tile__in')) return;
-    scrub = { el: el, x: e.clientX, v: +$(el.dataset.for).value, moved: false, id: e.pointerId };
+    var bar = e.target.closest('.tile__track');
+    scrub = { el: el, x: e.clientX, v: +$(el.dataset.for).value, moved: false, id: e.pointerId, bar: bar };
+    if (bar) { // the bar works like a slider: where you touch is the value
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      scrub.moved = true;
+      el.classList.add('is-drag');
+      barSet(el, bar, e.clientX);
+    }
   });
+  function barSet(el, bar, x) {
+    var r = bar.getBoundingClientRect(), f = Math.max(0, Math.min(1, (x - r.left) / r.width));
+    scrubSet(el, +el.dataset.lo + f * (+el.dataset.hi - +el.dataset.lo));
+  }
   $('spec').addEventListener('pointermove', function (e) {
     if (!scrub || e.pointerId !== scrub.id) return;
+    if (scrub.bar) { barSet(scrub.el, scrub.bar, e.clientX); return; }
     var dx = e.clientX - scrub.x;
     if (!scrub.moved && Math.abs(dx) < 6) return;
     if (!scrub.moved) { scrub.moved = true; scrub.el.setPointerCapture(e.pointerId); scrub.el.classList.add('is-drag'); }

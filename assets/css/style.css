@@ -872,11 +872,19 @@ button.w:active, a.w:active { transform: scale(0.98); }
 .tile.is-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tile.is-scrub.is-drag { transform: scale(1.03); box-shadow: 0 10px 24px rgb(20 40 90 / 18%); outline: 2px solid var(--accent); outline-offset: -2px; }
 .tile__num { font-weight: 700; font-variant-numeric: tabular-nums; }
-.tile__track { grid-column: 1 / -1; display: block; height: 4px; margin-top: 8px; border-radius: 999px; background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
-.tile__track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.08s; }
+/* A thick bar with a round handle, with extra room around it so it's easy to hit with a finger. */
+.tile__track { grid-column: 1 / -1; position: relative; display: block; height: 12px; margin: 14px 12px 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 12%, transparent); cursor: pointer; touch-action: none; }
+.tile__track::before { content: ""; position: absolute; inset: -14px -12px; } /* bigger touch target */
+.tile__track i { position: absolute; left: 0; top: 0; bottom: 0; display: block; border-radius: inherit; background: var(--accent); }
+.tile__track b { position: absolute; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: #fff;
+  border: 3px solid currentColor; box-shadow: 0 2px 6px rgb(20 40 90 / 25%); pointer-events: none; }
+.tile--lav .tile__track b { color: var(--tile-lav-ink); } .tile--sun .tile__track b { color: var(--tile-sun-ink); }
+.tile--mint .tile__track b { color: var(--tile-mint-ink); } .tile--sky .tile__track b { color: var(--tile-sky-ink); }
+.tile.is-scrub.is-drag .tile__track b { transform: scale(1.15); }
 .tile--lav .tile__track i { background: var(--tile-lav-ink); } .tile--sun .tile__track i { background: var(--tile-sun-ink); }
 .tile--mint .tile__track i { background: var(--tile-mint-ink); } .tile--sky .tile__track i { background: var(--tile-sky-ink); }
-.tile__hint { position: absolute; top: 8px; right: 10px; font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+.tile__hint { display: none; }
 .tile.is-scrub .tile__in { width: 5.5ch; padding: 2px 6px; font: inherit; font-size: inherit; font-weight: 700; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface); color: var(--text); }
 .car-hero.has-photo .tiles--spec .tile.is-scrub { grid-template-areas: "ico k" "ico v" "ico sub" "track track"; }
 .car-hero.has-photo .tiles--spec .tile.is-scrub .tile__track { grid-area: track; }
