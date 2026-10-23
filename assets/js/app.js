@@ -1299,6 +1299,7 @@
     }
     Object.keys(pins).forEach(function (k) { if (k !== 'a') { if (pins[k]) pins[k].remove(); delete pins[k]; } });
     R.dests.forEach(function (p, i) { pin(i, p); });
+    $('to').value = R.dests[0] ? R.dests[0].label : ''; // a plan opened from a link fills its first stop here too
     $('to').placeholder = R.dests.length > 1 ? 'จุดหมาย B: แวะที่ไหนก่อน' : 'ปลายทาง: จะไปที่ไหน';
     $('add-dest').hidden = R.dests.length >= MAX_DESTS;
     $('swap').hidden = R.dests.length > 1;
