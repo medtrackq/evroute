@@ -45,6 +45,9 @@ const UA = 'evroute (EV trip planner for Thailand)';
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
 const PHOTON = 'https://photon.komoot.io/api/?limit=5&bbox=97.3,5.6,105.7,20.5&q=';
 const PHOTON_REVERSE = 'https://photon.komoot.io/reverse?limit=1&';
+// Daily forecast for a trip's destination (Open-Meteo, free, no key; up to 16 days ahead).
+const WEATHER = 'https://api.open-meteo.com/v1/forecast?timezone=Asia%2FBangkok&forecast_days=16&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&';
+const WEATHER_TTL = 30 * 60 * 1000;
 const OVERPASS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -515,6 +518,18 @@ createServer(async (req, res) => {
   if (url.pathname === '/api/reports') {
     if (Date.now() - reportsAt > REPORTS_TTL) reloadReports(); // stale-while-revalidate
     json(res, 200, reportsBody, { 'Cache-Control': 'public, max-age=60' });
+    return;
+  }
+  if (url.pathname === '/api/weather') {
+    const lat = Number(url.searchParams.get('lat')), lng = Number(url.searchParams.get('lng'));
+    if (!(lat > 5 && lat < 21 && lng > 97 && lng < 106)) { res.writeHead(400).end(); return; }
+    try {
+      const r = await cached(WEATHER + 'latitude=' + lat.toFixed(2) + '&longitude=' + lng.toFixed(2), WEATHER_TTL);
+      json(res, 200, r.body, { 'Cache-Control': 'public, max-age=1800' });
+    } catch (err) {
+      console.error(new Date().toISOString(), '/api/weather', err.message);
+      json(res, 502, { error: 'weather unavailable' });
+    }
     return;
   }
   if (url.pathname === '/api/area') {

@@ -311,6 +311,7 @@
   function loadStations() {
     var ops = getJSON('data/operators.json').then(function (d) { R.operators = d; }, function () {});
     getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; if (R.result) render(); renderHome(); }, function () {});
+    getJSON('data/holidays.json').then(function (d) { R.holidays = d; renderHome(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
       $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
@@ -1829,6 +1830,7 @@
     $('tripbar').hidden = v !== 'result';
     if (v === 'home') renderHome();
     if (v === 'result') renderTripbar();
+    document.querySelectorAll('[data-tab]').forEach(function (b) { b.classList.toggle('is-on', b.dataset.tab === (v === 'home' ? 'home' : 'plan')); });
     showDock();
     if (was && was !== v) window.scrollTo(0, 0);
   }
@@ -1876,75 +1878,12 @@
     return img;
   }
 
-  function heroWidget(next) {
-    var cur = R.result && R.result.ok ? R.result : null, img = carPhoto();
-    var pic = img ? '<img class="w-hero__car" src="' + esc(img.thumb) + '" alt="" loading="lazy">' : '';
-    if (cur) {
-      var t = totals(cur);
-      return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">แผนที่เปิดอยู่</span><h2 class="w-hero__title">' + esc(tripTitle(cur.trip)) + '</h2>' +
-        '<p class="w-hero__sub">' + ($('depart').value ? esc(thaiDate(departAt(), true)) : 'ออกตอนนี้') + '<br>' + esc(tripFacts(t.km, cur.stops.length, cur.cost, t.total)) + '</p>' +
-        '<div class="w-hero__acts"><button type="button" class="btn btn--light" data-go="result">ดูแผน</button></div></article>';
-    }
-    if (next) {
-      var ahead = upcoming(next);
-      return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">' + (ahead ? 'ทริปถัดไป' : 'ทริปล่าสุด') + '</span><h2 class="w-hero__title">' + esc(next.title) + '</h2>' +
-        '<p class="w-hero__sub">' + (ahead ? esc(thaiDate(new Date(next.dep).getTime(), true)) : 'จาก ' + esc(next.from)) + '<br>' + esc(tripFacts(next.km, next.stops, next.cost, next.mins)) + '</p>' +
-        '<div class="w-hero__acts"><a class="btn btn--light" href="' + esc(next.q) + '">เปิดแผน</a></div></article>';
-    }
-    return '<article class="w w--wide w-hero">' + pic + '<span class="w__label">เริ่มต้น</span><h2 class="w-hero__title">วางแผนทริปแรก</h2>' +
-      '<p class="w-hero__sub">เลือกรถ ใส่แบต บอกว่าจะไปไหน<br>ระบบหาจุดชาร์จ เวลา และค่าไฟให้</p>' +
-      '<div class="w-hero__acts"><button type="button" class="btn btn--light" data-go="plan" data-focus="from">วางแผนทริป</button>' +
-      '<a class="btn btn--ghost" href="' + esc(DEMO + '&car=' + encodeURIComponent(R.car.id)) + '">ลองดูตัวอย่าง</a></div></article>';
-  }
-
-  function dateWidget(next) {
-    if (next && upcoming(next)) {
-      var t = new Date(next.dep).getTime();
-      return '<a class="w w-date" href="' + esc(next.q) + '"><span class="w__label w__label--red">วันเดินทาง</span><b class="w-date__big">อีก ' + esc(aheadText(t - Date.now())) + '</b>' +
-        '<span class="w__sub">' + esc(thaiDate(t, true)) + '</span><span class="w__chip">' + esc(next.title) + '</span></a>';
-    }
-    var d = new Date();
-    return '<button type="button" class="w w-date" data-go="plan" data-focus="depart"><span class="w__label w__label--red">' + esc(d.toLocaleDateString('th-TH', { weekday: 'long' })) + '</span>' +
-      '<b class="w-date__day">' + d.getDate() + '</b><span class="w__sub">วางแผนล่วงหน้าได้ ค่าไฟคิดตามวันนั้น</span></button>';
-  }
-
-  function carWidget() {
-    var soc = startSoc() || 0, f = Math.max(0, Math.min(1, soc / 100)), C = 2 * Math.PI * 30;
-    return '<button type="button" class="w w-car" data-go="plan" data-focus="car"><span class="w__label">รถของฉัน</span>' +
-      '<span class="w-car__ring"><svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" class="w-car__track"/>' +
-      '<circle cx="36" cy="36" r="30" class="w-car__fill' + (soc <= +radio('min') ? ' is-low' : '') + '" stroke-dasharray="' + (C * f).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg>' +
-      '<b>' + Math.round(soc) + '<small>%</small></b></span>' +
-      '<span class="w-car__name">' + esc(R.car.model) + '</span><span class="w__sub">วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.</span></button>';
-  }
-
-  function searchWidget() {
-    return '<div class="w w--wide w-search"><span class="w__label">ไปไหนดี?</span><div class="w-search__row">' +
-      '<button type="button" class="w-search__box" data-go="plan" data-focus="to"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>ค้นหาปลายทาง</button>' +
-      '<button type="button" class="w-search__btn" data-gps aria-label="ใช้ตำแหน่งของฉันเป็นต้นทาง" title="ใช้ตำแหน่งของฉันเป็นต้นทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></button>' +
-      '<button type="button" class="w-search__btn is-accent" data-go="plan" data-focus="from" aria-label="วางแผนทริปใหม่" title="วางแผนทริปใหม่">' + BOLT + '</button></div></div>';
-  }
-
   // When the on-peak/off-peak price next changes, looking ahead in half hours.
   function nextPriceSwitch(now) {
     var off = P.isOffPeak(now), t = new Date(now.getTime());
     t.setMinutes(t.getMinutes() < 30 ? 30 : 60, 0, 0);
     for (var i = 0; i < 200 && P.isOffPeak(t) === off; i++) t = new Date(t.getTime() + 30 * 60000);
     return t;
-  }
-
-  function priceWidget() {
-    var now = new Date(), off = P.isOffPeak(now), sw = nextPriceSwitch(now);
-    // On/off-peak hours are Thai time, whatever the device's clock is set to.
-    var bkk = { timeZone: 'Asia/Bangkok' }, day = function (d) { return d.toLocaleDateString('en-CA', bkk); };
-    var hm = sw.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
-    var when = day(sw) === day(now) ? hm : sw.toLocaleDateString('th-TH', { weekday: 'short', timeZone: 'Asia/Bangkok' }) + ' ' + hm;
-    var best = Object.keys(R.prices || {}).filter(function (k) { return k !== '_default' && R.prices[k].dc; }).map(function (k) {
-      var p = R.prices[k];
-      return { op: k, rate: off && p.dcOff ? p.dcOff : p.dc };
-    }).sort(function (a, b) { return a.rate - b.rate; })[0];
-    return '<div class="w w-price' + (off ? ' is-off' : '') + '"><span class="w__label">ค่าไฟตอนนี้</span><b class="w-price__big">' + (off ? 'Off-Peak' : 'On-Peak') + '</b>' +
-      '<span class="w__sub">' + (off ? 'ถูกกว่า ถึง ' : 'Off-Peak เริ่ม ') + esc(when) + '</span>' +
-      (best ? '<span class="w__chip">ถูกสุด ' + esc(best.op) + ' ฿' + best.rate + '/kWh</span>' : '') + '</div>';
   }
 
   var TIPS = [
@@ -1956,26 +1895,242 @@
     'สถานีที่มีคนรายงานว่าเสีย ระบบจะเลี่ยงให้เอง ถ้ามีที่อื่นใกล้ ๆ',
   ];
 
+  // ---- greeting header ----
+  function bkkNow() { return new Date(Date.now() + 7 * 3600e3); } // read with getUTC*
+  function bkkDay(t) { return new Date(t + 7 * 3600e3).toISOString().slice(0, 10); }
+  function dayLabel(iso) { return new Date(iso + 'T12:00:00+07:00').toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' }); }
+
+  function greeting() {
+    var h = bkkNow().getUTCHours();
+    return h < 5 ? 'สวัสดีตอนดึก' : h < 11 ? 'สวัสดีตอนเช้า' : h < 13 ? 'สวัสดีตอนเที่ยง' : h < 16 ? 'สวัสดีตอนบ่าย' : h < 19 ? 'สวัสดีตอนเย็น' : 'สวัสดีตอนค่ำ';
+  }
+
+  // Three or more days off in a row (weekends plus public holidays) that include today or start
+  // within a week: { start, end, days, name, now }.
+  function longWeekend() {
+    var hol = {};
+    ((R.holidays && R.holidays.days) || []).forEach(function (d) { hol[d.date] = d.name; });
+    var off = function (iso) { var w = new Date(iso + 'T12:00:00Z').getUTCDay(); return w === 0 || w === 6 || !!hol[iso]; };
+    var today = bkkDay(Date.now()), day = function (n) { return bkkDay(Date.now() + n * 864e5); };
+    for (var i = -3; i <= 7; i++) {
+      var iso = day(i);
+      if (!off(iso) || (i > -3 && off(day(i - 1)))) continue; // only the first day of a run
+      var j = i;
+      while (off(day(j + 1))) j++;
+      var n = j - i + 1;
+      if (n < 3 || day(j) < today) continue;
+      var name = '';
+      for (var k = i; k <= j && !name; k++) name = hol[day(k)] || '';
+      return { start: day(i), end: day(j), days: n, name: name, now: day(i) <= today };
+    }
+    return null;
+  }
+
+  function headWidget() {
+    var nick = load('nick'), img = carPhoto(), lw = longWeekend();
+    var chip = !lw ? '' : lw.now
+      ? '<button type="button" class="h-chip" data-go="plan" data-focus="to">🎉 วันหยุดยาว' + (lw.name ? ' · ' + esc(lw.name) : '') + ' · หยุดถึง ' + esc(dayLabel(lw.end)) + '</button>'
+      : '<button type="button" class="h-chip" data-go="plan" data-focus="to">🗓 วันหยุดยาว ' + lw.days + ' วัน ' + esc(dayLabel(lw.start)) + ' – ' + esc(dayLabel(lw.end)) + ' ไปไหนดี?</button>';
+    return '<header class="w w--wide h-head">' +
+      (img ? '<img class="h-head__car" src="' + esc(img.thumb) + '" alt="' + esc(R.car.brand + ' ' + R.car.model) + '" loading="lazy">' : '') +
+      '<h1 class="h-head__hi"' + (nick ? ' data-nick title="แตะเพื่อเปลี่ยนชื่อเล่น"' : '') + '>' + esc(greeting()) + (nick ? ',<br>คุณ' + esc(nick) : '') + '</h1>' +
+      (nick ? '' : '<button type="button" class="h-head__nick" data-nick>+ ใส่ชื่อเล่น</button>') +
+      '<button type="button" class="h-head__car-name" data-go="plan" data-focus="car">' + esc(R.car.brand === 'อื่น ๆ' ? 'รถของคุณ' : R.car.brand) + ' ' + esc(R.car.model) + ' ›</button>' + chip + '</header>';
+  }
+
+  // ---- cards ----
+  function battWidget() {
+    var soc = Math.round(startSoc() || 0), low = soc <= +radio('min');
+    return '<button type="button" class="w w-batt" data-go="plan" data-focus="gauge"><span class="w__top"><span class="w__title">แบตเตอรี่</span><span class="w__more">›</span></span>' +
+      '<span class="w__sub">ตอนออกเดินทาง</span>' +
+      '<span class="w-batt__body"><span class="w-batt__cell' + (low ? ' is-low' : '') + '"><i style="height:' + Math.max(4, soc) + '%"></i></span>' +
+      '<span class="w-batt__nums"><b>' + Math.round(rangeKm(soc)) + '<small>km</small></b><b class="w-batt__pct">' + soc + '<small>%</small></b>' +
+      '<span class="w__sub">' + esc(R.car.kwh) + ' kWh</span></span></span>' +
+      '<span class="w-batt__foot">' + (low ? 'ควรชาร์จก่อนออก' : 'แตะเพื่อปรับ') + '</span></button>';
+  }
+
+  var ICON = {
+    route: '<svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/></svg>',
+    plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    saved: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
+    pin: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+    tag: '<svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+    bulb: '<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>',
+  };
+
+  function homeTrip() {
+    var cur = R.result && R.result.ok ? R.result : null;
+    if (cur) {
+      var t = totals(cur), end = cur.trip.end;
+      return { label: 'แผนที่เปิดอยู่', title: tripTitle(cur.trip), sub: tripFacts(t.km, cur.stops.length, cur.cost, null), go: 'result', lat: end.lat, lng: end.lng, place: end.label, when: departAt() };
+    }
+    var list = upcomingFirst(savedPlans()), n = list[0];
+    if (!n) return null;
+    var q = new URLSearchParams(n.q), tos = q.getAll('to'), names = q.getAll('tn'), m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(tos[tos.length - 1] || '');
+    var ahead = upcoming(n), t2 = ahead ? new Date(n.dep).getTime() : null;
+    return { label: ahead ? 'ทริปถัดไป' : 'ทริปล่าสุด', title: n.title, sub: (ahead ? 'อีก ' + aheadText(t2 - Date.now()) + ' · ' : '') + tripFacts(n.km, null, null, null),
+      href: n.q, lat: m && +m[1], lng: m && +m[2], place: names[names.length - 1] || n.title, when: t2 };
+  }
+
+  function tripWidget(tr) {
+    if (!tr) {
+      return '<button type="button" class="w w-small" data-go="plan" data-focus="from"><span class="w__top"><span class="w__ico">' + ICON.route + '</span><span class="w__more">›</span></span>' +
+        '<b class="w__big">วางแผนทริป</b><span class="w__sub">ยังไม่มีทริป</span></button>';
+    }
+    var attrs = tr.href ? 'href="' + esc(tr.href) + '"' : 'href="#" data-go="' + tr.go + '"';
+    return '<a class="w w-small" ' + attrs + '><span class="w__top"><span class="w__ico">' + ICON.route + '</span><span class="w__more">›</span></span>' +
+      '<b class="w__big">' + esc(tr.title) + '</b><span class="w__sub">' + esc(tr.label) + ' · ' + esc(tr.sub) + '</span></a>';
+  }
+
+  var WX = [[0, '☀️', 'ท้องฟ้าแจ่มใส'], [2, '⛅', 'มีเมฆบางส่วน'], [3, '☁️', 'เมฆมาก'], [48, '🌫️', 'มีหมอก'], [57, '🌦️', 'ฝนปรอย'], [67, '🌧️', 'ฝนตก'],
+    [77, '🌨️', 'หิมะ'], [82, '🌦️', 'ฝนตกเป็นช่วง ๆ'], [99, '⛈️', 'พายุฝนฟ้าคะนอง']];
+  function wxText(code) { for (var i = 0; i < WX.length; i++) if (code <= WX[i][0]) return WX[i]; return WX[WX.length - 1]; }
+
+  // Weather where the trip ends, on the travel day when the forecast reaches it (16 days).
+  function weatherWidget(tr) {
+    return '<div class="w w-small w-wx" id="w-wx"><span class="w__top"><span class="w__ico">☁️</span></span><b class="w__big">…</b><span class="w__sub">อากาศที่ ' + esc(tr.place) + '</span></div>';
+  }
+
+  function loadWeather(tr) {
+    var key = tr.lat.toFixed(2) + ',' + tr.lng.toFixed(2);
+    var show = function (d) {
+      var el = $('w-wx');
+      if (!el || !d || !d.daily) return;
+      var day = bkkDay(tr.when || Date.now()), i = d.daily.time.indexOf(day), today = day === bkkDay(Date.now());
+      var code, temp, rain, note;
+      if (i >= 0) {
+        code = today && d.current ? d.current.weather_code : d.daily.weather_code[i];
+        temp = today && d.current ? Math.round(d.current.temperature_2m) + '°' : Math.round(d.daily.temperature_2m_max[i]) + '°';
+        rain = d.daily.precipitation_probability_max[i];
+        note = (today ? 'ตอนนี้' : dayLabel(day)) + ' · ' + Math.round(d.daily.temperature_2m_max[i]) + '°/' + Math.round(d.daily.temperature_2m_min[i]) + '°';
+      } else {
+        code = d.current.weather_code; temp = Math.round(d.current.temperature_2m) + '°'; rain = null; note = 'ตอนนี้ · พยากรณ์วันเดินทางได้ก่อน 16 วัน';
+      }
+      var w = wxText(code);
+      el.innerHTML = '<span class="w__top"><span class="w__ico w__ico--wx">' + w[1] + '</span></span><b class="w__big">' + temp + ' <small>' + esc(w[2]) + '</small></b>' +
+        '<span class="w__sub">' + esc(tr.place) + ' · ' + esc(note) + (rain != null ? ' · ฝน ' + rain + '%' : '') + '</span>' +
+        (rain >= 50 ? '<span class="w__hint">ฝนตกกินไฟเพิ่ม เผื่อแบตไว้หน่อย</span>' : '');
+    };
+    if (R.wx && R.wx.key === key) { show(R.wx.data); return; }
+    getJSON('/api/weather?lat=' + tr.lat + '&lng=' + tr.lng).then(function (d) { R.wx = { key: key, data: d }; show(d); }, function () {
+      var el = $('w-wx');
+      if (el) el.querySelector('.w__big').textContent = '–';
+    });
+  }
+
+  // ---- charging stations near me ----
+  function fastForCar(st) {
+    return (st.plugs || []).some(function (p) { return p.dc && (p.type === 'Tesla' ? R.car.brand === 'Tesla' : R.car.plugs.indexOf(p.type) >= 0); });
+  }
+
+  function nearList(pos) {
+    return R.stations.filter(fastForCar).map(function (st) { return { st: st, km: P.km(pos, st) }; })
+      .sort(function (a, b) { return a.km - b.km; }).slice(0, 3);
+  }
+
+  function locateMe(quiet) {
+    if (!navigator.geolocation) { if (!quiet) toast('เครื่องนี้หาตำแหน่งไม่ได้'); return; }
+    if (!quiet) R.nearBusy = true, renderHome();
+    navigator.geolocation.getCurrentPosition(function (p) {
+      R.near = { lat: p.coords.latitude, lng: p.coords.longitude };
+      R.nearBusy = false;
+      store('geo', 1);
+      renderHome();
+    }, function () {
+      R.nearBusy = false;
+      if (!quiet) { toast('หาตำแหน่งไม่สำเร็จ ตรวจว่าอนุญาตให้เว็บนี้ใช้ตำแหน่งแล้ว'); renderHome(); }
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 5 * 60 * 1000 });
+  }
+
+  function nearWidget() {
+    if (!R.near) {
+      return '<div class="w w--wide w-near"><div class="w-near__text"><b class="w__title">หาสถานีชาร์จใกล้ฉัน</b><span class="w__sub">สถานีที่ ' + esc(R.car.model) + ' ชาร์จเร็วได้ เรียงจากใกล้สุด</span>' +
+        '<button type="button" class="btn btn--primary w-near__go" data-near>' + (R.nearBusy ? 'กำลังหาตำแหน่ง…' : 'ใช้ตำแหน่งของฉัน') + '</button></div>' +
+        '<div class="w-near__art" aria-hidden="true">' + ICON.pin + '</div></div>';
+    }
+    var list = nearList(R.near), first = list[0];
+    if (!first) return '<div class="w w--wide w-near"><div class="w-near__text"><b class="w__title">สถานีชาร์จใกล้ฉัน</b><span class="w__sub">ไม่พบสถานีที่รถคุณชาร์จเร็วได้ในข้อมูลของเรา</span></div></div>';
+    return '<div class="w w--wide w-near"><div class="w-near__text"><b class="w__title">สถานีชาร์จใกล้ฉัน</b>' +
+      '<ul class="w-near__list">' + list.map(function (x) {
+        var kw = Math.max.apply(null, x.st.plugs.filter(function (p) { return p.dc; }).map(function (p) { return p.kw || 0; }));
+        return '<li><b>' + esc(x.st.name) + '</b><span>' + km1(x.km) + ' กม.' + (kw ? ' · ' + kw + ' kW' : '') + '</span></li>';
+      }).join('') + '</ul>' +
+      '<a class="btn btn--primary w-near__go" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + first.st.lat + ',' + first.st.lng + '" target="_blank" rel="noopener">นำทางไปที่ใกล้สุด</a></div>' +
+      '<div class="w-near__map" id="near-map"></div></div>';
+  }
+
+  function drawNearMap() {
+    if (R.nearMap) { R.nearMap.remove(); R.nearMap = null; }
+    var el = $('near-map');
+    if (!el || !R.near || !window.L) return;
+    var m = L.map(el, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, tap: false });
+    m.attributionControl.setPrefix(false);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(m);
+    var pts = [[R.near.lat, R.near.lng]];
+    nearList(R.near).forEach(function (x, i) {
+      pts.push([x.st.lat, x.st.lng]);
+      L.circleMarker([x.st.lat, x.st.lng], { radius: i ? 6 : 8, color: '#fff', weight: 2, fillColor: css('ok'), fillOpacity: 1 }).addTo(m);
+    });
+    L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: css('accent'), fillOpacity: 1 }).addTo(m);
+    m.fitBounds(pts, { padding: [18, 18], maxZoom: 14 });
+    R.nearMap = m;
+  }
+
+  function quickWidget() {
+    var acct = accountsOn() ? (signedIn() ? ['บัญชี', 'data-acct-open="menu"', ICON.user] : ['เข้าสู่ระบบ', 'data-acct-open="menu"', ICON.user]) : null;
+    var items = [['วางแผนใหม่', 'data-go="plan" data-focus="from"', ICON.bolt, true], ['ทริปที่บันทึก', 'data-go="plan" data-open="saved"', ICON.saved],
+      ['เพิ่มสถานี', 'data-addopen-home', ICON.plus]].concat(acct ? [acct] : []);
+    return '<div class="w w--wide w-quick"><span class="w__title">ทางลัด</span><div class="w-quick__row">' + items.map(function (x) {
+      return '<button type="button" class="w-quick__btn' + (x[3] ? ' is-on' : '') + '" ' + x[1] + '><span class="w__ico">' + x[2] + '</span><span>' + x[0] + '</span></button>';
+    }).join('') + '</div></div>';
+  }
+
+  function priceWidget() {
+    var now = new Date(), off = P.isOffPeak(now), sw = nextPriceSwitch(now);
+    // On/off-peak hours are Thai time, whatever the device's clock is set to.
+    var hm = sw.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
+    var when = bkkDay(sw.getTime()) === bkkDay(now.getTime()) ? hm : sw.toLocaleDateString('th-TH', { weekday: 'short', timeZone: 'Asia/Bangkok' }) + ' ' + hm;
+    var best = Object.keys(R.prices || {}).filter(function (k) { return k !== '_default' && R.prices[k].dc; }).map(function (k) {
+      var p = R.prices[k];
+      return { op: k, rate: off && p.dcOff ? p.dcOff : p.dc };
+    }).sort(function (a, b) { return a.rate - b.rate; })[0];
+    return '<div class="w w-small"><span class="w__top"><span class="w__ico' + (off ? ' w__ico--ok' : '') + '">' + ICON.tag + '</span></span>' +
+      '<b class="w__big">' + (off ? 'Off-Peak' : 'On-Peak') + '</b><span class="w__sub">' + (off ? 'ค่าไฟถูกกว่า ถึง ' : 'ถูกลงเมื่อ ') + esc(when) +
+      (best ? '<br>ถูกสุด ' + esc(best.op) + ' ฿' + best.rate : '') + '</span></div>';
+  }
+
   function tipWidget() {
     var day = Math.floor((Date.now() + 7 * 3600e3) / 864e5);
-    return '<div class="w w-tip"><span class="w__label">เคล็ดลับ</span><p class="w-tip__text">' + esc(TIPS[day % TIPS.length]) + '</p></div>';
+    return '<div class="w w-small"><span class="w__top"><span class="w__ico w__ico--sun">' + ICON.bulb + '</span></span><span class="w__label">เคล็ดลับ</span>' +
+      '<p class="w-tip__text">' + esc(TIPS[day % TIPS.length]) + '</p></div>';
   }
 
   function savedWidget(list) {
+    if (!list.length) return '';
     var rows = list.slice(0, 3).map(function (p) {
       var when = upcoming(p) ? thaiDate(new Date(p.dep).getTime()) : p.dep ? 'เคยไป ' + thaiDate(new Date(p.dep).getTime()) : 'ยังไม่ระบุวัน';
       return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span' + (upcoming(p) ? ' class="is-ahead"' : '') + '>' + esc(when) + '</span><span>' + (p.km ? Math.round(p.km).toLocaleString('th-TH') + ' กม.' : '') + '</span></a></li>';
     }).join('');
-    return '<div class="w w--wide w-saved"><div class="w-saved__head"><span class="w__label">ทริปที่บันทึกไว้</span>' +
+    return '<div class="w w--wide w-saved"><div class="w__top"><span class="w__title">ทริปที่บันทึกไว้</span>' +
       (list.length > 3 ? '<button type="button" class="link-btn" data-go="plan" data-open="saved">ดูทั้งหมด (' + list.length + ')</button>' : '') + '</div>' +
-      (rows ? '<ul class="w-saved__list">' + rows + '</ul>' : '<p class="w__sub">ยังไม่มี · กด “บันทึกแผนนี้” หลังวางแผน เพื่อใช้ซ้ำหรือเปลี่ยนวันเดินทางภายหลัง</p>' + nudge('device')) +
-      (accountsOn() && !signedIn() && list.length ? '<button type="button" class="link-btn w-saved__acct" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button>' : '') + '</div>';
+      '<ul class="w-saved__list">' + rows + '</ul>' +
+      (accountsOn() && !signedIn() ? '<button type="button" class="link-btn w-saved__acct" data-acct-open="saved">เข้าสู่ระบบเพื่อใช้ทุกเครื่อง</button>' : '') + '</div>';
   }
 
   function renderHome() {
     if (R.view !== 'home' || !R.car) return;
-    var list = upcomingFirst(savedPlans()), next = list[0] || null;
-    $('widgets').innerHTML = heroWidget(next) + dateWidget(next) + carWidget() + searchWidget() + priceWidget() + tipWidget() + savedWidget(list);
+    var list = upcomingFirst(savedPlans()), tr = homeTrip(), wx = tr && isFinite(tr.lat) && isFinite(tr.lng);
+    $('widgets').innerHTML = headWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
+      nearWidget() + quickWidget() + (wx ? priceWidget() : '') + tipWidget() + savedWidget(list) +
+      (list.length ? '' : '<div class="w--wide">' + nudge('device') + '</div>');
+    if (wx) loadWeather(tr);
+    drawNearMap();
+    if (!R.near && !R.nearAsked && load('geo') && navigator.permissions) {
+      R.nearAsked = true; // already allowed before: find nearby stations without asking again
+      navigator.permissions.query({ name: 'geolocation' }).then(function (p) { if (p.state === 'granted') locateMe(true); }, function () {});
+    }
   }
 
   // Buttons that move between views, optionally landing on a field.
@@ -1990,11 +2145,27 @@
       else if (f) setTimeout(function () { var el = $(f); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50);
       return;
     }
+    if (e.target.closest('[data-near]')) { locateMe(false); return; }
+    if (e.target.closest('[data-addopen-home]')) { setView('plan'); openAdd(true); document.querySelector('.map-card').scrollIntoView({ block: 'center' }); return; }
+    if (e.target.closest('[data-nick]')) {
+      var n = prompt('ชื่อเล่นที่อยากให้ทักทาย (เว้นว่างเพื่อลบ)', load('nick') || '');
+      if (n !== null) { store('nick', n.trim().slice(0, 20) || null); renderHome(); }
+      return;
+    }
     if (e.target.closest('[data-gps]')) {
       setView('plan');
       gps();
       setTimeout(function () { $('to').focus(); }, 50);
     }
+  });
+  $('tabbar').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-tab]');
+    if (!t) return;
+    var tab = t.dataset.tab;
+    if (tab === 'home') setView('home');
+    else if (tab === 'plan') setView(R.result ? 'result' : 'plan');
+    else if (tab === 'map') document.querySelector('.map-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    else if (tab === 'me') openAcct('menu');
   });
   $('dock').addEventListener('click', function (e) {
     if (e.target.closest('[data-ev]')) logEvent('nav');
@@ -2083,6 +2254,7 @@
   function showAcctBtn() {
     var b = $('acct-btn');
     b.hidden = !accountsOn();
+    $('tab-me').hidden = !accountsOn();
     var email = signedIn() && A.s.user && A.s.user.email || '';
     b.classList.toggle('is-in', !!email);
     b.textContent = email ? email.charAt(0).toUpperCase() : 'เข้าสู่ระบบ';
