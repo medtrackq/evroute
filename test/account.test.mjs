@@ -65,3 +65,37 @@ test('real consumption comes from odometer and battery between reports', () => {
   assert.deepEqual(use['byd-atto3-std'], { kwh100: 17.4, km: 330, segments: 2 });
   assert.deepEqual(realUse([c(1, 100, 20, 80)]), {});
 });
+
+test('a sign-in request waits for approval from the same email only', async () => {
+  const { handoffs } = await import('../lib/account.mjs');
+  let t = 0;
+  const h = handoffs({ ttl: 1000, now: () => t });
+  const a = h.open('me@x.co');
+  assert.match(a.pair, /^\d\d$/);
+  assert.equal(h.get(a.id).ok, false);
+  assert.deepEqual(h.waiting('me@x.co').map((w) => w.id), [a.id]);
+  assert.deepEqual(h.waiting('other@x.co'), []);
+  assert.equal(h.approve(a.id, 'other@x.co'), false); // someone else's account can't let it in
+  assert.equal(h.approve(a.id, 'me@x.co'), true);
+  assert.equal(h.get(a.id).ok, true);
+  assert.deepEqual(h.waiting('me@x.co'), []);
+  const b = h.open('me@x.co');
+  h.deny(b.id, 'me@x.co');
+  assert.equal(h.get(b.id), null);
+  const c = h.open('me@x.co');
+  t = 2000;
+  assert.equal(h.get(c.id), null); // expired
+});
+
+test('a session for an already verified email comes from an admin link token', async () => {
+  const calls = [];
+  const fetchFn = async (url, o) => {
+    calls.push({ url, body: JSON.parse(o.body) });
+    if (url.endsWith('/admin/generate_link')) return { ok: true, json: async () => ({ hashed_token: 'h1', verification_type: 'magiclink' }) };
+    return { ok: true, json: async () => ({ access_token: 'a'.repeat(30), refresh_token: 'r', expires_in: 3600, user: { id: 'u1', email: 'x@y.co' } }) };
+  };
+  const s = await supabaseAuth({ url: 'https://p.supabase.co', key: 'k', fetchFn }).sessionFor('x@y.co');
+  assert.deepEqual(calls[0].body, { type: 'magiclink', email: 'x@y.co' });
+  assert.deepEqual(calls[1].body, { type: 'magiclink', token_hash: 'h1' });
+  assert.equal(s.user.id, 'u1');
+});

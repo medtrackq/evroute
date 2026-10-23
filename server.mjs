@@ -12,7 +12,7 @@ import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from '
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces } from './lib/google.mjs';
 import { record, supabase, summarize } from './lib/stats.mjs';
-import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse } from './lib/account.mjs';
+import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -38,6 +38,7 @@ const allowLog = rateLimiter(300, 60 * 60 * 1000);
 const accounts = stats ? supabaseAuth({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page
 const HOUR = 60 * 60 * 1000;
+const pending = handoffs(), allowPoll = rateLimiter(1500, HOUR);
 const allowCode = rateLimiter(6, HOUR), allowCodeTo = rateLimiter(3, HOUR), allowVerify = rateLimiter(30, HOUR), allowMe = rateLimiter(600, HOUR);
 const UA = 'evroute (EV trip planner for Thailand)';
 
@@ -304,7 +305,8 @@ async function sendCode(req, res) {
   if (!allowCode(clientIp(req)) || !allowCodeTo(email)) { json(res, 429, { error: 'ขอรหัสบ่อยเกินไป รอสักครู่แล้วลองใหม่' }); return; }
   try {
     await accounts.sendCode(email);
-    res.writeHead(204).end();
+    json(res, 200, pending.open(email), { 'Cache-Control': 'no-store' }); // { id, pair } for signing in from the email's link elsewhere
+
   } catch (err) {
     say(err);
     json(res, err.status === 429 ? 429 : 502, { error: err.status === 429 ? 'ขอรหัสบ่อยเกินไป รอสักครู่แล้วลองใหม่' : 'ส่งอีเมลไม่สำเร็จ ลองใหม่อีกครั้ง' });
@@ -333,6 +335,33 @@ async function refreshSession(req, res) {
     if (!(err.status >= 400 && err.status < 500)) say(err);
     res.writeHead(err.status >= 400 && err.status < 500 ? 401 : 502).end();
   }
+}
+
+// The asking browser waits here; once another device approves, it gets its own session.
+async function pollHandoff(req, res, url) {
+  if (!allowPoll(clientIp(req))) { res.writeHead(429).end(); return; }
+  const id = url.searchParams.get('id'), h = pending.get(id);
+  if (!h) { json(res, 404, { state: 'gone' }, { 'Cache-Control': 'no-store' }); return; }
+  if (!h.ok) { json(res, 200, { state: 'wait' }, { 'Cache-Control': 'no-store' }); return; }
+  pending.done(id);
+  try {
+    json(res, 200, { state: 'ok', session: await accounts.sessionFor(h.email) }, { 'Cache-Control': 'no-store' });
+  } catch (err) {
+    say(err);
+    json(res, 502, { state: 'error' });
+  }
+}
+
+// The signed-in device: which requests wait for this email, and approving or refusing one.
+async function handoffApproval(req, res, url) {
+  if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
+  let user;
+  try { user = await bearerUser(req); } catch (err) { say(err); res.writeHead(502).end(); return; }
+  if (!user?.email) { res.writeHead(401).end(); return; }
+  if (req.method === 'GET') { json(res, 200, { waiting: pending.waiting(user.email) }, { 'Cache-Control': 'no-store' }); return; }
+  const b = await bodyJSON(req);
+  if (b?.approve) json(res, pending.approve(b.id, user.email) ? 200 : 404, {});
+  else { pending.deny(b?.id, user.email); json(res, 200, {}); }
 }
 
 // GET: the user's trips and charging history. PUT trips: replace the saved list. DELETE: the account.
@@ -448,6 +477,8 @@ createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/auth/code') await sendCode(req, res);
     else if (req.method === 'POST' && url.pathname === '/api/auth/verify') await verifyCode(req, res);
     else if (req.method === 'POST' && url.pathname === '/api/auth/refresh') await refreshSession(req, res);
+    else if (req.method === 'GET' && url.pathname === '/api/auth/handoff') await pollHandoff(req, res, url);
+    else if (url.pathname === '/api/auth/approve' && (req.method === 'GET' || req.method === 'POST')) await handoffApproval(req, res, url);
     else if (url.pathname.startsWith('/api/me')) await me(req, res, url);
     else res.writeHead(404).end();
     return;

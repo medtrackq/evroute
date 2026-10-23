@@ -1904,6 +1904,7 @@
   }
 
   function closeAcct() {
+    A.approval = null;
     $('acct').hidden = true;
     document.body.classList.remove('no-scroll');
   }
@@ -1915,6 +1916,15 @@
 
   function renderAcct() {
     var b = $('acct-body');
+    if (signedIn() && A.approval) {
+      var mins = Math.max(1, Math.round((Date.now() - A.approval.at) / 60000));
+      b.innerHTML = '<h2 class="sheet__title" id="acct-title">ให้อุปกรณ์อื่นเข้าสู่ระบบด้วยไหม?</h2>' +
+        '<p class="hint">เมื่อ ' + mins + ' นาทีที่แล้ว มีการขอเข้าสู่ระบบด้วย <b>' + esc(A.s.user && A.s.user.email || '') + '</b> จากอีกเบราว์เซอร์หรือเครื่องหนึ่ง</p>' +
+        '<div class="pair"><span>เลขจับคู่</span><b>' + esc(A.approval.pair) + '</b><p>กดยืนยันเฉพาะเมื่ออุปกรณ์ที่คุณเพิ่งขอ แสดงเลขนี้อยู่</p></div>' +
+        '<button type="button" class="btn btn--primary btn--block" data-approve="1">ยืนยัน ให้อุปกรณ์นั้นเข้าสู่ระบบ</button>' +
+        '<button type="button" class="link-btn sheet__deny" data-approve="0">ไม่ใช่ฉัน / ไม่ได้ขอ</button>';
+      return;
+    }
     if (!signedIn()) {
       b.innerHTML = A.step === 'email'
         ? '<h2 class="sheet__title" id="acct-title">เก็บทริปของคุณไว้ทุกเครื่อง</h2>' +
@@ -1924,13 +1934,16 @@
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
           '<button type="submit" class="btn btn--primary btn--block">ส่งอีเมลเข้าสู่ระบบ</button></form>' +
           '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
-        : '<h2 class="sheet__title" id="acct-title">ใส่รหัสจากอีเมล</h2>' +
-          '<p class="hint">ส่งอีเมลไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม) ใส่รหัสในอีเมล หรือ<b>กดลิงก์ในอีเมล</b>บนเครื่องนี้</p>' +
+        : '<h2 class="sheet__title" id="acct-title">เปิดอีเมลแล้วกดลิงก์</h2>' +
+          '<p class="hint">ส่งไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม)</p>' +
+          (A.handoff ? '<div class="pair"><span>เลขจับคู่</span><b>' + esc(A.handoff.pair) + '</b>' +
+            '<p>กดลิงก์ในอีเมล ถ้าเว็บเปิดในเบราว์เซอร์หรือเครื่องอื่น ให้กดยืนยันเลขนี้ที่นั่น หน้านี้จะเข้าสู่ระบบเอง</p><i class="pair__wait" aria-hidden="true"></i></div>' : '') +
+          '<p class="hint">หรือถ้าอีเมลมีรหัส ใส่ที่นี่</p>' +
           '<form class="sheet__form" id="acct-code"><label class="sr-only" for="acct-code-in">รหัส</label>' +
           '<input id="acct-code-in" class="field sheet__code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="รหัส 6 หลัก">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
           '<button type="submit" class="btn btn--primary btn--block">ยืนยัน</button></form>' +
-          '<p class="hint"><button type="button" class="link-btn" data-acct-step="email">เปลี่ยนอีเมล</button> · <button type="button" class="link-btn" data-acct-resend>ส่งรหัสอีกครั้ง</button></p>';
+          '<p class="hint"><button type="button" class="link-btn" data-acct-step="email">เปลี่ยนอีเมล</button> · <button type="button" class="link-btn" data-acct-resend>ส่งอีเมลอีกครั้ง</button></p>';
       return;
     }
     var me = A.me || {}, trips = savedPlans().length, charges = me.charges || [], use = me.use || {};
@@ -1969,10 +1982,11 @@
     var email = $('acct-email-in').value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { acctMsg('อีเมลไม่ถูกต้อง'); return; }
     busyBtn(form, true, 'กำลังส่ง…');
-    postJSON('/api/auth/code', { email: email }).then(function () {
+    postJSON('/api/auth/code', { email: email }).then(function (d) {
       A.busy = false;
       A.email = email;
       A.step = 'code';
+      waitForHandoff(d);
       renderAcct();
       $('acct-code-in').focus();
     }, function (err) {
@@ -1998,6 +2012,61 @@
       acctMsg(err.message);
       busyBtn(form, false, 'ยืนยัน');
     });
+  }
+
+  // ---------- signing in from the email's link on another browser ----------
+  // This browser asked for the email: wait for the link to be approved wherever it opened.
+  var handoffTimer = null;
+  function waitForHandoff(d) {
+    clearTimeout(handoffTimer);
+    A.handoff = d && d.id ? { id: d.id, pair: d.pair, until: Date.now() + 15 * 60 * 1000 } : null;
+    store('handoff', A.handoff && A.handoff.id); // a tab of this same browser opened by the link knows it's ours
+    if (A.handoff) handoffTimer = setTimeout(pollHandoff, 3000);
+  }
+
+  function pollHandoff() {
+    var h = A.handoff;
+    if (!h || signedIn()) { A.handoff = null; return; }
+    if (Date.now() > h.until) { A.handoff = null; acctMsg('หมดเวลา ขออีเมลใหม่ได้'); return; }
+    fetch('/api/auth/handoff?id=' + encodeURIComponent(h.id), { cache: 'no-store' }).then(function (r) { return r.json().catch(function () { return {}; }); }).then(function (d) {
+      if (A.handoff !== h) return;
+      if (d.state === 'ok' && d.session) {
+        A.handoff = null;
+        store('handoff', null);
+        saveSession(d.session);
+        logEvent('signin', null, A.from);
+        loadMe(true).then(function (moved) {
+          closeAcct();
+          toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
+        });
+        return;
+      }
+      if (d.state === 'gone') { A.handoff = null; return; }
+      handoffTimer = setTimeout(pollHandoff, 3000);
+    }, function () { handoffTimer = setTimeout(pollHandoff, 5000); });
+  }
+
+  // Signed in here: another browser may be waiting for this email. Ask before letting it in.
+  function checkWaiting() {
+    if (!signedIn()) return;
+    authFetch('/api/auth/approve', {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      var mine = load('handoff');
+      var w = (d && d.waiting || []).filter(function (x) { return x.id !== mine; })[0];
+      if (!w) return;
+      A.approval = w;
+      $('acct').hidden = false;
+      document.body.classList.add('no-scroll');
+      renderAcct();
+    }).catch(function () {});
+  }
+
+  function answerApproval(yes) {
+    var w = A.approval;
+    A.approval = null;
+    authFetch('/api/auth/approve', { method: 'POST', body: JSON.stringify({ id: w.id, approve: yes }) }).then(function (r) {
+      closeAcct();
+      if (yes) toast(r.ok ? '✓ อนุญาตแล้ว อุปกรณ์นั้นจะเข้าสู่ระบบในไม่กี่วินาที กลับไปที่หน้าเดิมได้เลย' : 'คำขอนี้หมดอายุแล้ว ขออีเมลใหม่จากอุปกรณ์นั้น', 7000);
+    }).catch(function () { closeAcct(); });
   }
 
   function signOut() {
@@ -2057,9 +2126,10 @@
     if (e.target.closest('[data-acct-close]')) { closeAcct(); return; }
     if ((t = e.target.closest('[data-acct-step]'))) { A.step = t.dataset.acctStep; renderAcct(); return; }
     if (e.target.closest('[data-acct-resend]')) {
-      postJSON('/api/auth/code', { email: A.email }).then(function () { acctMsg('ส่งรหัสใหม่แล้ว'); }, function (err) { acctMsg(err.message); });
+      postJSON('/api/auth/code', { email: A.email }).then(function (d) { waitForHandoff(d); renderAcct(); acctMsg('ส่งอีเมลใหม่แล้ว'); }, function (err) { acctMsg(err.message); });
       return;
     }
+    if ((t = e.target.closest('[data-approve]'))) { answerApproval(t.dataset.approve === '1'); return; }
     if (e.target.closest('[data-signout]')) { signOut(); return; }
     if (e.target.closest('[data-delete-acct]')) { deleteAccount(); return; }
     if (e.target.closest('[data-premium]')) { store('premium', 1); logEvent('premium', null, 'menu'); renderAcct(); return; }
@@ -2098,6 +2168,7 @@
       return loadMe(true);
     }).then(function (moved) {
       toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
+      checkWaiting();
     }, function () { toast('เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
     return true;
   }
@@ -2109,6 +2180,8 @@
     A.s = load('auth');
     showAcctBtn();
     if (signedIn() && !was) {
+      A.handoff = null;
+      store('handoff', null);
       if (!$('acct').hidden) closeAcct();
       loadMe(true).then(function (moved) { toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : '')); });
     }
@@ -2118,7 +2191,7 @@
   function initAccount() {
     showAcctBtn();
     if (!accountsOn()) return;
-    if (!fromEmailLink() && signedIn()) loadMe(false);
+    if (!fromEmailLink() && signedIn()) { loadMe(false); checkWaiting(); }
   }
 
   // Start: stations load in the background; the map is Google Maps when the server has Google
