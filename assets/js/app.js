@@ -119,11 +119,54 @@
       (sub ? '<span class="tile__sub">' + sub + '</span>' : '') + '</div>';
   }
 
-  // The same tile with its number as an input, for "ปรับค่ารถ".
-  function editTile(color, icon, k, id, v, unit, min, max, step, sub) {
-    return '<label class="tile tile--' + color + ' is-edit"><span class="tile__ico" aria-hidden="true">' + ICONS[icon] + '</span>' +
-      '<span class="tile__k">' + k + '</span><span class="tile__v"><input id="' + id + '" class="tile__in" type="number" inputmode="decimal" min="' + min + '" max="' + max + '" step="' + step + '" value="' + v + '">' +
-      '<small>' + unit + '</small></span>' + (sub ? '<span class="tile__sub">' + sub + '</span>' : '') + '</label>';
+  // The same tile, adjustable for "ปรับค่ารถ": swipe right to raise the value, left to lower it (or use
+  // the arrow keys); a tap types the number instead. The value sits in a hidden input readTune() reads.
+  function editTile(color, icon, k, id, v, unit, min, max, step, sub, drag) {
+    return '<div class="tile tile--' + color + ' is-edit is-scrub" role="slider" tabindex="0" aria-label="' + k + ' (ปัดซ้ายขวาหรือกดลูกศร)" aria-valuemin="' + min + '" aria-valuemax="' + max + '" aria-valuenow="' + v + '"' +
+      ' data-for="' + id + '" data-min="' + min + '" data-max="' + max + '" data-step="' + step + '" data-drag="' + drag + '">' +
+      '<span class="tile__ico" aria-hidden="true">' + ICONS[icon] + '</span>' +
+      '<span class="tile__k">' + k + '</span><span class="tile__v"><b class="tile__num">' + v + '</b><small>' + unit + '</small></span>' +
+      (sub ? '<span class="tile__sub">' + sub + '</span>' : '') +
+      '<span class="tile__track" aria-hidden="true"><i style="width:' + ((v - min) / (max - min) * 100).toFixed(1) + '%"></i></span>' +
+      '<span class="tile__hint" aria-hidden="true">‹ ปัด ›</span><input type="hidden" id="' + id + '" value="' + v + '"></div>';
+  }
+
+  function scrubSet(el, v) {
+    var min = +el.dataset.min, max = +el.dataset.max, step = +el.dataset.step;
+    v = +(Math.min(max, Math.max(min, Math.round(v / step) * step))).toFixed(step < 1 ? 1 : 0);
+    $(el.dataset.for).value = v;
+    var num = el.querySelector('.tile__num');
+    if (num) num.textContent = v;
+    el.setAttribute('aria-valuenow', v);
+    el.querySelector('.tile__track i').style.width = ((v - min) / (max - min) * 100).toFixed(1) + '%';
+    readTune();
+  }
+
+  // Tapping a tile swaps its number for a box to type in.
+  function typeIn(el) {
+    var num = el.querySelector('.tile__num');
+    if (!num) return;
+    var box = document.createElement('input');
+    box.type = 'number';
+    box.inputMode = 'decimal';
+    box.className = 'tile__in';
+    box.value = $(el.dataset.for).value;
+    box.step = el.dataset.step;
+    num.replaceWith(box);
+    box.focus();
+    box.select();
+    var done = false, commit = function () {
+      if (done) return;
+      done = true;
+      var b = document.createElement('b');
+      b.className = 'tile__num';
+      box.replaceWith(b);
+      var v = parseFloat(box.value);
+      scrubSet(el, isFinite(v) ? v : +$(el.dataset.for).value);
+      if (R.result) replan();
+    };
+    box.addEventListener('blur', commit);
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); box.blur(); } });
   }
 
   function showSpec() {
@@ -132,10 +175,10 @@
     $('car-name').textContent = c.id === 'custom' ? 'กำหนดเอง' : c.model;
     var plugs = esc(c.plugs.join(', ') || 'ไม่รองรับ DC'), range = '<span id="range-km">' + Math.round(rangeKm(100)) + '</span>';
     $('spec').innerHTML = R.tuning
-      ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1) +
-        editTile('sun', 'use', 'กินไฟ', 'use', c.use, '/100กม.', 8, 40, 0.1) +
-        editTile('mint', 'dc', 'DC สูงสุด', 'dc', c.dc, 'kW', 0, 400, 1, plugs) +
-        editTile('sky', 'road', 'เผื่อไว้', 'margin', c.margin, '%', 0, 50, 1, 'วิ่งได้ราว ' + range + ' กม.')
+      ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1, '', 0.5) +
+        editTile('sun', 'use', 'กินไฟ', 'use', c.use, '/100กม.', 8, 40, 0.1, '', 0.1) +
+        editTile('mint', 'dc', 'DC สูงสุด', 'dc', c.dc, 'kW', 0, 400, 1, plugs, 5) +
+        editTile('sky', 'road', 'เผื่อไว้', 'margin', c.margin, '%', 0, 50, 1, 'วิ่งได้ราว ' + range + ' กม.', 1)
       : tile('lav', 'bat', 'แบตเตอรี่', c.kwh, 'kWh') +
         tile('sun', 'use', 'กินไฟ', c.use, '/100กม.') +
         tile('mint', 'dc', 'DC สูงสุด', c.dc || '–', c.dc ? 'kW' : '', plugs) +
@@ -150,7 +193,7 @@
     $('tune-btn').querySelector('span').textContent = on ? 'เสร็จ' : 'ปรับค่ารถ';
     $('tune-hint').hidden = !on;
     showSpec();
-    if (on) $('kwh').focus();
+    if (on) document.querySelector('#spec .is-scrub').focus();
   }
 
   // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
@@ -1464,9 +1507,37 @@
   });
   $('model').addEventListener('change', function () { setCar($('model').value); readTune(); if (R.result) replan(); });
   $('tune-btn').addEventListener('click', function () { setTuning(!R.tuning); });
-  $('spec').addEventListener('input', function (e) { if (e.target.matches('.tile__in')) readTune(); });
-  $('spec').addEventListener('change', function (e) { if (e.target.matches('.tile__in') && R.result) replan(); });
-  $('spec').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('.tile__in')) { e.preventDefault(); setTuning(false); } });
+  // Swiping on a tile in "ปรับค่ารถ": every 8 px moves the value one drag step; a tap types instead.
+  var scrub = null;
+  $('spec').addEventListener('pointerdown', function (e) {
+    var el = e.target.closest('.is-scrub');
+    if (!el || e.target.closest('.tile__in')) return;
+    scrub = { el: el, x: e.clientX, v: +$(el.dataset.for).value, moved: false, id: e.pointerId };
+  });
+  $('spec').addEventListener('pointermove', function (e) {
+    if (!scrub || e.pointerId !== scrub.id) return;
+    var dx = e.clientX - scrub.x;
+    if (!scrub.moved && Math.abs(dx) < 6) return;
+    if (!scrub.moved) { scrub.moved = true; scrub.el.setPointerCapture(e.pointerId); scrub.el.classList.add('is-drag'); }
+    scrubSet(scrub.el, scrub.v + Math.round(dx / 8) * +scrub.el.dataset.drag);
+  });
+  $('spec').addEventListener('pointerup', function () {
+    if (!scrub) return;
+    var s = scrub;
+    scrub = null;
+    s.el.classList.remove('is-drag');
+    if (!s.moved) typeIn(s.el);
+    else if (R.result) replan();
+  });
+  $('spec').addEventListener('pointercancel', function () { if (scrub) scrub.el.classList.remove('is-drag'); scrub = null; });
+  $('spec').addEventListener('keydown', function (e) {
+    var el = e.target.closest('.is-scrub');
+    if (!el || e.target.closest('.tile__in')) return;
+    var dir = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+    if (dir) { e.preventDefault(); scrubSet(el, +$(el.dataset.for).value + dir * +el.dataset.step * (e.shiftKey ? 10 : 1)); return; }
+    if (e.key === 'Enter') { e.preventDefault(); typeIn(el); }
+  });
+  $('spec').addEventListener('keyup', function (e) { if (/Arrow/.test(e.key) && e.target.closest('.is-scrub') && R.result) replan(); });
   getJSON('data/car-images.json').then(function (d) { R.photos = d.images || {}; showPhoto(); }, function () {});
 
   drawTicks();
