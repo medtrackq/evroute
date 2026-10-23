@@ -1922,10 +1922,10 @@
           '<form class="sheet__form" id="acct-email"><label class="opt__label" for="acct-email-in">อีเมล</label>' +
           '<input id="acct-email-in" class="field" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" value="' + esc(A.email) + '">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
-          '<button type="submit" class="btn btn--primary btn--block">ส่งรหัสเข้าอีเมล</button></form>' +
+          '<button type="submit" class="btn btn--primary btn--block">ส่งอีเมลเข้าสู่ระบบ</button></form>' +
           '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
         : '<h2 class="sheet__title" id="acct-title">ใส่รหัสจากอีเมล</h2>' +
-          '<p class="hint">ส่งรหัสไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม)</p>' +
+          '<p class="hint">ส่งอีเมลไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม) ใส่รหัสในอีเมล หรือ<b>กดลิงก์ในอีเมล</b>บนเครื่องนี้</p>' +
           '<form class="sheet__form" id="acct-code"><label class="sr-only" for="acct-code-in">รหัส</label>' +
           '<input id="acct-code-in" class="field sheet__code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="รหัส 6 หลัก">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
@@ -1977,7 +1977,7 @@
       $('acct-code-in').focus();
     }, function (err) {
       acctMsg(err.message);
-      busyBtn(form, false, 'ส่งรหัสเข้าอีเมล');
+      busyBtn(form, false, 'ส่งอีเมลเข้าสู่ระบบ');
     });
   }
 
@@ -2080,9 +2080,32 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('acct').hidden) closeAcct(); });
 
+  // Supabase's default email (before custom SMTP lets us edit it to show the code) has a link
+  // instead; it comes back here with the session in the URL fragment.
+  function fromEmailLink() {
+    var h = new URLSearchParams(location.hash.slice(1));
+    if (!h.get('access_token') && !h.get('error_description')) return false;
+    history.replaceState(null, '', location.pathname + location.search);
+    if (h.get('error_description')) { toast('ลิงก์เข้าสู่ระบบใช้ไม่ได้หรือหมดอายุ ขอรหัสใหม่ได้ที่ปุ่ม “เข้าสู่ระบบ”', 7000); return true; }
+    var token = h.get('access_token');
+    fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.user) throw new Error('no user');
+      saveSession({
+        access_token: token, refresh_token: h.get('refresh_token'),
+        expires_at: +h.get('expires_at') || Math.floor(Date.now() / 1000) + (+h.get('expires_in') || 3600), user: d.user,
+      });
+      logEvent('signin', null, 'menu');
+      return loadMe(true);
+    }).then(function (moved) {
+      toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
+    }, function () { toast('เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
+    return true;
+  }
+
   function initAccount() {
     showAcctBtn();
-    if (accountsOn() && signedIn()) loadMe(false);
+    if (!accountsOn()) return;
+    if (!fromEmailLink() && signedIn()) loadMe(false);
   }
 
   // Start: stations load in the background; the map is Google Maps when the server has Google

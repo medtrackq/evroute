@@ -130,7 +130,8 @@ secret key อยู่บน server เท่านั้น ตารางเ
 
 ตั้งค่าใน Supabase:
 1. **SQL Editor**: รัน `db/schema.sql` อีกครั้ง
-2. **Authentication → Emails → Templates**: แก้ทั้ง **Magic Link** และ **Confirm signup** ให้มีรหัส `{{ .Token }}` (ตัวอย่างด้านล่าง) เพราะหน้าเว็บให้ผู้ใช้พิมพ์รหัส ไม่ได้ใช้ลิงก์
+2. **Authentication → URL Configuration → Site URL** = `https://evroute.onrender.com` (ค่าเริ่มต้นคือ localhost) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
+   - **Authentication → Emails → Templates**: Supabase ให้แก้แม่แบบได้หลังตั้ง SMTP เองแล้ว (ข้อ 3) จากนั้นแก้ทั้ง **Magic Link** และ **Confirm signup** ให้มีรหัส `{{ .Token }}` (ตัวอย่างด้านล่าง) ผู้ใช้จะพิมพ์รหัสได้ ซึ่งดีกว่าลิงก์บนมือถือ (ลิงก์มักเปิดในเบราว์เซอร์อื่น)
 3. **Authentication → Emails → SMTP Settings**: ใส่ SMTP ของผู้ให้บริการส่งอีเมล เช่น Resend (ฟรี 3,000 ฉบับ/เดือน) ระบบส่งอีเมลในตัวของ Supabase ส่งได้เฉพาะอีเมลของสมาชิกทีมโปรเจกต์ และจำนวนน้อยมาก ใช้ทดสอบเท่านั้น
 4. (ไม่บังคับ) Render → `CONTACT_EMAIL` = อีเมลติดต่อเรื่องข้อมูลส่วนบุคคล แสดงในหน้านโยบาย
 
