@@ -928,4 +928,7 @@ button.w:active, a.w:active { transform: scale(0.98); }
 @media (max-width: 400px) { .w-mine__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .w-mine__grid > div:last-child { grid-column: span 2; } }
 .want-res { margin: 10px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--surface-2); font-size: 13.5px; font-weight: 600; }
 .want-res .hint { font-weight: 500; }
-.lang-pick[hidden] { display: none; }
+@media (max-width: 480px) {
+  .top .status { display: none; } /* room for the language picker */
+  .lang-pick select { height: 38px; padding: 0 22px 0 10px; }
+}

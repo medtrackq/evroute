@@ -63,8 +63,22 @@
   function words(s) {
     return s.replace(RUN, function (all, r, dot) {
       var v = runs[r];
-      return v == null ? all : v + (dot && !ABBR[r] ? dot : '');
+      if (v == null && r.indexOf(' ') > 0) v = split(r);
+      return v == null ? all : v + (dot && !ABBR[r.split(' ').pop()] ? dot : '');
     }).replace(/ {2,}/g, ' ');
+  }
+
+  // Two pieces of text that meet at a space make one run: translate the longest known parts.
+  function split(r) {
+    var w = r.split(' '), out = [], any = false;
+    for (var i = 0; i < w.length;) {
+      for (var j = w.length; j > i; j--) {
+        var v = runs[w.slice(i, j).join(' ')];
+        if (v != null) { out.push(v); any = true; i = j; break; }
+      }
+      if (j === i) out.push(w[i++]);
+    }
+    return any ? out.join(' ') : null;
   }
 
   function tr(s) {
