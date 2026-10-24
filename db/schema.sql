@@ -129,6 +129,7 @@ from events where kind in ('nudge', 'nudge_go', 'signin', 'premium') group by ct
 alter table events add column if not exists dev text;
 alter table events add column if not exists lang text;
 create index if not exists events_dev on events (kind, created_at, dev);
+alter table events add column if not exists ref text; -- "arrive": where a visitor came from (?ref=tiktok, facebook, line...)
 
 create table if not exists errors (
   id bigint generated always as identity primary key,

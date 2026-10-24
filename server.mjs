@@ -13,6 +13,7 @@ import { validate, localStore, githubStore, userStations, rateLimiter } from './
 import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
 import { adminEmails, summarize as adminSummary } from './lib/admin.mjs';
+import { shareMeta } from './lib/share.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
@@ -390,7 +391,7 @@ async function admin(req, res, url) {
       const [opens, plans, events, errors, fb, problems, charges, users] = await Promise.all([
         stats.select('events', 'select=created_at,dev,lang&kind=eq.open&created_at=gte.' + m + '&limit=100000'),
         stats.select('plans', 'select=created_at,brand,model,ok&created_at=gte.' + m + '&limit=100000'),
-        stats.select('events', 'select=created_at,kind,op&kind=neq.open&created_at=gte.' + m + '&limit=100000'),
+        stats.select('events', 'select=created_at,kind,op,ref,dev&kind=neq.open&created_at=gte.' + m + '&limit=100000'),
         stats.select('errors', 'select=created_at,src,msg,at,page,ua,dev&created_at=gte.' + since(14) + '&order=created_at.desc&limit=2000'),
         stats.select('feedback', 'select=id,created_at,kind,message,email,page,lang,car_id,ua,status&order=created_at.desc&limit=200'),
         stats.select('charges', 'select=created_at,station_name,op,problem,note&ok=is.false&created_at=gte.' + since(14) + '&order=created_at.desc&limit=50'),
@@ -583,8 +584,22 @@ async function proxyRoute(req, res) {
 }
 
 // ---------- static ----------
-async function serveStatic(pathname, res) {
+async function serveStatic(pathname, res, req, url) {
   if (pathname.endsWith('/')) pathname += 'index.html';
+  if (pathname === '/index.html') {
+    // Link previews need full URLs and the shared trip's name (lib/share.mjs).
+    try {
+      const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
+      const proto = String(req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
+      const base = (proto === 'https' ? 'https' : 'http') + '://' + (/^[\w.:-]+$/.test(host) ? host : 'localhost');
+      const body = shareMeta(await readFile(join(ROOT, 'index.html'), 'utf8'), base, url);
+      res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' }).end(body);
+    } catch (err) {
+      report('index', err.message);
+      res.writeHead(500).end();
+    }
+    return;
+  }
   const file = normalize(join(ROOT, decodeURIComponent(pathname)));
   const rel = file.slice(ROOT.length);
   if (!file.startsWith(ROOT + '/') || /(^|\/)\.|^\/(lib|test|scripts|node_modules)\/|server\.mjs$|package\.json$/.test(rel)) {
@@ -708,7 +723,7 @@ createServer(async (req, res) => {
     }
     return;
   }
-  await serveStatic(url.pathname, res);
+  await serveStatic(url.pathname, res, req, url);
 }).listen(PORT, () => {
   console.log(`EV trip planner on http://localhost:${PORT}`);
 });

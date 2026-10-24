@@ -20,6 +20,7 @@
   };
   var PROBLEMS = { broken: 'เครื่องเสีย', no_plug: 'ไม่มีหัวที่ใช้ได้', queue: 'คิวยาว', slow: 'ชาร์จช้า', closed: 'ปิด', blocked: 'รถอื่นจอดขวาง', app: 'แอปมีปัญหา', other: 'อื่น ๆ' };
   var LANGS = { th: 'ไทย', en: 'English', zh: '中文' };
+  var SOURCE_NAMES = { tiktok: 'TikTok', facebook: 'Facebook', 'fb-group': 'กลุ่ม Facebook', line: 'LINE', youtube: 'YouTube', instagram: 'Instagram', pantip: 'Pantip', google: 'Google ค้นหา', bing: 'Bing', x: 'X (Twitter)', web: 'เว็บอื่น' };
   var SOURCES = { curated: 'สถานีที่รวบรวมเอง', osm: 'OpenStreetMap', ocm: 'Open Charge Map', places: 'ร้าน/ห้องน้ำรอบสถานี', user: 'สถานีที่ผู้ใช้เพิ่ม' };
 
   function session() { try { return JSON.parse(localStorage.getItem('auth')); } catch (e) { return null; } }
@@ -132,6 +133,13 @@
         (d.problems.length ? table(['เมื่อ', 'สถานี', 'ปัญหา', 'หมายเหตุ'], d.problems.map(function (p) {
           return [esc(when(p.created_at)), esc(p.station_name || '') + '<br><span class="hint">' + esc(p.op || '') + '</span>', esc(PROBLEMS[p.problem] || p.problem || ''), esc(p.note || '')];
         })) : '<p class="hint">ไม่มี</p>') + '</section>' +
+      '<section class="card adm-card"><h2>คนมาจากช่องทางไหน <small>30 วันล่าสุด · นับคน (เบราว์เซอร์) ที่เข้ามาจากลิงก์ ?ref= หรือจากแอป/เว็บนั้น · คนที่พิมพ์ชื่อเว็บเองไม่นับ</small></h2>' +
+        counts(d.sources || [], SOURCE_NAMES) +
+        '<details><summary>ลิงก์สำหรับโพสต์แต่ละช่องทาง</summary><p class="hint">ใช้ลิงก์เหล่านี้ในโพสต์หรือ bio จะรู้ว่าแต่ละช่องทางพาคนมากี่คน ตั้งชื่อเองได้ เช่น ?ref=fb-group-byd</p><ul class="adm-links">' +
+          ['tiktok', 'facebook', 'fb-group', 'line', 'youtube', 'instagram', 'pantip'].map(function (k) {
+            var link = location.origin + '/?ref=' + k;
+            return '<li><span>' + esc(SOURCE_NAMES[k] || k) + '</span><code>' + esc(link) + '</code><button type="button" class="btn adm-copy" data-copy="' + esc(link) + '">คัดลอก</button></li>';
+          }).join('') + '</ul></details></section>' +
       '<div class="adm-grid2">' +
         '<section class="card adm-card"><h2>ภาษาที่ใช้</h2>' + counts(langs, LANGS) + '</section>' +
         '<section class="card adm-card"><h2>รุ่นรถที่วางแผนมากที่สุด</h2>' + counts(d.cars) + '</section>' +
@@ -182,6 +190,11 @@
   }
 
   document.addEventListener('click', function (e) {
+    var c = e.target.closest('.adm-copy');
+    if (c) {
+      navigator.clipboard.writeText(c.dataset.copy).then(function () { c.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { c.textContent = 'คัดลอก'; }, 1500); });
+      return;
+    }
     var b = e.target.closest('.adm-done');
     if (!b) return;
     b.disabled = true;

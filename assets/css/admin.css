@@ -59,3 +59,7 @@ body { background: var(--bg); }
   .adm-grid2 { grid-template-columns: minmax(0, 1fr); }
   .adm-stat b { font-size: 24px; }
 }
+.adm-links { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.adm-links li { display: grid; grid-template-columns: 8em minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13px; }
+.adm-links code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); }
+.adm-copy { padding: 5px 12px; font-size: 12.5px; }

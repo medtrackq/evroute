@@ -61,6 +61,31 @@
     return name + ' · ' + os;
   }
 
+  // Where this visit came from, for the admin page: a link's ?ref= (or utm_source), else the app or
+  // site that sent it. Those parameters come off the address so a link shared on doesn't carry them.
+  var ARRIVE = (function () {
+    var u = new URL(location.href), q = u.searchParams, ua = navigator.userAgent, src = null;
+    var given = (q.get('ref') || q.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 30);
+    if (given) src = given;
+    else if (/FBAN|FBAV|FB_IAB/.test(ua) || q.has('fbclid')) src = 'facebook';
+    else if (/Instagram/.test(ua)) src = 'instagram';
+    else if (/musical_ly|TikTok|BytedanceWebview/i.test(ua) || q.has('ttclid')) src = 'tiktok';
+    else if (/\bLine\//.test(ua)) src = 'line';
+    else if (document.referrer) {
+      var host = '';
+      try { host = new URL(document.referrer).hostname.replace(/^www\./, ''); } catch (e) {}
+      if (host && host !== location.hostname) {
+        src = /facebook\.com|fb\.com/.test(host) ? 'facebook' : /tiktok/.test(host) ? 'tiktok' : /line\.me/.test(host) ? 'line'
+          : /instagram/.test(host) ? 'instagram' : /youtube|youtu\.be/.test(host) ? 'youtube' : /pantip/.test(host) ? 'pantip'
+          : /google\./.test(host) ? 'google' : /bing\.com/.test(host) ? 'bing' : /(^|\.)(t\.co|x\.com|twitter\.com)$/.test(host) ? 'x' : 'web';
+      }
+    }
+    var had = false;
+    ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ttclid'].forEach(function (k) { if (q.has(k)) { q.delete(k); had = true; } });
+    if (had) history.replaceState(history.state, '', u.pathname + (q.toString() ? '?' + q.toString() : '') + u.hash);
+    return src;
+  })();
+
   // A random id per browser, to count how many people use the app ("เริ่มรหัสใหม่" makes a new one).
   function devId() {
     var d = load('dev');
@@ -3029,6 +3054,7 @@
       store('opened', day);
       send('event', { kind: 'open', dev: devId(), lang: I18N.lang });
     }
+    if (ARRIVE) send('event', { kind: 'arrive', ref: ARRIVE, dev: devId(), lang: I18N.lang });
     if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
     routeLayer = map.layer();
     candLayer = map.layer();
