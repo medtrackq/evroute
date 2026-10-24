@@ -35,6 +35,8 @@ I18N.load({
     "ชาร์จหลัง # ถูกกว่า ถ้ารอได้": "Charging after # is cheaper, if you can wait",
   },
   runs: {
+    "เส้นทางเปลี่ยนแล้ว แผนด้านล่างเป็นของเส้นทางเดิม": "The route changed; the plan below is for the old one",
+    "วางแผนใหม่": "Plan again",
     "ไม่พบสถานที่": "Place not found",
     "ลองพิมพ์ชื่ออำเภอหรือจังหวัด หรือแตะบนแผนที่": "Try a district or province name, or tap the map",
     "ระบุรุ่นเอง": "Your own model",

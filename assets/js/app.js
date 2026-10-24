@@ -1265,6 +1265,7 @@
   function render() {
     var res = R.result;
     priceStops(res);
+    ['result', 'summary', 'chart-card', 'nav'].forEach(function (id) { $(id).classList.remove('is-stale'); });
     $('result').hidden = false;
     $('result').innerHTML = resultCard(res);
     $('summary').hidden = false;
@@ -1637,12 +1638,25 @@
     return n && !R.dests[which + 1] ? n : null;
   }
 
-  function newTrip() { R.pinned = []; R.excluded = {}; }
+  function newTrip() { R.pinned = []; R.excluded = {}; markStale(); }
+
+  // The trip was changed after planning: the plan on screen is for the old one, so it fades and
+  // says so until "วางแผนการเดินทาง" makes the new one.
+  function markStale() {
+    if (!R.result || R.busy) return;
+    ['result', 'summary', 'chart-card', 'nav'].forEach(function (id) { $(id).classList.add('is-stale'); });
+    if (!$('result').querySelector('.stale-note')) {
+      $('result').insertAdjacentHTML('afterbegin', '<div class="stale-note"><span>' + esc(I18N.t('เส้นทางเปลี่ยนแล้ว แผนด้านล่างเป็นของเส้นทางเดิม')) + '</span>' +
+        '<button type="button" class="btn btn--primary" data-replan>' + esc(I18N.t('วางแผนใหม่')) + '</button></div>');
+    }
+  }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-replan]')) $('go').click(); });
 
   function suggest(input, list, which) {
     var timer, last = '';
     input.addEventListener('input', function () {
       if (which === 'a') R.a = null; else R.dests[which] = null;
+      markStale();
       pin(which, null);
       var q = input.value.trim();
       clearTimeout(timer);
