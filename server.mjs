@@ -14,6 +14,7 @@ import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
 import { adminEmails, summarize as adminSummary } from './lib/admin.mjs';
 import { shareMeta } from './lib/share.mjs';
+import { cleanCar, carsScript } from './lib/cars.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
@@ -365,6 +366,21 @@ async function feedback(req, res) {
   }
 }
 
+// ---------- car models added on the admin page ----------
+// Served as /api/cars.js, loaded right after assets/js/cars.js (lib/cars.mjs).
+const CARS_TTL = 10 * 60 * 1000;
+let carRows = [], carsJs = carsScript([]), carsAt = 0;
+async function reloadCars() {
+  carsAt = Date.now();
+  if (!stats) return;
+  try {
+    carRows = await stats.select('cars', 'select=id,brand,model,kwh,use,dc,ac,plugs,hidden,note,updated_at&order=brand.asc,model.asc&limit=1000');
+    carsJs = carsScript(carRows);
+  } catch (err) {
+    report('cars', err.message);
+  }
+}
+
 // ---------- admin ----------
 // admin.html: who uses the app, what broke, what users wrote. Signed-in admins only.
 let adminCache = null;
@@ -382,6 +398,21 @@ async function admin(req, res, url) {
       await stats.update('feedback', 'id=eq.' + id, { status });
       adminCache = null;
       json(res, 200, { ok: true });
+      return;
+    }
+    if (url.pathname === '/api/admin/cars') {
+      if (req.method === 'GET') { await reloadCars(); json(res, 200, { cars: carRows }, { 'Cache-Control': 'no-store' }); return; }
+      if (req.method === 'POST') {
+        const row = cleanCar(await bodyJSON(req));
+        if (row.error) { json(res, 400, row); return; }
+        await stats.upsert('cars', { ...row, updated_at: new Date().toISOString() });
+      } else if (req.method === 'DELETE') {
+        const id = url.searchParams.get('id') || '';
+        if (!/^[a-z0-9-]{2,40}$/.test(id)) { json(res, 400, { error: 'bad id' }); return; }
+        await stats.remove('cars', 'id=eq.' + encodeURIComponent(id));
+      } else { res.writeHead(405).end(); return; }
+      await reloadCars();
+      json(res, 200, { ok: true, cars: carRows });
       return;
     }
     if (url.pathname !== '/api/admin/summary') { res.writeHead(404).end(); return; }
@@ -672,6 +703,11 @@ createServer(async (req, res) => {
     json(res, 200, { at: nearby.at ? new Date(nearby.at).toISOString() : null, source: 'OpenStreetMap contributors (ODbL)', places: nearby.list }, { 'Cache-Control': 'public, max-age=3600' });
     return;
   }
+  if (url.pathname === '/api/cars.js') {
+    if (Date.now() - carsAt > CARS_TTL) reloadCars(); // stale-while-revalidate
+    res.writeHead(200, { 'Content-Type': TYPES['.js'], 'Cache-Control': 'no-cache' }).end(carsJs);
+    return;
+  }
   if (url.pathname === '/api/config') {
     json(res, 200, {
       maps: places ? { key: GOOGLE_MAPS_KEY, mapId: GOOGLE_MAP_ID } : null,
@@ -730,4 +766,5 @@ createServer(async (req, res) => {
 
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
 reloadReports();
+reloadCars();
 Promise.all([loadOSMSnapshot(), loadPlacesSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));

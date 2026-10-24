@@ -121,6 +121,7 @@
             '<span class="hint">' + esc(when(f.created_at)) + '</span>' +
             '<button type="button" class="btn adm-done" data-id="' + f.id + '" data-status="' + (f.status === 'done' ? 'new' : 'done') + '">' + (f.status === 'done' ? 'ทำใหม่' : '✓ เสร็จแล้ว') + '</button></div>' +
             '<p>' + esc(f.message) + '</p>' +
+            (f.kind === 'car' && f.status !== 'done' ? '<button type="button" class="btn btn--soft adm-addcar" data-msg="' + esc(f.message) + '">🚗 เพิ่มรุ่นนี้ในรายชื่อ</button>' : '') +
             '<span class="hint">' + [f.email ? '<a href="mailto:' + esc(f.email) + '">' + esc(f.email) + '</a>' : 'ไม่ได้ใส่อีเมล', f.page && 'หน้า ' + esc(f.page), f.lang && esc(LANGS[f.lang] || f.lang), f.car_id && esc(f.car_id), f.ua && esc(f.ua)].filter(Boolean).join(' · ') + '</span></li>';
         }).join('') + '</ul>' : '<p class="hint">ยังไม่มีข้อความ ผู้ใช้ส่งได้จากปุ่ม "ติดต่อเรา / แจ้งปัญหา" ท้ายหน้าแอปและในเมนูบัญชี</p>') + '</section>' +
       '<section class="card adm-card"><h2>ข้อผิดพลาดของโปรแกรม <small>14 วันล่าสุด รวมข้อความเดียวกันเป็นแถวเดียว</small></h2>' +
@@ -200,7 +201,123 @@
     b.disabled = true;
     api('/api/admin/feedback', { method: 'POST', body: JSON.stringify({ id: +b.dataset.id, status: b.dataset.status }) }).then(loadAll, function (err) { b.disabled = false; alert(err.message); });
   });
+  // ---------- car models ----------
+  // The list in assets/js/cars.js (loaded on this page as window.EVCars) plus the cars table: a row
+  // with a listed id corrects that model, a new id adds one, "hidden" takes one off the list.
+  var BUILT = (window.EVCars || []).filter(function (c) { return c.id !== 'custom'; });
+  var CF = { rows: [], editing: null };
+
+  function carList() {
+    var byId = {};
+    BUILT.forEach(function (c) { byId[c.id] = { car: c, src: 'code' }; });
+    CF.rows.forEach(function (r) {
+      var was = byId[r.id];
+      byId[r.id] = { car: r.hidden && was ? was.car : r, row: r, src: r.hidden ? 'hidden' : was ? 'edited' : 'added' };
+    });
+    return Object.keys(byId).map(function (k) { return byId[k]; }).sort(function (a, b) {
+      return a.car.brand.localeCompare(b.car.brand, 'en', { sensitivity: 'base' }) || a.car.model.localeCompare(b.car.model, 'en');
+    });
+  }
+
+  var SRC = { code: '', edited: '<span class="adm-tag">แก้ในหลังบ้าน</span>', added: '<span class="adm-tag is-new">เพิ่มในหลังบ้าน</span>', hidden: '<span class="adm-tag is-server">ซ่อนอยู่</span>' };
+
+  function renderCars() {
+    var all = carList(), q = $('car-q').value.trim().toLowerCase();
+    var list = q ? all.filter(function (x) { return (x.car.brand + ' ' + x.car.model + ' ' + x.car.id).toLowerCase().indexOf(q) >= 0; }) : all;
+    var shown = all.filter(function (x) { return x.src !== 'hidden'; }).length;
+    $('car-count').textContent = shown + ' รุ่นที่ผู้ใช้เห็น · เพิ่มหรือแก้ที่นี่ ผู้ใช้เห็นทันที ไม่ต้องแก้โค้ดหรือ deploy';
+    $('cf-brands').innerHTML = all.map(function (x) { return x.car.brand; }).filter(function (b, i, a) { return a.indexOf(b) === i; }).map(function (b) { return '<option value="' + esc(b) + '">'; }).join('');
+    $('car-list').innerHTML = table(['ยี่ห้อ', 'รุ่น', 'แบต kWh', 'กินไฟ', 'DC kW', 'AC kW', 'หัวชาร์จ', '', ''], list.map(function (x) {
+      var c = x.car;
+      return [esc(c.brand), esc(c.model) + '<br><span class="hint">' + esc(c.id) + '</span>', esc(c.kwh), esc(c.use), esc(c.dc), esc(c.ac), esc((c.plugs || []).join(', ') || '–'),
+        SRC[x.src], '<button type="button" class="btn adm-editcar" data-id="' + esc(c.id) + '">แก้ไข</button>'];
+    }));
+  }
+
+  function loadCars() {
+    return api('/api/admin/cars').then(function (d) { CF.rows = d.cars || []; $('adm-cars').hidden = false; renderCars(); }, function () {});
+  }
+
+  function carForm(item, fill) {
+    var c = (item && item.car) || fill || {};
+    CF.editing = item || null;
+    $('car-form-title').textContent = item ? 'แก้ไข ' + c.brand + ' ' + c.model : 'เพิ่มรุ่นรถ';
+    $('cf-brand').value = c.brand || '';
+    $('cf-model').value = c.model || '';
+    $('cf-id').value = item ? c.id : '';
+    $('cf-id').readOnly = !!item;
+    $('cf-kwh').value = c.kwh != null ? c.kwh : '';
+    $('cf-use').value = c.use != null ? c.use : '';
+    $('cf-dc').value = c.dc != null ? c.dc : '';
+    $('cf-ac').value = c.ac != null ? c.ac : '';
+    $('cf-note').value = (item && item.row && item.row.note) || (fill && fill.note) || '';
+    var plugs = c.plugs || ['CCS2'];
+    $('car-form').querySelectorAll('.adm-plugs input').forEach(function (b) { b.checked = plugs.indexOf(b.value) >= 0; });
+    $('cf-hide').hidden = !item || item.src === 'hidden';
+    $('cf-hide').textContent = item && item.src === 'added' ? 'ลบรุ่นนี้' : 'ซ่อนรุ่นนี้';
+    $('cf-revert').hidden = !item || !(item.src === 'edited' || item.src === 'hidden');
+    $('cf-revert').textContent = item && item.src === 'hidden' ? 'แสดงรุ่นนี้อีกครั้ง' : 'ลบการแก้ไข (กลับไปใช้ค่าเดิม)';
+    $('cf-err').textContent = '';
+    $('car-form').hidden = false;
+    $('car-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('cf-brand').focus();
+  }
+
+  function saveCarRow(body) {
+    $('cf-err').textContent = '';
+    return api('/api/admin/cars', { method: 'POST', body: JSON.stringify(body) }).then(function (d) {
+      CF.rows = d.cars || [];
+      $('car-form').hidden = true;
+      renderCars();
+    }, function (err) { $('cf-err').textContent = err.message; });
+  }
+
+  function removeRow(id) {
+    return api('/api/admin/cars?id=' + encodeURIComponent(id), { method: 'DELETE' }).then(function (d) {
+      CF.rows = d.cars || [];
+      $('car-form').hidden = true;
+      renderCars();
+    }, function (err) { $('cf-err').textContent = err.message; });
+  }
+
+  // "ขอเพิ่มรุ่น: AVATR 12 Long Range · แบต 89 kWh · กินไฟ 17.5 · DC 240 kW · CCS2" from the app.
+  function fromRequest(msg) {
+    var m = /^ขอเพิ่มรุ่น: (.+?) · แบต ([\d.]+) kWh · กินไฟ ([\d.]+) · DC ([\d.]+) kW · (.+)$/.exec(msg) || [];
+    var name = (m[1] || '').split(' ');
+    return { brand: name.shift() || '', model: name.join(' '), kwh: m[2], use: m[3], dc: m[4], plugs: [/GB/.test(m[5] || '') ? 'GBT' : m[5] === 'CHAdeMO' ? 'CHAdeMO' : 'CCS2'], note: 'จากคำขอผู้ใช้ ตรวจสเปกก่อนบันทึก' };
+  }
+
+  $('car-q').addEventListener('input', renderCars);
+  $('car-new').addEventListener('click', function () { carForm(null); });
+  $('cf-cancel').addEventListener('click', function () { $('car-form').hidden = true; });
+  $('car-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var it = CF.editing;
+    saveCarRow({
+      id: $('cf-id').value.trim(), brand: $('cf-brand').value, model: $('cf-model').value,
+      kwh: $('cf-kwh').value, use: $('cf-use').value, dc: $('cf-dc').value, ac: $('cf-ac').value, note: $('cf-note').value,
+      plugs: [].map.call($('car-form').querySelectorAll('.adm-plugs input:checked'), function (b) { return b.value; }),
+      hidden: false, _was: it && it.src,
+    });
+  });
+  $('cf-hide').addEventListener('click', function () {
+    var it = CF.editing;
+    if (!it) return;
+    if (it.src === 'added') { if (confirm('ลบ ' + it.car.brand + ' ' + it.car.model + ' ออกจากรายชื่อ?')) removeRow(it.car.id); return; }
+    if (confirm('ซ่อน ' + it.car.brand + ' ' + it.car.model + ' จากรายชื่อ? (เช่น เลิกขายแล้ว) ผู้ที่เลือกรุ่นนี้ไว้จะกลับไปที่รุ่นแรกของรายชื่อ')) {
+      saveCarRow({ id: it.car.id, brand: it.car.brand, model: it.car.model, hidden: true });
+    }
+  });
+  $('cf-revert').addEventListener('click', function () { if (CF.editing) removeRow(CF.editing.car.id); });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.adm-editcar');
+    if (b) { carForm(carList().filter(function (x) { return x.car.id === b.dataset.id; })[0]); return; }
+    var r = e.target.closest('.adm-addcar');
+    if (r) carForm(null, fromRequest(r.dataset.msg));
+  });
+
   $('adm-reload').addEventListener('click', loadAll);
   loadAll();
+  loadCars();
   setInterval(function () { if (!document.hidden) loadAll(); }, 60000);
 })();

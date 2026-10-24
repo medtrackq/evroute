@@ -153,4 +153,17 @@ create table if not exists feedback (
 alter table feedback enable row level security;
 create index if not exists feedback_created on feedback (created_at);
 
-revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback from anon, authenticated;
+-- Car models added or corrected on the admin page, on top of assets/js/cars.js (the same id
+-- replaces a listed model; hidden takes it off the list).
+create table if not exists cars (
+  id text primary key,
+  brand text not null, model text not null,
+  kwh numeric, use numeric, dc numeric, ac numeric,
+  plugs jsonb not null default '["CCS2"]',
+  hidden boolean not null default false,
+  note text,
+  updated_at timestamptz not null default now()
+);
+alter table cars enable row level security;
+
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars from anon, authenticated;

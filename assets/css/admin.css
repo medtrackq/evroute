@@ -63,3 +63,17 @@ body { background: var(--bg); }
 .adm-links li { display: grid; grid-template-columns: 8em minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13px; }
 .adm-links code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); }
 .adm-copy { padding: 5px 12px; font-size: 12.5px; }
+.adm-cars__bar { display: flex; gap: 10px; flex-wrap: wrap; }
+.adm-cars__bar .field { flex: 1 1 220px; }
+.adm-carform { display: grid; gap: 10px; padding: 16px; border-radius: 18px; background: var(--surface-2); }
+.adm-carform h3 { margin: 0; font-size: 16px; }
+.adm-carform__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.adm-carform__grid > label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.adm-carform__wide { grid-column: 1 / -1; }
+.adm-plugs { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; margin: 0; padding: 6px 0 0; border: 0; font-size: 13px; }
+.adm-plugs legend { padding: 0; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.adm-carform__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm-carform .hint, .adm-carform .sheet__msg { margin: 0; }
+.adm-tag.is-new { color: var(--ok); background: var(--tile-mint, var(--surface-2)); }
+.adm-addcar { justify-self: start; padding: 5px 12px; font-size: 12.5px; }
+@media (max-width: 720px) { .adm-carform__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
