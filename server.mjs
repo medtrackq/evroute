@@ -9,6 +9,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton, networkOf, guessPlugs } from './lib/stations.mjs';
+import { floodList, LONGDO, BKK_SENSORS } from './lib/floods.mjs';
 import { sweep, cells, PASSES } from './lib/sweep.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces, BRANDS } from './lib/google.mjs';
@@ -57,6 +58,8 @@ const PHOTON_REVERSE = 'https://photon.komoot.io/reverse?limit=1&';
 // Daily forecast for a trip's destination (Open-Meteo, free, no key; up to 16 days ahead).
 const WEATHER = 'https://api.open-meteo.com/v1/forecast?timezone=Asia%2FBangkok&forecast_days=16&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&';
 const WEATHER_TTL = 30 * 60 * 1000;
+const FLOODS_TTL = 2 * 60 * 1000; // roadflood reads its feeds every 2 minutes too
+let floodsMemo = {};
 const OVERPASS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -674,6 +677,10 @@ async function proxyRoute(req, res) {
     locations: locs.map((l) => ({ lat: l.lat, lon: l.lon, type: 'break' })),
     costing: 'auto', units: 'kilometers', directions_type: 'maneuvers',
   };
+  // Areas to stay out of (flooded roads): rings of [lon, lat], at most 10 of up to 12 points each.
+  const avoid = Array.isArray(q.exclude_polygons) ? q.exclude_polygons.slice(0, 10).filter((ring) => Array.isArray(ring) && ring.length >= 4 && ring.length <= 12 &&
+    ring.every((pt) => Array.isArray(pt) && pt.length === 2 && pt.every(Number.isFinite))) : [];
+  if (avoid.length) body.exclude_polygons = avoid;
   try {
     const r = await fetch(VALHALLA, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': UA },
@@ -800,6 +807,20 @@ createServer(async (req, res) => {
   if (url.pathname === '/api/reports') {
     if (Date.now() - reportsAt > REPORTS_TTL) reloadReports(); // stale-while-revalidate
     json(res, 200, reportsBody, { 'Cache-Control': 'public, max-age=60' });
+    return;
+  }
+  if (url.pathname === '/api/floods') {
+    // Both feeds through the shared cache; a feed that is down leaves the other's points.
+    const [ev, bkk] = await Promise.all([
+      cached(LONGDO, FLOODS_TTL).catch((err) => { report('/api/floods longdo', err.message); return null; }),
+      cached(BKK_SENSORS, FLOODS_TTL).catch(() => null),
+    ]);
+    if (!ev && !bkk) { json(res, 502, { error: 'flood feeds unavailable' }); return; }
+    if (floodsMemo.ev !== ev?.body || floodsMemo.bkk !== bkk?.body || Date.now() - floodsMemo.at > FLOODS_TTL) {
+      const parse = (r) => { try { return r && JSON.parse(r.body); } catch { return null; } };
+      floodsMemo = { ev: ev?.body, bkk: bkk?.body, at: Date.now(), body: JSON.stringify({ at: new Date().toISOString(), floods: floodList(parse(ev), parse(bkk)), partial: !ev || !bkk }) };
+    }
+    json(res, 200, floodsMemo.body, { 'Cache-Control': 'public, max-age=60' });
     return;
   }
   if (url.pathname === '/api/weather') {

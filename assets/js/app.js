@@ -464,11 +464,14 @@
       });
   }
 
-  function route(points) {
-    return postRoute({
+  // avoid: flooded points to keep out of (see floodRing).
+  function route(points, avoid) {
+    var body = {
       locations: points.map(function (p) { return { lat: p.lat, lon: p.lng, type: 'break' }; }),
       costing: 'auto', units: 'kilometers', directions_type: 'maneuvers'
-    });
+    };
+    if (avoid && avoid.length) body.exclude_polygons = avoid.map(floodRing);
+    return postRoute(body);
   }
 
   function geocode(q, i) {
@@ -570,10 +573,16 @@
     shareURL();
     var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds(), avoid: avoidIds(), want: wants(), departClock: localClock(departAt()) };
 
-    R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
+    var fl = null, ex = R.excluded;
+    R.ready.then(function () { return Promise.all([route([R.a].concat(t.targets)), loadFloods()]); }).then(function (x) {
+      return avoidFloods([R.a].concat(t.targets), x[0]);
+    }).then(function (x) {
+      var d = x.d;
+      fl = x.fl;
+      ex = floodExclude(R.excluded);
       busyStep('กำลังเลือกจุดชาร์จ…');
       var prof = P.profile(d.trip.legs);
-      var cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
+      var cands = P.candidates(prof, R.stations, R.car, { exclude: ex });
       var res = P.plan(prof, cands, R.car, opts);
       // Where our own data is thin, ask Google for the stations there and plan again. A plan that
       // still gets stuck asks again further along (up to 5 rounds within GOOGLE_MAX_POINTS searches).
@@ -585,7 +594,7 @@
           budget -= g.asked;
           if (!g.added) return;
           total += g.added;
-          cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
+          cands = P.candidates(prof, R.stations, R.car, { exclude: ex = floodExclude(R.excluded) }); // with the stations just added
           res = P.plan(prof, cands, R.car, opts);
           if (!res.ok && n < 5 && budget > 0) return round(n + 1);
         });
@@ -595,7 +604,7 @@
       }).then(function (added) {
         if (added) {
           total += added;
-          cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
+          cands = P.candidates(prof, R.stations, R.car, { exclude: ex = floodExclude(R.excluded) }); // with the stations just added
           var again = P.plan(prof, cands, R.car, opts);
           if (again.ok || !res.ok) res = again;
         }
@@ -620,6 +629,7 @@
       res.items = items;
       var departs = items.map(function (it) { return it.kind === 'stop' ? it.s.depart : null; });
       var settle = function (pr) {
+        res.flood = floodResult(fl, pr, ex);
         var legs = P.replay(pr, R.car, soc, departs);
         res.final = pr;
         res.legs = legs;
@@ -631,12 +641,13 @@
         res.arriveReal = legs[legs.length - 1].arrive;
         return res;
       };
+      res.flood = floodResult(fl, prof, ex);
       if (!res.ok) return res;
       if (!res.stops.length) return settle(prof);
       if (items.length + 2 > MAX_ROUTE_POINTS) return res;
       // Route again through the chosen stations for real distances, times and battery levels.
       busyStep('กำลังคำนวณเวลาและค่าไฟ…');
-      return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end])).then(function (d2) {
+      return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end]), fl.avoid).then(function (d2) {
         return settle(P.profile(d2.trip.legs));
       }, function (err) {
         console.warn('route via stops failed', err);
@@ -654,6 +665,165 @@
       clearResult();
       say(/no path|no suitable/i.test(err.message) ? 'ไม่พบเส้นทางรถยนต์ระหว่าง 2 จุดนี้' : 'บริการหาเส้นทางหรือข้อมูลสถานีไม่ตอบ ลองใหม่อีกครั้ง', 'crit');
     }).then(function () { setBusy(false); });
+  }
+
+  // ---------- flooded roads (from medtrackq/roadflood) ----------
+  // Department of Highways and Longdo Traffic reports, and Bangkok's road sensors, through
+  // /api/floods (lib/floods.mjs grades them; `block` = an EV should not drive through). A trip that
+  // runs through a blocked point is routed again with a small area around each such point kept
+  // out, and stations next to one are left out of the plan.
+  var FLOOD_NEAR_KM = 0.15;     // a report this close to the route is on it (as in roadflood)
+  var FLOOD_AREA_KM = 0.15;     // radius of the area the route is kept out of
+  var FLOOD_STATION_KM = 0.3;   // a station this close to a blocked point is left out
+  var FLOOD_MAX_AVOID = 10;     // public Valhalla's limit on areas to avoid
+  var FLOOD_TTL = 5 * 60000;
+
+  function loadFloods() {
+    if (R.floodsAt && Date.now() - R.floodsAt < FLOOD_TTL) return Promise.resolve(R.floods);
+    return getJSON('/api/floods').then(function (d) {
+      R.floods = d.floods || [];
+      R.floodsAt = Date.now();
+      floodHome();
+      return R.floods;
+    }, function () { R.floods = R.floods || []; return R.floods; });
+  }
+
+  // A hexagon around a point, as Valhalla wants it: [lon, lat] pairs, closed.
+  function floodRing(f) {
+    var ring = [];
+    for (var i = 0; i <= 6; i++) {
+      var a = (i % 6) * Math.PI / 3;
+      ring.push([+(f.lng + FLOOD_AREA_KM * Math.cos(a) / (111.32 * Math.cos(f.lat * Math.PI / 180))).toFixed(6), +(f.lat + FLOOD_AREA_KM * Math.sin(a) / 110.57).toFixed(6)]);
+    }
+    return ring;
+  }
+
+  // Reports on this route, in driving order: [{ f, along }].
+  function floodHits(prof) {
+    if (!R.floods || !R.floods.length) return [];
+    var lats = prof.pts.map(function (p) { return p[0]; }), lngs = prof.pts.map(function (p) { return p[1]; });
+    var s = Math.min.apply(null, lats) - 0.01, n = Math.max.apply(null, lats) + 0.01, w = Math.min.apply(null, lngs) - 0.01, e = Math.max.apply(null, lngs) + 0.01;
+    var out = [];
+    R.floods.forEach(function (f) {
+      if (f.lat < s || f.lat > n || f.lng < w || f.lng > e) return;
+      var near = P.nearest(prof.pts, prof.cum, f);
+      if (near.d <= FLOOD_NEAR_KM) out.push({ f: f, along: near.along });
+    });
+    return out.sort(function (a, b) { return a.along - b.along; });
+  }
+
+  // Routes again around the blocked points on the way (twice at most: the way around can meet
+  // others). A point at one of the trip's own places can't be avoided and isn't tried.
+  // Resolves to { d: Valhalla's answer, fl: { avoid, before (the first route), extraMin, tried } }.
+  function avoidFloods(points, d) {
+    var fl = { avoid: [], before: null, extraMin: 0, tried: false };
+    var done = function (d) {
+      if (fl.before && fl.avoid.length) fl.extraMin = Math.max(0, P.profile(d.trip.legs).min - fl.before.min);
+      return { d: d, fl: fl };
+    };
+    var step = function (d, n) {
+      var prof = P.profile(d.trip.legs);
+      var block = floodHits(prof).filter(function (h) {
+        return h.f.block && fl.avoid.indexOf(h.f) < 0 && !points.some(function (p) { return P.km(p, h.f) < FLOOD_STATION_KM; });
+      });
+      if (!block.length || n >= 2 || fl.avoid.length >= FLOOD_MAX_AVOID) return done(d);
+      if (!fl.before) fl.before = prof;
+      fl.tried = true;
+      busyStep('กำลังหาเส้นเลี่ยงน้ำท่วม…');
+      var next = fl.avoid.concat(block.map(function (h) { return h.f; })).slice(0, FLOOD_MAX_AVOID);
+      return route(points, next).then(function (d2) {
+        fl.avoid = next;
+        return step(d2, n + 1);
+      }, function (err) {
+        console.warn('route around floods failed', err);
+        return done(d);
+      });
+    };
+    return step(d, 0);
+  }
+
+  // The user's own exclusions plus stations next to a blocked point.
+  function floodExclude(own) {
+    var block = (R.floods || []).filter(function (f) { return f.block; });
+    R.flooded = {};
+    if (!block.length) return own;
+    var ex = Object.assign({}, own);
+    R.stations.forEach(function (st) {
+      if (block.some(function (f) { return Math.abs(f.lat - st.lat) < 0.01 && P.km(f, st) < FLOOD_STATION_KM; })) { ex[st.id] = true; R.flooded[st.id] = true; }
+    });
+    return ex;
+  }
+
+  // What the plan's final route meets, for the result card, the map and Google Maps.
+  function floodResult(fl, prof, ex) {
+    if (!fl || !R.floods || !R.floods.length) return null;
+    var hits = floodHits(prof);
+    var on = hits.map(function (h) { return h.f; });
+    var avoided = fl.avoid.filter(function (f) { return on.indexOf(f) < 0; });
+    var skipped = Object.keys(R.flooded || {}).filter(function (id) {
+      if (R.excluded[id] || !ex[id]) return false;
+      var st = stationById(id);
+      return st && P.nearest(prof.pts, prof.cum, st).d < 5;
+    }).length;
+    if (!hits.length && !avoided.length && !skipped) return null;
+    // Points on the way around (well off the first route), so Google Maps takes the same way.
+    var via = [];
+    if (fl.before && avoided.length) {
+      avoided.slice(0, 3).forEach(function (f) {
+        var best = null;
+        prof.pts.forEach(function (p, i) {
+          if (Math.abs(p[0] - f.lat) > 0.05 || Math.abs(p[1] - f.lng) > 0.05) return;
+          var off = P.nearest(fl.before.pts, fl.before.cum, { lat: p[0], lng: p[1] }).d;
+          if (off > 0.3 && (!best || off > best.off)) best = { lat: p[0], lng: p[1], along: prof.cum[i], off: off, label: 'จุดผ่านเลี่ยงน้ำท่วม' };
+        });
+        if (best) via.push(best);
+      });
+    }
+    return {
+      hits: hits, avoided: avoided, skipped: skipped, failed: fl.tried && !fl.avoid.length, via: via,
+      extraMin: fl.extraMin || 0,
+    };
+  }
+
+  function floodRow(f, along, avoided) {
+    var tone = avoided ? 'ok' : f.block ? 'crit' : 'warn';
+    var t = Date.parse(f.confirmed);
+    return '<li class="flood-row"><span class="chip chip--' + tone + '">' + (avoided ? 'เลี่ยงแล้ว' : esc(f.label)) + '</span>' +
+      '<div><b translate="no">' + esc(f.title) + '</b><span translate="no">' + esc(f.place) + '</span>' +
+      '<span class="hint">' + (along != null ? '<span>กม. ' + Math.round(along) + ' จากต้นทาง</span> · ' : '') + '<span>' + esc(f.src) + '</span> · <span>ยืนยันล่าสุด</span> ' +
+      esc(new Date(t).toLocaleString(LOC, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + '</span></div></li>';
+  }
+
+  function floodNote(res) {
+    var f = res.flood;
+    if (!f) return '';
+    var block = f.hits.filter(function (h) { return h.f.block; }), wet = f.hits.filter(function (h) { return !h.f.block; });
+    var html = '';
+    if (f.avoided.length) {
+      html += '<div class="verdict verdict--ok"><b>🌊 เลี่ยงถนนน้ำท่วมให้แล้ว</b><span>เส้นทางนี้อ้อมจุดที่ผ่านไม่ได้ ' + f.avoided.length + ' จุด</span>' +
+        (f.extraMin >= 1 ? '<span>ใช้เวลาเพิ่ม ~' + dur(f.extraMin) + '</span>' : '') + '</div>';
+    }
+    if (block.length) {
+      html += '<div class="verdict verdict--crit"><b>⛔ เส้นทางผ่านจุดน้ำท่วม ' + block.length + ' จุด</b>' +
+        '<span>' + (f.failed || f.avoided.length ? 'หาเส้นเลี่ยงไม่ได้' : 'จุดนี้อยู่ใกล้ต้นทาง ปลายทาง หรือจุดแวะของคุณ') + '</span>' +
+        '<span>ตรวจสอบก่อนออกเดินทาง สายด่วนกรมทางหลวง 1586 · ทางหลวงชนบท 1146</span></div>';
+    }
+    if (wet.length) {
+      html += '<div class="verdict verdict--warn"><span>⚠️ มีน้ำบนถนน ' + wet.length + ' จุด (ผ่านได้)</span><span>ขับช้า เว้นระยะ รถ EV ไม่ควรลุยน้ำลึกเกินที่คู่มือรถกำหนด</span></div>';
+    }
+    if (f.skipped) html += '<p class="hint">ไม่แนะนำสถานีชาร์จที่อยู่ติดถนนน้ำท่วม ' + f.skipped + ' แห่ง</p>';
+    var rows = f.hits.map(function (h) { return floodRow(h.f, h.along, false); }).concat(f.avoided.map(function (x) { return floodRow(x, null, true); }));
+    if (rows.length) html += '<details class="flood-list"><summary>ดูจุดน้ำท่วม ' + rows.length + ' จุด</summary><ol class="flood-rows">' + rows.join('') + '</ol></details>';
+    return html;
+  }
+
+  // Home: say when there are roads to steer around today.
+  function floodHome() {
+    var el = $('flood-home');
+    if (!el) return;
+    var n = (R.floods || []).filter(function (f) { return f.block; }).length;
+    el.hidden = !n;
+    if (n) el.innerHTML = '<span>🌊 วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ ' + n + ' จุด</span> <span>EVROUTE จะพาเลี่ยงให้อัตโนมัติ</span>';
   }
 
   // ---------- Google gap filling ----------
@@ -1201,7 +1371,7 @@
   }
 
   function resultCard(res) {
-    if (!res.ok && !res.stops.length) return failText(res);
+    if (!res.ok && !res.stops.length) return failText(res) + floodNote(res);
     var t = totals(res), o = res.opts;
     var low = res.legs && res.legs.some(function (l) { return l.arrive < o.minSoc - 3; });
     var html = (res.ok ? '' : failText(res)) +
@@ -1212,7 +1382,7 @@
           : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
-      wantNote(res) + bookNote(res) +
+      floodNote(res) + wantNote(res) + bookNote(res) +
       (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
       '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
@@ -1252,13 +1422,21 @@
     if (!res.ok) return '';
     // Charging stations and the user's own stops go in as Google Maps waypoints, in driving order.
     var via = (res.items || []).map(function (it) { return it.p; });
+    // Points on the way around flooded roads, so Google Maps doesn't take the flooded one.
+    var fv = res.flood && res.flood.via.length ? res.flood.via : [];
+    if (fv.length && via.length + fv.length <= MAX_GMAPS_WAYPOINTS) {
+      via = (res.items || []).map(function (it) { return { p: it.p, k: it.km != null ? it.km : it.along }; })
+        .concat(fv.map(function (v) { return { p: v, k: v.along }; }))
+        .sort(function (a, b) { return a.k - b.k; }).map(function (x) { return x.p; });
+    } else fv = [];
     var end = res.trip.end;
     var name = function (p) { return p.name || p.label; };
     var html = '<section class="card nav-card">';
     if (via.length <= MAX_GMAPS_WAYPOINTS) {
       html += '<a class="btn btn--primary" href="' + gmapsDir(R.a, end, via) + '" target="_blank" rel="noopener" data-ev="nav">' + BOLT + 'เปิดเส้นทางทั้งหมดใน Google Maps</a>' +
-        (via.length ? '<p class="hint">จุดชาร์จ ' + res.stops.length + ' จุด' + (via.length > res.stops.length ? ' และจุดหมายของคุณ' : '') + ' ถูกใส่เป็นจุดแวะ (Add destination) ให้แล้ว ' +
-          'โดยส่งเป็นพิกัด Google Maps จึงอาจแสดงชื่อสถานที่ข้าง ๆ แทน เช่น 7-11 หรือร้านในปั๊มเดียวกัน แต่นำทางไปตำแหน่งสถานีชาร์จถูกต้อง</p>' : '');
+        (via.length > fv.length ? '<p class="hint">จุดชาร์จ ' + res.stops.length + ' จุด' + (via.length - fv.length > res.stops.length ? ' และจุดหมายของคุณ' : '') + ' ถูกใส่เป็นจุดแวะ (Add destination) ให้แล้ว ' +
+          'โดยส่งเป็นพิกัด Google Maps จึงอาจแสดงชื่อสถานที่ข้าง ๆ แทน เช่น 7-11 หรือร้านในปั๊มเดียวกัน แต่นำทางไปตำแหน่งสถานีชาร์จถูกต้อง</p>' : '') +
+        (fv.length ? '<p class="hint">🌊 ใส่จุดผ่านบนเส้นเลี่ยงน้ำท่วม ' + fv.length + ' จุดให้แล้ว เพื่อให้ Google Maps ไม่พาเข้าถนนที่ท่วม</p>' : '');
     }
     if (via.length > MOBILE_WAYPOINTS || via.length > MAX_GMAPS_WAYPOINTS) {
       html += '<p class="hint">' + (via.length > MAX_GMAPS_WAYPOINTS ? 'จุดแวะเกิน ' + MAX_GMAPS_WAYPOINTS + ' จุด ซึ่ง Google Maps รับไม่ได้ ให้นำทางทีละช่วง:' : 'แอป Google Maps บนมือถือบางเครื่องรับจุดแวะได้ไม่เกิน ' + MOBILE_WAYPOINTS + ' จุด ถ้าจุดแวะหายไป ให้นำทางทีละช่วง:') + '</p><ol class="legs">';
@@ -1597,6 +1775,15 @@
           googleLink(s.st) + popupActions(s.st),
       });
     });
+    if (res.flood) {
+      res.flood.hits.map(function (h) { return h.f; }).concat(res.flood.avoided).forEach(function (f) {
+        var avoided = res.flood.avoided.indexOf(f) >= 0;
+        map.pin(f.lat, f.lng, {
+          html: '<span class="pin pin--flood' + (avoided ? ' is-avoided' : f.block ? '' : ' is-wet') + '">🌊</span>', z: 800, layer: stopLayer,
+          popup: '<b translate="no">' + esc(f.title) + '</b><br>' + (avoided ? '<b>เลี่ยงแล้ว</b><br>' : '') + '<span>' + esc(f.label) + '</span><br><span class="hint" translate="no">' + esc(f.place) + '</span><br><span class="hint">' + esc(f.src) + '</span>',
+        });
+      });
+    }
     if (res.fail && res.fail.reach) {
       var p = pointAt(res.prof, res.fail.reach);
       if (p) map.dot(p[0], p[1], { radius: 9, fill: css('crit'), tooltip: 'แบตถึงระดับต่ำสุดราวตรงนี้', layer: stopLayer });
@@ -3311,6 +3498,7 @@
   // Start: stations load in the background; the map is Google Maps when the server has Google
   // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.
   R.ready = loadStations();
+  loadFloods();
   getJSON('/api/config').catch(function () { return {}; }).then(function (cfg) {
     R.cfg = cfg || {};
     if (!R.cfg.maps) return MapView.leaflet('map');
