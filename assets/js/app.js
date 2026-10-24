@@ -957,7 +957,7 @@
     var dep = departAt(), today = bkkDay(Date.now()), day = bkkDay(dep);
     var ahead = Math.round((Date.parse(day) - Date.parse(today)) / 864e5);
     var opens = o.bookAhead ? new Date(Date.parse(day + 'T12:00:00+07:00') - (o.bookAhead - 1) * 864e5) : null;
-    return { app: o.app || o.name, note: o.bookNote || '', later: !!(o.bookAhead && ahead > o.bookAhead - 1), opens: opens };
+    return { app: o.app || o.name, note: o.bookNote || '', near: !!o.bookNear, later: !!(o.bookAhead && ahead > o.bookAhead - 1), opens: opens };
   }
 
   function bookLine(st) {
@@ -966,7 +966,7 @@
     return b.later
       ? '<span class="row__book is-later">📅 ' + esc(I18N.t('จองล่วงหน้าได้ในแอป')) + ' ' + esc(b.app) + (b.note ? ' (' + esc(I18N.t(b.note)) + ')' : '') +
         ' · ' + esc(I18N.t('ทริปนี้จองได้ตั้งแต่')) + ' ' + esc(b.opens.toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' })) + '</span>'
-      : '<span class="row__book">📅 ' + esc(I18N.t('จองหัวชาร์จล่วงหน้าได้ในแอป')) + ' ' + esc(b.app) + (b.note ? ' (' + esc(I18N.t(b.note)) + ')' : '') + '</span>';
+      : '<span class="row__book">📅 ' + esc(I18N.t(b.near ? 'จองได้ในแอป' : 'จองหัวชาร์จล่วงหน้าได้ในแอป')) + ' ' + esc(b.app) + (b.note ? ' (' + esc(I18N.t(b.note)) + ')' : '') + '</span>';
   }
 
   // At the top of the plan: the stops that can only be booked closer to the day.

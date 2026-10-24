@@ -24,7 +24,7 @@
     "web": "https://www.eaanywhere.com/",
     "android": "evapp.eaanywhere",
     "ios": "https://apps.apple.com/th/app/e-anywhere/id6480576942",
-    "booking": true
+    "booking": false
   },
   "PTT EV Station PluZ": {
     "name": "EV Station PluZ (PTT OR)",
@@ -35,7 +35,7 @@
     "ios": "https://apps.apple.com/th/app/ev-station-pluz-pluz-happiness/id6535679105",
     "booking": true,
     "bookAhead": 2,
-    "bookNote": "จองได้เฉพาะวันนี้และพรุ่งนี้"
+    "bookNote": "จองได้เฉพาะวันนี้และพรุ่งนี้ · เฉพาะหัว DC · ต้องเริ่มชาร์จภายใน 5 นาทีหลังเวลาจอง"
   },
   "EleXA": {
     "name": "EleX by EGAT / EleXA",
@@ -44,7 +44,9 @@
     "web": "https://egatev.egat.co.th/our-services/elexa/",
     "android": "egat.smd.ev",
     "ios": "https://apps.apple.com/th/app/elexa/id1557651291",
-    "booking": true
+    "booking": true,
+    "bookNear": true,
+    "bookNote": "จองได้เมื่ออยู่ห่างไม่เกิน 30 กม. และต้องถึงภายใน 20 นาที"
   },
   "MEA EV": {
     "name": "MEA EV",
@@ -53,7 +55,8 @@
     "web": "https://www.mea.or.th/",
     "android": "th.mea.evcharger",
     "ios": "https://apps.apple.com/th/app/mea-ev/id1321755208",
-    "booking": true
+    "booking": true,
+    "bookNote": "เฉพาะสถานีของ MEA"
   },
   "Tesla Supercharger": {
     "name": "Tesla Supercharger",
@@ -63,5 +66,6 @@
     "android": "com.teslamotors.tesla",
     "ios": "https://apps.apple.com/th/app/tesla/id582007913",
     "booking": false
-  }
+  },
+  "_booking": "booking: the app takes bookings · bookAhead: calendar days that can be booked, today included · bookNear: only when close by, not ahead · checked Oct 2026 (operators' sites, Shell/PluZ fee notes, EGAT EleXA page); EA Anywhere and PEA VOLTA unclear, so left as no booking"
 }
