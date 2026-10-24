@@ -35,6 +35,13 @@ I18N.load({
     "ชาร์จหลัง # ถูกกว่า ถ้ารอได้": "Charging after # is cheaper, if you can wait",
   },
   runs: {
+    "จองล่วงหน้าได้ในแอป": "Can be booked in the",
+    "ทริปนี้จองได้ตั้งแต่": "booking for this trip opens",
+    "จองหัวชาร์จล่วงหน้าได้ในแอป": "Book a charger ahead in the",
+    "จองได้เฉพาะวันนี้และพรุ่งนี้": "today and tomorrow only",
+    "มีจุดชาร์จที่จองล่วงหน้าได้ใกล้วันเดินทางเท่านั้น": "Some stops can only be booked close to the day",
+    "จองในแอป": "book in",
+    "ได้ตั้งแต่": "from",
     "เส้นทางเปลี่ยนแล้ว แผนด้านล่างเป็นของเส้นทางเดิม": "The route changed; the plan below is for the old one",
     "วางแผนใหม่": "Plan again",
     "ไม่พบสถานที่": "Place not found",

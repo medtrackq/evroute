@@ -948,6 +948,36 @@
       'เปิดแอป ' + esc(o.app || o.name) + '</a>';
   }
 
+  // Booking a charger in the operator's app. data/operators.json: booking (the app can), bookAhead
+  // (calendar days that can be booked, today included: 2 = today and tomorrow), bookNote.
+  // A trip further ahead than that gets told when booking opens.
+  function bookingInfo(st) {
+    var o = R.operators[st.op];
+    if (!o || !o.booking) return null;
+    var dep = departAt(), today = bkkDay(Date.now()), day = bkkDay(dep);
+    var ahead = Math.round((Date.parse(day) - Date.parse(today)) / 864e5);
+    var opens = o.bookAhead ? new Date(Date.parse(day + 'T12:00:00+07:00') - (o.bookAhead - 1) * 864e5) : null;
+    return { app: o.app || o.name, note: o.bookNote || '', later: !!(o.bookAhead && ahead > o.bookAhead - 1), opens: opens };
+  }
+
+  function bookLine(st) {
+    var b = bookingInfo(st);
+    if (!b) return '';
+    return b.later
+      ? '<span class="row__book is-later">📅 ' + esc(I18N.t('จองล่วงหน้าได้ในแอป')) + ' ' + esc(b.app) + (b.note ? ' (' + esc(I18N.t(b.note)) + ')' : '') +
+        ' · ' + esc(I18N.t('ทริปนี้จองได้ตั้งแต่')) + ' ' + esc(b.opens.toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' })) + '</span>'
+      : '<span class="row__book">📅 ' + esc(I18N.t('จองหัวชาร์จล่วงหน้าได้ในแอป')) + ' ' + esc(b.app) + (b.note ? ' (' + esc(I18N.t(b.note)) + ')' : '') + '</span>';
+  }
+
+  // At the top of the plan: the stops that can only be booked closer to the day.
+  function bookNote(res) {
+    var later = res.stops.map(function (s) { return bookingInfo(s.st); }).filter(function (b) { return b && b.later; });
+    if (!later.length) return '';
+    var b = later.sort(function (x, y) { return x.opens - y.opens; })[0];
+    return '<div class="verdict verdict--warn book-note">📅 ' + esc(I18N.t('มีจุดชาร์จที่จองล่วงหน้าได้ใกล้วันเดินทางเท่านั้น')) + ' · ' +
+      esc(I18N.t('จองในแอป')) + ' ' + esc(b.app) + ' ' + esc(I18N.t('ได้ตั้งแต่')) + ' ' + esc(b.opens.toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' })) + '</div>';
+  }
+
   // Operator apps can't be opened at a given station, so "จองผ่านแอป" copies a search word for the
   // app's search box. Operators name sites their own way ("พีทีทีอาร์เอ็ม สาขาอินทร์บุรี กม.104"),
   // but their names and addresses carry the district, so that finds the site in a few results.
@@ -1133,6 +1163,7 @@
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
         repLines(st) +
+        bookLine(st) +
         amenityLine(st, !!(res.opts && res.opts.want && res.opts.want.food)) +
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') + // Google's data shows with its credit
         '<div class="row__acts">' +
@@ -1181,7 +1212,7 @@
           : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
-      wantNote(res) +
+      wantNote(res) + bookNote(res) +
       (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
       '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +

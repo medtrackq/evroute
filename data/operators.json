@@ -33,7 +33,9 @@
     "web": "https://www.pttor.com/product/commercial/ev-station-pluz",
     "android": "com.pttor.evstationpluz",
     "ios": "https://apps.apple.com/th/app/ev-station-pluz-pluz-happiness/id6535679105",
-    "booking": true
+    "booking": true,
+    "bookAhead": 2,
+    "bookNote": "จองได้เฉพาะวันนี้และพรุ่งนี้"
   },
   "EleXA": {
     "name": "EleX by EGAT / EleXA",
