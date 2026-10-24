@@ -178,6 +178,16 @@
               <p class="hint" id="depart-note">ตอนนี้ · เลือกวันเวลาล่วงหน้าได้ ค่าไฟและเวลาถึงจะคิดตามวันนั้น</p>
               <div id="depart-nudge"></div>
             </div>
+            <div class="want">
+              <span class="opt__label" id="want-label">อยากแวะ <small>(ไม่บังคับ)</small></span>
+              <div class="want__row" role="group" aria-labelledby="want-label">
+                <button type="button" class="want__chip" data-want="food" aria-pressed="false">🍜 กินข้าว</button>
+                <button type="button" class="want__chip" data-want="cafe" aria-pressed="false">☕ กาแฟ</button>
+                <button type="button" class="want__chip" data-want="wc" aria-pressed="false">🚻 ห้องน้ำ</button>
+                <button type="button" class="want__chip" data-want="shop" aria-pressed="false">🛍 ห้าง/ร้านค้า</button>
+              </div>
+              <p class="hint" id="want-note">ระบบจะเลือกจุดชาร์จที่มีให้ ถ้าไม่ต้องอ้อมไกล</p>
+            </div>
             <p class="hint">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง) · จุดชาร์จจะถูกแทรกให้อัตโนมัติ</p>
             <button type="submit" class="btn btn--primary btn--block" id="go">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>

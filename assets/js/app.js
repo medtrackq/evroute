@@ -434,7 +434,7 @@
     box.hidden = false;
     box.innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
     shareURL();
-    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds(), avoid: avoidIds() };
+    var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds(), avoid: avoidIds(), want: wants(), departClock: localClock(departAt()) };
 
     R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
       var prof = P.profile(d.trip.legs);
@@ -456,6 +456,11 @@
       };
       return round(1).then(function () {
         if (total) res.googleAdded = total;
+        // What stopping for food or coffee costs: the same trip planned without it.
+        if (opts.want && res.ok) {
+          var plain = P.plan(prof, cands, R.car, Object.assign({}, opts, { want: null }));
+          if (plain.ok) res.wantExtra = Math.max(0, res.realMin - plain.realMin);
+        }
         return { prof: prof, cands: cands, res: res };
       });
     }).then(function (x) {
@@ -651,6 +656,63 @@
     var d = new Date(departAt() + minAfterStart * 60000);
     var t = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
     return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + t;
+  }
+
+  // ---------- what to stop for ----------
+  // Food, coffee, toilets, shops: stations that have them are preferred when they cost little
+  // extra time (plan.js). Remembered in this browser.
+  var WANTS = { food: '🍜 กินข้าว', cafe: '☕ กาแฟ', wc: '🚻 ห้องน้ำ', shop: '🛍 ห้าง/ร้านค้า' };
+  R.want = load('want') || {};
+
+  function wants() {
+    var w = {}, any = false;
+    Object.keys(WANTS).forEach(function (k) { if (R.want[k]) { w[k] = true; any = true; } });
+    return any ? w : null;
+  }
+
+  function showWants() {
+    document.querySelectorAll('[data-want]').forEach(function (b) { b.setAttribute('aria-pressed', R.want[b.dataset.want] ? 'true' : 'false'); });
+    $('want-note').textContent = R.want.food
+      ? 'ระบบจะเลือกจุดชาร์จที่มีให้ ถ้าไม่ต้องอ้อมไกล · กินข้าว: จุดที่ถึงช่วงมื้ออาหาร (เช้า กลางวัน เย็น) ตามเวลาออกเดินทาง'
+      : 'ระบบจะเลือกจุดชาร์จที่มีให้ ถ้าไม่ต้องอ้อมไกล';
+  }
+
+  document.querySelectorAll('[data-want]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      R.want[b.dataset.want] = !R.want[b.dataset.want];
+      store('want', R.want);
+      showWants();
+    });
+  });
+  showWants();
+
+  // Minutes after midnight on the clock the departure time was picked with.
+  function localClock(t) { var d = new Date(t); return d.getHours() * 60 + d.getMinutes(); }
+
+  // What is within a short walk of a station, with a link to restaurants nearby on Wongnai.
+  var CAFE_RE = /café|cafe|coffee|amazon|starbucks|inthanin|punthai|กาแฟ|คาเฟ่/i;
+  var SHOP_RE = /eleven|lawson|family|lotus|tops|cj|big ?c|mart|เซเว่น/i;
+
+  function amenityLine(st, food) {
+    var am = st.am;
+    if (!am) return food ? '<span class="row__am">' + wongnaiLink(st) + '</span>' : '';
+    var named = function (re, fallback) { return esc(am.names.filter(function (n) { return re.test(n); })[0] || fallback); };
+    var parts = [];
+    if (am.mall) parts.push('🛍 <b>' + (am.guess ? 'ในห้าง' : esc(am.mall)) + '</b>');
+    if (am.food) parts.push('🍜 ร้านอาหาร' + (am.guess || am.food < 2 ? '' : ' ' + am.food + ' ร้าน'));
+    if (am.cafe) parts.push('☕ ' + named(CAFE_RE, 'กาแฟ'));
+    if (am.shop && !am.mall) parts.push('🏪 ' + named(SHOP_RE, 'ร้านสะดวกซื้อ'));
+    if (am.wc) parts.push('🚻 ห้องน้ำ');
+    return '<span class="row__am">' + parts.join(' · ') + (am.guess ? ' <span class="hint">(น่าจะมี)</span>' : '') +
+      (food ? ' ' + wongnaiLink(st) : '') + '</span>';
+  }
+
+  function wongnaiLink(st) {
+    return '<a href="' + wongnai(st) + '" target="_blank" rel="noopener">ร้านอาหารแถวนี้ (Wongnai) ›</a>';
+  }
+
+  function wongnai(st) {
+    return 'https://www.wongnai.com/businesses?domain=1&spatialInfo.coordinate.latitude=' + st.lat.toFixed(5) + '&spatialInfo.coordinate.longitude=' + st.lng.toFixed(5) + '&spatialInfo.radius=1';
   }
 
   // ---------- departure time ----------
@@ -884,7 +946,7 @@
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
-        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + (R.favs[st.id] ? '<span class="tag tag--fav">★ โปรด</span>' : '') + userTag(st) + '</span>' +
+        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.meal && res.opts && res.opts.want && res.opts.want.food ? '<span class="tag tag--meal">🍜 ' + esc(s.meal) + '</span>' : '') + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + (R.favs[st.id] ? '<span class="tag tag--fav">★ โปรด</span>' : '') + userTag(st) + '</span>' +
         '<span class="row__meta">กม. ' + km1(s.kmReal != null ? s.kmReal : s.along) + ' · ' + off + ' · ' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '</span></div>' +
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
@@ -892,6 +954,7 @@
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
         repLines(st) +
+        amenityLine(st, !!(res.opts && res.opts.want && res.opts.want.food)) +
         (st.url ? '<span class="row__addr">' + googleLink(st) + '</span>' : '') + // Google's data shows with its credit
         '<div class="row__acts">' +
           appLink(st) +
@@ -903,6 +966,7 @@
           (doubtful(st, s.c.plug) ? '<span class="row__addr">ข้อมูลหัวชาร์จหรือกำลังไฟยังไม่มีคนยืนยัน ตรวจในแอปผู้ให้บริการก่อน</span>' : '') +
           (st.addr ? '<span class="row__addr">' + esc(st.addr) + '</span>' : '') +
           (st.hours ? '<span class="row__addr">เวลาเปิด: ' + esc(st.hours) + '</span>' : '') +
+          '<span class="row__addr">' + wongnaiLink(st) + '</span>' +
           (st.note ? '<span class="row__addr">หมายเหตุ: ' + esc(st.note) + '</span>' : '') +
           '<div class="row__acts">' +
             favButton(st) +
@@ -938,6 +1002,7 @@
           : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
+      wantNote(res) +
       (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
       '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
@@ -950,6 +1015,27 @@
       html += '<button type="button" class="link-btn" id="reset">ล้างการเลือกสถานีเอง แล้วให้ระบบเลือกใหม่</button>';
     }
     return html;
+  }
+
+  // How the "อยากแวะ" choices worked out for this plan.
+  function wantNote(res) {
+    var w = res.opts.want;
+    if (!w || !res.stops.length) return '';
+    var got = Object.keys(w).filter(function (k) {
+      return res.stops.some(function (s) {
+        var am = s.st.am;
+        return am && (k === 'food' ? s.meal && am.food : k === 'shop' ? am.shop || am.mall : am[k]);
+      });
+    });
+    var miss = Object.keys(w).filter(function (k) { return got.indexOf(k) < 0; });
+    var noMeal = miss.indexOf('food') >= 0 && !res.stops.some(function (s) { return P.mealAt(s.clock); });
+    if (noMeal) miss.splice(miss.indexOf('food'), 1);
+    var extra = res.wantExtra >= 1 ? ' · ใช้เวลาเพิ่ม ~' + dur(res.wantExtra) : got.length ? ' · ไม่เพิ่มเวลา' : '';
+    var notes = [];
+    if (miss.length) notes.push('ไม่มีจุดชาร์จที่มี ' + miss.map(function (k) { return WANTS[k]; }).join(' ') + (miss.indexOf('food') >= 0 ? ' ช่วงมื้ออาหาร' : '') + ' โดยไม่ต้องอ้อมไกล');
+    if (noMeal) notes.push('ทริปนี้ไม่ได้แวะชาร์จตรงช่วงมื้ออาหาร');
+    return '<p class="want-res">' + (got.length ? '✓ แวะได้: ' + got.map(function (k) { return WANTS[k]; }).join(' ') + extra : '') +
+      (notes.length ? (got.length ? '<br>' : '') + '<span class="hint">' + notes.join(' · ') + '</span>' : '') + '</p>';
   }
 
   function navCard(res) {

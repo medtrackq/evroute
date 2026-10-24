@@ -12,6 +12,7 @@ import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from '
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces } from './lib/google.mjs';
 import { record, supabase, summarize } from './lib/stats.mjs';
+import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
@@ -59,6 +60,8 @@ const OCM_URL = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=TH
 const GEO_TTL = 10 * 60 * 1000;
 const AREA_TTL = 30 * 24 * 60 * 60 * 1000; // districts don't move
 const STATION_TTL = 24 * 60 * 60 * 1000;
+const PLACES_TTL = 7 * 24 * 60 * 60 * 1000; // restaurants and shops near stations change slowly
+const PLACES_CHUNK = 300; // stations per Overpass request
 const RETRY_MS = 30 * 60 * 1000; // after a failed refresh, keep serving what we have and try again later
 const MAX_BODY = 64 * 1024;
 const MAX_POINTS = 20; // public Valhalla accepts up to 20 locations
@@ -108,6 +111,9 @@ const sources = {
   osm: { list: [], at: 0, note: '' },
   ocm: { list: [], at: 0, note: OCM_KEY ? '' : 'ไม่ได้ตั้ง OCM_KEY' },
 };
+// Food, coffee, toilets and shops around the stations (lib/amenities.mjs), as [lat, lng, kind, name].
+let nearby = { list: [], at: 0, index: placeIndex([]) };
+let merged = [];
 let stationsBody = null; // merged JSON, rebuilt when a source changes
 let refreshing = null;
 
@@ -163,6 +169,41 @@ async function refreshOSM() {
   sources.osm.failed = Date.now();
 }
 
+async function loadPlacesSnapshot() {
+  try {
+    const d = await readJSON('data/places-th.json');
+    nearby = { list: d.places, at: Date.parse(d.at) || 0, index: placeIndex(d.places), note: 'snapshot' };
+    nearby.fetched = nearby.at; // a recent snapshot spares Overpass a request after every restart
+  } catch { /* none yet: names only until the first fetch */ }
+}
+
+async function refreshPlaces() {
+  const pts = merged.map((st) => ({ lat: st.lat, lng: st.lng }));
+  if (!pts.length) return;
+  const out = [];
+  for (let i = 0; i < pts.length; i += PLACES_CHUNK) {
+    const q = overpassQuery(pts.slice(i, i + PLACES_CHUNK));
+    let ok = false;
+    for (const ep of OVERPASS) {
+      try {
+        const r = await fetch(ep, {
+          method: 'POST', headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'data=' + encodeURIComponent(q), signal: AbortSignal.timeout(250000),
+        });
+        if (!r.ok) throw new Error('status ' + r.status);
+        const d = await r.json();
+        for (const el of d.elements || []) { const p = fromOSMPlace(el); if (p) out.push(p); }
+        ok = true;
+        break;
+      } catch (err) {
+        console.error(new Date().toISOString(), 'overpass places', ep, err.message);
+      }
+    }
+    if (!ok) { nearby.failed = Date.now(); return; }
+  }
+  nearby = { list: out, at: Date.now(), fetched: Date.now(), index: placeIndex(out), note: 'live' };
+}
+
 async function refreshOCM() {
   if (!OCM_KEY) return;
   try {
@@ -176,14 +217,20 @@ async function refreshOCM() {
   }
 }
 
-function due(src) {
-  const last = Math.max(src.fetched || 0, src.failed ? src.failed - STATION_TTL + RETRY_MS : 0);
-  return Date.now() - last > STATION_TTL;
+function due(src, ttl = STATION_TTL) {
+  const last = Math.max(src.fetched || 0, src.failed ? src.failed - ttl + RETRY_MS : 0);
+  return Date.now() - last > ttl;
 }
 
 function rebuild() {
   const stations = merge(sources.curated.list, users.list.map(fromUser), sources.ocm.list, sources.osm.list);
+  for (const st of stations) {
+    const am = amenitiesOf(st, nearby.index);
+    if (am) st.am = am; else delete st.am;
+  }
+  merged = stations;
   const info = Object.fromEntries(Object.entries(sources).map(([k, s]) => [k, { count: s.list.length, at: s.at ? new Date(s.at).toISOString() : null, note: s.note }]));
+  info.places = { count: nearby.list.length, at: nearby.at ? new Date(nearby.at).toISOString() : null, note: nearby.note || '' };
   info.user = { count: users.list.filter((s) => !s.hidden).length, at: usersAt ? new Date(usersAt).toISOString() : null, note: users.kind };
   stationsBody = Buffer.from(JSON.stringify({ updated: new Date().toISOString(), sources: info, stations }));
 }
@@ -194,7 +241,9 @@ function refreshRemote() {
   const jobs = [];
   if (due(sources.osm)) jobs.push(refreshOSM());
   if (OCM_KEY && due(sources.ocm)) jobs.push(refreshOCM());
-  refreshing = Promise.all(jobs.map((j) => j.then(rebuild))).finally(() => { refreshing = null; });
+  refreshing = Promise.all(jobs.map((j) => j.then(rebuild)))
+    .then(() => (due(nearby, PLACES_TTL) ? refreshPlaces().then(rebuild) : null)) // around the stations just fetched
+    .finally(() => { refreshing = null; });
   return refreshing;
 }
 
@@ -249,6 +298,7 @@ async function googleStations(req, res) {
   if (!points.length) { json(res, 400, { error: 'no points' }); return; }
   try {
     const r = await places.search(points, radius);
+    for (const st of r.stations) { const am = amenitiesOf(st, nearby.index); if (am) st.am = am; }
     console.log(new Date().toISOString(), 'google places', r.calls, 'calls,', r.stations.length, 'stations,', r.remaining, 'left today');
     json(res, 200, r, { 'Cache-Control': 'no-store' });
   } catch (err) {
@@ -506,6 +556,11 @@ createServer(async (req, res) => {
     json(res, 200, stationsBody, { 'Cache-Control': 'public, max-age=300' });
     return;
   }
+  // The places behind the stations' amenities, to save as data/places-th.json (OpenStreetMap, ODbL).
+  if (url.pathname === '/api/places') {
+    json(res, 200, { at: nearby.at ? new Date(nearby.at).toISOString() : null, source: 'OpenStreetMap contributors (ODbL)', places: nearby.list }, { 'Cache-Control': 'public, max-age=3600' });
+    return;
+  }
   if (url.pathname === '/api/config') {
     json(res, 200, {
       maps: places ? { key: GOOGLE_MAPS_KEY, mapId: GOOGLE_MAP_ID } : null,
@@ -564,4 +619,4 @@ createServer(async (req, res) => {
 
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
 reloadReports();
-Promise.all([loadOSMSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));
+Promise.all([loadOSMSnapshot(), loadPlacesSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));

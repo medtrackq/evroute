@@ -221,3 +221,26 @@ test('a station with a recent problem report is avoided unless pinned', () => {
   assert.equal(forced.ok, free.ok);
   assert.deepEqual(forced.stops.map((s) => s.st.id), free.stops.map((s) => s.st.id));
 });
+
+test('stops with what the driver wants win when they cost little, food only at meal times', () => {
+  const c = car('byd-atto3-std');
+  const o = { startSoc: 90, minSoc: 20, targetSoc: 80 };
+  const sts = stationsEvery(30);
+  sts.forEach((s, i) => { if (i % 3 === 1) s.am = { food: 2, cafe: 1, wc: 1, shop: 0 }; });
+  const cands = P.candidates(prof, sts, c);
+  const base = P.plan(prof, cands, c, o);
+  const cafes = (r) => r.stops.filter((s) => s.st.am && s.st.am.cafe).length;
+  const want = P.plan(prof, cands, c, { ...o, want: { cafe: true } });
+  assert.ok(want.ok);
+  assert.ok(cafes(want) > cafes(base), cafes(want) + ' vs ' + cafes(base));
+  assert.ok(want.realMin >= base.realMin - 0.01 && want.realMin - base.realMin < 30, 'little extra time: ' + (want.realMin - base.realMin));
+  // Leaving at 03:00, no stop of a short plan falls at a meal time: food changes nothing.
+  const night = P.plan(prof, cands, c, { ...o, want: { food: true }, departClock: 3 * 60 });
+  const firstClock = night.stops[0].clock;
+  assert.ok(firstClock > 180 && firstClock < 24 * 60);
+  // Leaving at 09:30 the stops around lunch prefer food, and say which meal.
+  const lunch = P.plan(prof, cands, c, { ...o, want: { food: true }, departClock: 9 * 60 + 30 });
+  assert.ok(lunch.stops.some((s) => s.meal === 'มื้อกลางวัน'), JSON.stringify(lunch.stops.map((s) => [s.clock, s.meal])));
+  assert.equal(P.mealAt(12 * 60), 'มื้อกลางวัน');
+  assert.equal(P.mealAt(15 * 60), null);
+});

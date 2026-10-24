@@ -645,6 +645,17 @@ select.field { appearance: none; background-image: linear-gradient(45deg, transp
 /* ---------- departure time ---------- */
 .depart { display: grid; gap: 6px; margin-top: 14px; }
 .depart__row { display: flex; gap: 8px; align-items: center; }
+.want { display: grid; gap: 8px; margin-top: 14px; }
+.want .opt__label small { font-weight: 500; color: var(--muted); }
+.want__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.want__chip { min-height: 40px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; font: inherit; font-size: 14px; font-weight: 600;
+  color: var(--text); background: var(--surface); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.want__chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.want .hint { margin: 0; }
+.row__am { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; color: var(--muted); }
+.row__am b { font-weight: 600; color: var(--text); }
+.row__am a { font-weight: 600; }
+.tag--meal { background: var(--tile-sun); color: var(--tile-sun-ink); }
 .depart__in { flex: 1; min-width: 0; color-scheme: light dark; }
 .depart .hint { margin: 0; }
 .saved-when { color: var(--muted); font-size: 12px; }
@@ -909,3 +920,5 @@ button.w:active, a.w:active { transform: scale(0.98); }
 .w-install__acts { display: flex; align-items: center; gap: 12px; }
 .w-install .btn { padding: 9px 18px; font-size: 13.5px; }
 @media (max-width: 400px) { .w-mine__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .w-mine__grid > div:last-child { grid-column: span 2; } }
+.want-res { margin: 10px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--surface-2); font-size: 13.5px; font-weight: 600; }
+.want-res .hint { font-weight: 500; }

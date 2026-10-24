@@ -10,6 +10,9 @@
   var STOP_PENALTY = 10;   // planning cost of an extra stop beyond its real minutes
   var FAV_BONUS = 12;      // minutes a favourite station is "worth", so it wins close calls
   var AVOID_PENALTY = 60;  // minutes a station with a recent problem report "costs": used only when nothing near is better
+  var WANT_PENALTY = 15;   // minutes a stop "costs" for each thing the driver wants to stop for but it lacks
+  // Meal times (minutes after midnight, Bangkok): a stop then is where "กินข้าว" counts.
+  var MEALS = [[6 * 60 + 30, 9 * 60, 'มื้อเช้า'], [11 * 60, 13 * 60 + 30, 'มื้อกลางวัน'], [17 * 60 + 30, 20 * 60 + 30, 'มื้อเย็น']];
   var MAX_STOPS = 12;
   var DC_TYPES = ['CCS2', 'CHAdeMO', 'GBT', 'Tesla'];
 
@@ -169,7 +172,10 @@
   // o.pinned: station ids the plan must use (kept in route order). o.favs: { id: true } of the
   // user's favourite stations, preferred when they cost little extra time. o.avoid: { id: true } of
   // stations drivers recently reported they couldn't charge at, used only when the alternatives cost
-  // far more time (a station the user pinned is still used).
+  // far more time (a station the user pinned is still used). o.want: { food, cafe, wc, shop } the
+  // driver would like at their stops (station.am, see lib/amenities.mjs), preferred when they cost
+  // little extra time; food counts only for a stop at a meal time, from o.departClock (minutes
+  // after midnight when the car leaves).
   function plan(prof, cands, car, o) {
     var cap = car.kwh, minSoc = o.minSoc, target = o.targetSoc;
     var start = { along: 0, kw: 0, detourKm: 0, detourMin: 0, start: true };
@@ -189,20 +195,33 @@
     var hopMin = function (a, b) { return at(prof, prof.tm, b.along) - at(prof, prof.tm, a.along) + a.detourMin / 2 + b.detourMin / 2; };
 
     // Leaving node a for node b, having arrived at a with `arrive` %: returns how much to charge, or null.
-    function hop(a, arrive, b) {
+    function lacks(st, clock) {
+      var w = o.want, am = st && st.am, n = 0;
+      if (!w) return 0;
+      if (w.food && mealAt(clock) && !(am && am.food)) n++;
+      if (w.cafe && !(am && am.cafe)) n++;
+      if (w.wc && !(am && am.wc)) n++;
+      if (w.shop && !(am && (am.shop || am.mall))) n++;
+      return n;
+    }
+    var clockAt = function (real) { return o.departClock == null ? null : (o.departClock + real) % 1440; };
+
+    function hop(a, arrive, b, real) {
       if (!b.end && b.along - a.along < SKIP_KM) return null;
       var need = minSoc + pct(hopKwh(a, b)) + (b.end ? 0 : 2);
-      if (a.start) return need <= arrive ? { depart: arrive, min: 0 } : null;
+      if (a.start) return need <= arrive ? { depart: arrive, min: 0, real: 0 } : null;
       if (need > target) return null;
       if (need <= arrive + 1) return null; // no need to stop here: going straight past is better
       var depart = Math.max(need, arrive);
       var fav = o.favs && a.st && o.favs[a.st.id] ? FAV_BONUS : 0;
       var avoid = o.avoid && a.st && o.avoid[a.st.id] && (o.pinned || []).indexOf(a.st.id) < 0 ? AVOID_PENALTY : 0;
-      return { depart: depart, min: chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN + STOP_PENALTY - fav + avoid };
+      var charge = chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN;
+      var want = lacks(a.st, clockAt(real)) * WANT_PENALTY;
+      return { depart: depart, min: charge + STOP_PENALTY - fav + avoid + want, real: charge };
     }
 
     var best = nodes.map(function () { return null; }); // { time, arrive, prev, depart }
-    best[0] = { time: 0, arrive: o.startSoc, prev: -1 };
+    best[0] = { time: 0, real: 0, arrive: o.startSoc, prev: -1 }; // real: minutes actually spent getting here
     for (var g = 0; g + 1 < gates.length; g++) {
       var from = gates[g], to = gates[g + 1];
       if (!best[from]) break;
@@ -213,11 +232,11 @@
         for (var j = from; j < i; j++) {
           var bj = best[j];
           if (!bj || (j > from && pinned.indexOf(j) >= 0)) continue;
-          var h = hop(nodes[j], bj.arrive, nodes[i]);
+          var h = hop(nodes[j], bj.arrive, nodes[i], bj.real);
           if (!h) continue;
           var t = bj.time + h.min + hopMin(nodes[j], nodes[i]);
           var arrive = h.depart - pct(hopKwh(nodes[j], nodes[i]));
-          if (!bi || t < bi.time - 0.01 || (Math.abs(t - bi.time) <= 0.01 && arrive > bi.arrive)) bi = { time: t, arrive: arrive, prev: j, depart: h.depart, chargeMin: h.min };
+          if (!bi || t < bi.time - 0.01 || (Math.abs(t - bi.time) <= 0.01 && arrive > bi.arrive)) bi = { time: t, real: bj.real + h.real + hopMin(nodes[j], nodes[i]), arrive: arrive, prev: j, depart: h.depart, chargeMin: h.min };
         }
         best[i] = bi;
       }
@@ -244,7 +263,9 @@
       var b = best[path[k + 1]];
       var arrive = best[idx].arrive;
       var chargeMin = chargeMinutes(arrive, b.depart, c.kw, cap);
+      var clock = clockAt(best[idx].real);
       res.stops.push({
+        clock: clock, meal: c.st.am && c.st.am.food ? mealAt(clock) : null,
         c: c, st: c.st, along: c.along, arrive: arrive, depart: b.depart,
         chargeMin: chargeMin, totalMin: chargeMin + PLUG_MIN + c.detourMin,
         kwhAdded: (b.depart - arrive) / 100 * cap,
@@ -259,6 +280,7 @@
     // Charging plus plugging in; the drive to and from each station is counted separately.
     res.chargeMin = res.stops.reduce(function (s, x) { return s + x.chargeMin + PLUG_MIN; }, 0);
     res.detourMin = res.stops.reduce(function (s, x) { return s + x.c.detourMin; }, 0);
+    res.realMin = best[last].real; // driving, detours and charging
     return res;
 
     // Other stations the user could pick instead of stop c, reachable from the previous stop.
@@ -272,6 +294,12 @@
         return (y.kw - x.kw) || (x.detourKm - y.detourKm) || (y.along - x.along);
       }).slice(0, 5).map(function (a) { return { c: a, arrive: a._arrive }; });
     }
+  }
+
+  function mealAt(clock) {
+    if (clock == null) return null;
+    for (var i = 0; i < MEALS.length; i++) if (clock >= MEALS[i][0] && clock <= MEALS[i][1]) return MEALS[i][2];
+    return null;
   }
 
   // After routing through the chosen stations, recompute battery levels leg by leg on the real route.
@@ -348,7 +376,7 @@
   var api = {
     km: km, decode: decode, speedFactor: speedFactor, profile: profile, at: at, nearest: nearest,
     usable: usable, candidates: candidates, taper: taper, chargeMinutes: chargeMinutes, energy: energy,
-    plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, chargeCost: chargeCost, isOffPeak: isOffPeak, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
+    plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, chargeCost: chargeCost, isOffPeak: isOffPeak, mealAt: mealAt, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
   };
   root.EVPlan = api;
   if (typeof module === 'object' && module.exports) module.exports = api;
