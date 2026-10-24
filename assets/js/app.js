@@ -2529,7 +2529,8 @@
   function waitForHandoff(d) {
     clearTimeout(handoffTimer);
     A.handoff = d && d.id ? { id: d.id, pair: d.pair, until: Date.now() + 15 * 60 * 1000 } : null;
-    store('handoff', A.handoff && A.handoff.id); // a tab of this same browser opened by the link knows it's ours
+    // A tab of this same browser opened by the link knows the request is ours, and that this tab is waiting.
+    store('handoff', A.handoff && { id: A.handoff.id, until: A.handoff.until });
     if (A.handoff) handoffTimer = setTimeout(pollHandoff, 3000);
   }
 
@@ -2559,7 +2560,7 @@
   function checkWaiting() {
     if (!signedIn()) return;
     authFetch('/api/auth/approve', {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-      var mine = load('handoff');
+      var mine = myHandoff();
       var w = (d && d.waiting || []).filter(function (x) { return x.id !== mine; })[0];
       if (!w) return;
       A.approval = w;
@@ -2661,6 +2662,11 @@
 
   // Supabase's default email (before custom SMTP lets us edit it to show the code) has a link
   // instead; it comes back here with the session in the URL fragment.
+  function myHandoff() {
+    var h = load('handoff');
+    return h && h.id && h.until > Date.now() ? h.id : null;
+  }
+
   function fromEmailLink() {
     var h = new URLSearchParams(location.hash.slice(1));
     if (!h.get('access_token') && !h.get('error_description')) return false;
@@ -2674,17 +2680,83 @@
         expires_at: +h.get('expires_at') || Math.floor(Date.now() / 1000) + (+h.get('expires_in') || 3600), user: d.user,
       });
       logEvent('signin', null, 'menu');
-      return loadMe(true);
-    }).then(function (moved) {
-      toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
-      checkWaiting();
-    }, function () { toast('เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
+      return otherTab();
+    }).then(function (other) {
+      // The tab that asked for the email is still open in this browser and has just signed in
+      // too: send the user back there rather than leave two copies of the app open.
+      if (other) { tabNote('done'); return; }
+      return loadMe(true).then(function (moved) {
+        toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : ''));
+        checkWaiting();
+      });
+    }).catch(function () { toast('เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
     return true;
   }
 
+  // ---------- one EVROUTE tab at a time ----------
+  // The email's link opens a new tab. Tabs of this browser talk over a BroadcastChannel so the new
+  // one can tell whether the app is already open; a tab waiting for its email (myHandoff) counts too,
+  // since a phone may have paused it in the background and it can't answer.
+  var tabs = 'BroadcastChannel' in window ? new BroadcastChannel('evroute') : null;
+  if (tabs) tabs.addEventListener('message', function (e) {
+    var m = e.data || {};
+    if (m.t === 'ping') tabs.postMessage({ t: 'here' });
+    if (m.t === 'took' && $('tabnote').hidden) tabNote('moved');
+  });
+
+  function otherTab() {
+    return new Promise(function (done) {
+      if (myHandoff()) { done(true); return; }
+      if (!tabs) { done(false); return; }
+      var timer = setTimeout(function () { tabs.removeEventListener('message', on); done(false); }, 600);
+      function on(e) {
+        if (!e.data || e.data.t !== 'here') return;
+        clearTimeout(timer);
+        tabs.removeEventListener('message', on);
+        done(true);
+      }
+      tabs.addEventListener('message', on);
+      tabs.postMessage({ t: 'ping' });
+    });
+  }
+
+  var TABNOTE = {
+    done: ['✓', 'เข้าสู่ระบบแล้ว', 'กลับไปทำต่อที่แท็บ EVROUTE เดิมได้เลย แท็บนั้นเข้าสู่ระบบให้แล้ว แท็บนี้ไม่ต้องใช้', 'ใช้แท็บนี้ต่อแทน'],
+    moved: ['⇆', 'EVROUTE เปิดใช้อยู่อีกแท็บหนึ่ง', 'คุณเลือกใช้แท็บใหม่ต่อแล้ว แท็บนี้ไม่ต้องใช้', 'ใช้แท็บนี้แทน'],
+  };
+
+  function tabNote(kind) {
+    var t = TABNOTE[kind];
+    if (!$('acct').hidden) closeAcct();
+    $('tabnote-icon').textContent = t[0];
+    $('tabnote-title').textContent = t[1];
+    $('tabnote-text').textContent = t[2];
+    $('tabnote-stay').textContent = t[3];
+    $('tabnote-hint').hidden = true;
+    $('tabnote').hidden = false;
+    document.body.classList.add('no-scroll');
+  }
+
+  $('tabnote-close').addEventListener('click', function () {
+    window.close();
+    // Browsers only let a page close a tab it opened itself; otherwise say how.
+    setTimeout(function () { $('tabnote-hint').hidden = false; }, 300);
+  });
+  $('tabnote-stay').addEventListener('click', function () {
+    $('tabnote').hidden = true;
+    document.body.classList.remove('no-scroll');
+    if (tabs) tabs.postMessage({ t: 'took' });
+    if (signedIn()) loadMe(true);
+  });
+
   // Signing in or out in another tab (the email link opens one) applies here too.
-  window.addEventListener('storage', function (e) {
-    if (e.key !== 'auth') return;
+  window.addEventListener('storage', function (e) { if (e.key === 'auth') syncAuth(); });
+  // A phone may pause this tab in the background and miss the event: check again on return.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && JSON.stringify(load('auth')) !== JSON.stringify(A.s || null)) syncAuth();
+  });
+
+  function syncAuth() {
     var was = signedIn();
     A.s = load('auth');
     showAcctBtn();
@@ -2695,7 +2767,7 @@
       loadMe(true).then(function (moved) { toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : '')); });
     }
     if (!signedIn()) A.me = null;
-  });
+  }
 
   function initAccount() {
     showAcctBtn();

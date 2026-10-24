@@ -306,6 +306,18 @@
     </section>
   </div>
 
+  <div class="sheet tabnote" id="tabnote" hidden>
+    <div class="sheet__backdrop"></div>
+    <section class="sheet__card" role="alertdialog" aria-modal="true" aria-labelledby="tabnote-title" aria-describedby="tabnote-text">
+      <div class="tabnote__icon" id="tabnote-icon" aria-hidden="true"></div>
+      <h2 class="sheet__title" id="tabnote-title"></h2>
+      <p id="tabnote-text"></p>
+      <button type="button" class="btn btn--primary" id="tabnote-close">ปิดแท็บนี้</button>
+      <p class="hint" id="tabnote-hint" hidden>ปิดแท็บนี้จากปุ่มแท็บของเบราว์เซอร์ได้เลย แล้วสลับไปแท็บ EVROUTE เดิม</p>
+      <button type="button" class="link-btn" id="tabnote-stay"></button>
+    </section>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="assets/js/cars.js"></script>
   <script src="assets/js/plan.js"></script>
