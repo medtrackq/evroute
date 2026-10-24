@@ -209,7 +209,7 @@
     }
     var sw = e.target.closest('.adm-sweep');
     if (sw) {
-      if (!confirm('เริ่มกวาดหา PTT PluZ ทั่วประเทศตอนนี้? ใช้ Google ราว 400–1,000 ครั้ง (อยู่ในโควต้าฟรี 5,000/เดือน) ใช้เวลาราว 5–10 นาที')) return;
+      if (!confirm('เริ่มกวาดหา PTT PluZ ทั่วประเทศตอนนี้? ใช้ Google ราว 1,200–2,000 ครั้ง (อยู่ในโควต้าฟรี 5,000/เดือน) ใช้เวลาราว 10–15 นาที · ถ้าเพิ่งกวาดเสร็จไม่เกิน 3 วัน จะกวาดเฉพาะรอบใหม่ที่ยังไม่เคยทำ')) return;
       sw.disabled = true;
       api('/api/admin/sweep', { method: 'POST' }).then(function () { setTimeout(loadAll, 1500); }, function (err) { sw.disabled = false; alert(err.message); });
       return;

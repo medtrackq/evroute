@@ -9,7 +9,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton, networkOf, guessPlugs } from './lib/stations.mjs';
-import { sweep, cells } from './lib/sweep.mjs';
+import { sweep, cells, PASSES } from './lib/sweep.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
@@ -420,12 +420,12 @@ async function loadSwept() {
   }
 }
 
-// A sweep done in the last few days with the first pass only (before the second pass existed)
-// goes on with the second pass alone instead of asking Google the same again.
+// A sweep done in the last few days with fewer passes (before a new pass existed) goes on with
+// the new passes alone instead of asking Google the same again.
 function runSweep() {
   if (sweeping) return sweeping;
-  const l = lastSweep, one = cells().length;
-  const from = l && l.status === 'done' && l.cells === one && Date.now() - Date.parse(l.finished_at) < 3 * 24 * HOUR ? one : 0;
+  const l = lastSweep, all = PASSES.length * cells().length;
+  const from = l && l.status === 'done' && l.cells < all && Date.now() - Date.parse(l.finished_at) < 3 * 24 * HOUR ? l.cells : 0;
   sweeping = sweep({ ask: places.sweepAsk, store: sweepStore, cap: SWEEP_MAX, networkOf, from, log: (m) => console.log(new Date().toISOString(), 'sweep', m) })
     .then((r) => { lastSweep = r; console.log(new Date().toISOString(), 'sweep', r.status, r.calls, 'calls', r.found, 'places'); return loadSwept(); })
     .catch((err) => report('sweep', err.message)) // stays "running": the next check carries on

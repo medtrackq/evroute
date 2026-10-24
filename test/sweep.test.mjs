@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cells, quarter, inThailand, sweep } from '../lib/sweep.mjs';
+import { cells, quarter, inThailand, sweep, PASSES } from '../lib/sweep.mjs';
 import { networkOf } from '../lib/stations.mjs';
 
 test('Thailand is cut into squares that cover its cities and not its neighbours', () => {
@@ -35,8 +35,8 @@ test('a full answer is asked again in quarters; only id, position and network ar
   const store = memoryStore();
   const r = await sweep({ ask, store, cap: 5000, networkOf, wait: 0 });
   assert.equal(r.status, 'done');
-  assert.equal(r.calls, 2 * (cells().length + 4)); // both passes, each cutting the full square
-  assert.equal(store.s.places.size, 2 * (20 + 3)); // only the quarter with the point has places
+  assert.equal(r.calls, PASSES.length * (cells().length + 4)); // every pass cuts the full square
+  assert.equal(store.s.places.size, PASSES.length * (20 + 3)); // only the quarter with the point has places
   const one = [...store.s.places.values()][1];
   assert.deepEqual(Object.keys(one).sort(), ['lat', 'lng', 'op', 'place_id']);
   assert.ok([...store.s.places.values()].some((p) => p.op === 'PTT EV Station PluZ'));
@@ -52,22 +52,24 @@ test('the cap stops a sweep, and a stopped one carries on where it was', async (
   store2.s.runs.push({ id: 1, cells: cells().length, cursor: 30, calls: 30, found: 0, status: 'running' });
   let asked = 0;
   const r = await sweep({ ask: async () => { asked++; return []; }, store: store2, cap: 5000, networkOf, wait: 0 });
-  assert.equal(asked, 2 * cells().length - 30);
-  assert.equal(r.calls, 2 * cells().length);
+  assert.equal(asked, PASSES.length * cells().length - 30);
+  assert.equal(r.calls, PASSES.length * cells().length);
 });
 
-test('the second pass keeps only places whose name says they charge, and a sweep can start at it', async () => {
+test('the later passes: the second keeps only places whose name says they charge, and a sweep can start at it', async () => {
   const { charges } = await import('../lib/sweep.mjs');
   assert.equal(charges('PTT EV Station PluZ บางนา'), true);
   assert.equal(charges('สถานีชาร์จ EV ปตท. สระบุรี'), true);
   assert.equal(charges('ปตท. สาขาวังน้อย'), false); // a fuel station without chargers
+  assert.equal(charges('จุดชาร์จ EV พีทีที สเตชั่น บางปะอิน'), true);
+  assert.equal(networkOf('พีทีที สเตชั่น บจ.ศรีสุวรรณ'), 'PTT EV Station PluZ');
   const store = memoryStore();
   const seen = new Set();
   const r = await sweep({
     ask: async (c) => { seen.add(c.pass); return c.pass === 'name' && c.s < 6 ? [{ id: 'x', name: 'ปตท. ปั๊ม', lat: 5.7, lng: 101 , keep: false }] : []; },
     store, cap: 5000, networkOf, from: cells().length, wait: 0,
   });
-  assert.deepEqual([...seen], ['name']);
-  assert.equal(r.calls, cells().length);
+  assert.deepEqual([...seen], ['name', 'host']);
+  assert.equal(r.calls, 2 * cells().length);
   assert.equal(store.s.places.size, 0);
 });
