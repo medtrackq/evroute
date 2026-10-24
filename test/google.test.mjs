@@ -55,3 +55,20 @@ test('search stops at the daily cap and sends the right request', async () => {
   assert.deepEqual(calls[0].body.includedTypes, ['electric_vehicle_charging_station']);
   assert.equal(calls[0].body.locationRestriction.circle.radius, 25000);
 });
+
+test('a brand search asks Google by name and keeps only what is near', async () => {
+  const calls = [];
+  const fetchFn = async (url, opts) => {
+    calls.push({ url, body: JSON.parse(opts.body) });
+    return { ok: true, json: async () => ({ places: [
+      place('near', { displayName: { text: 'PTT EV Station PluZ สาขาวังน้อย' }, location: { latitude: 14.05, longitude: 100.0 } }),
+      place('far', { displayName: { text: 'PTT EV Station PluZ เชียงใหม่' }, location: { latitude: 18.8, longitude: 99.0 } }),
+    ] }) };
+  };
+  const r = await googlePlaces({ key: 'K', fetchFn }).search([{ lat: 14, lng: 100 }], 20000, 'pluz');
+  assert.match(calls[0].url, /searchText$/);
+  assert.equal(calls[0].body.textQuery, 'PTT EV Station PluZ');
+  assert.equal(calls[0].body.locationBias.circle.radius, 20000);
+  assert.deepEqual(r.stations.map((s) => s.id), ['g:near']);
+  assert.equal(r.stations[0].op, 'PTT EV Station PluZ');
+});

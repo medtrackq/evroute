@@ -455,6 +455,14 @@
         });
       };
       return round(1).then(function () {
+        return findBrand(res);
+      }).then(function (added) {
+        if (added) {
+          total += added;
+          cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
+          var again = P.plan(prof, cands, R.car, opts);
+          if (again.ok || !res.ok) res = again;
+        }
         if (total) res.googleAdded = total;
         // What stopping for food or coffee costs: the same trip planned without it.
         if (opts.want && res.ok) {
@@ -533,6 +541,28 @@
       if (d.remaining === 0) R.cfg.places = null; // today's allowance is used up
       return { added: addStations(d.stations || []), asked: pts.length };
     }).catch(function () { return { added: 0, asked: pts.length }; });
+  }
+
+  // PTT's PluZ network has over a thousand sites but no public list, so ours knows few of them.
+  // While testing, Google is asked by name around each planned stop (within today's allowance),
+  // and the plan runs again with what it finds.
+  var BRAND_RADIUS_KM = 20;
+  var BRAND_MAX_POINTS = 4;
+  function findBrand(res) {
+    if (!R.cfg || !R.cfg.places || !res.stops.length) return Promise.resolve(0);
+    R.bAsked = R.bAsked || [];
+    var pts = res.stops.map(function (s) { return { lat: s.st.lat, lng: s.st.lng }; }).filter(function (p) {
+      return !R.bAsked.some(function (q) { return P.km(p, q) < BRAND_RADIUS_KM; });
+    }).slice(0, BRAND_MAX_POINTS);
+    if (!pts.length) return Promise.resolve(0);
+    pts.forEach(function (p) { R.bAsked.push(p); });
+    return fetch('/api/google/ev', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ points: pts, radius: BRAND_RADIUS_KM * 1000, brand: 'pluz' }),
+    }).then(function (r) { return r.ok ? r.json() : { stations: [] }; }).then(function (d) {
+      if (d.remaining === 0) R.cfg.places = null;
+      return addStations(d.stations || []);
+    }).catch(function () { return 0; });
   }
 
   // Adds stations for this visit only. One within 120 m of a station we know is the same site:

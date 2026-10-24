@@ -10,7 +10,7 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from './lib/stations.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
-import { googlePlaces } from './lib/google.mjs';
+import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize } from './lib/stats.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
@@ -295,11 +295,12 @@ async function googleStations(req, res) {
   const points = (Array.isArray(q.points) ? q.points : []).slice(0, 6)
     .filter((p) => Number.isFinite(p?.lat) && Number.isFinite(p?.lng) && p.lat > 5 && p.lat < 21 && p.lng > 97 && p.lng < 106);
   const radius = Math.min(30000, Math.max(5000, Number(q.radius) || 25000));
+  const brand = Object.hasOwn(BRANDS, q.brand) ? q.brand : null;
   if (!points.length) { json(res, 400, { error: 'no points' }); return; }
   try {
-    const r = await places.search(points, radius);
+    const r = await places.search(points, radius, brand);
     for (const st of r.stations) { const am = amenitiesOf(st, nearby.index); if (am) st.am = am; }
-    console.log(new Date().toISOString(), 'google places', r.calls, 'calls,', r.stations.length, 'stations,', r.remaining, 'left today');
+    console.log(new Date().toISOString(), 'google places', brand || 'nearby', r.calls, 'calls,', r.stations.length, 'stations,', r.remaining, 'left today');
     json(res, 200, r, { 'Cache-Control': 'no-store' });
   } catch (err) {
     console.error(new Date().toISOString(), 'google places', err.message);
