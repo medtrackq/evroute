@@ -79,6 +79,20 @@
               <select id="brand" class="field"></select>
               <label class="sr-only" for="model">รุ่น</label>
               <select id="model" class="field"></select>
+              <div class="mycar" id="mycar" hidden>
+                <p class="hint">ใส่ยี่ห้อและรุ่นให้ชัด แล้วตัวเลขจากสเปกรถ (ดูในเว็บผู้ผลิตหรือคู่มือ) ทีมงานจะได้เพิ่มรุ่นนี้ในรายชื่อให้ทุกคน</p>
+                <div class="mycar__grid">
+                  <label>ยี่ห้อ<input id="my-brand" class="field" type="text" maxlength="30" placeholder="เช่น AVATR" required></label>
+                  <label>รุ่น<input id="my-model" class="field" type="text" maxlength="40" placeholder="เช่น 12 Long Range" required></label>
+                  <label>แบตที่ใช้ได้ (kWh)<input id="my-kwh" class="field" type="number" inputmode="decimal" min="10" max="200" step="0.1" placeholder="เช่น 89"></label>
+                  <label>กินไฟ (kWh/100กม.)<input id="my-use" class="field" type="number" inputmode="decimal" min="8" max="40" step="0.1" placeholder="เช่น 17.5"></label>
+                  <label>DC สูงสุด (kW)<input id="my-dc" class="field" type="number" inputmode="numeric" min="0" max="400" step="1" placeholder="เช่น 240"></label>
+                  <label>หัวชาร์จ DC<select id="my-plug" class="field"><option value="CCS2">CCS2</option><option value="CHAdeMO">CHAdeMO</option><option value="GBT">GB/T</option><option value="">ไม่รองรับ DC</option></select></label>
+                </div>
+                <label class="toggle"><input type="checkbox" id="my-send" checked><span class="toggle__ui" aria-hidden="true"></span><span>ส่งชื่อรุ่นให้ทีมงานเพิ่มในรายชื่อ</span></label>
+                <p class="sheet__msg" id="my-err" role="alert"></p>
+                <button type="button" class="btn btn--primary" id="my-use-car">ใช้รถคันนี้</button>
+              </div>
             </div>
             <div class="car-hero" id="car-hero">
               <figure class="car-photo" id="car-photo" hidden>
@@ -93,6 +107,10 @@
               </button>
               <button type="button" class="pill-btn" id="tune-reset" hidden>คืนค่าโรงงาน</button>
               <button type="button" class="link-btn" id="tune-cancel" hidden>ยกเลิก</button>
+              <button type="button" class="pill-btn" id="photo-btn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>รูปรถของคุณ</span>
+              </button>
+              <input type="file" id="photo-in" accept="image/*" hidden>
               <p class="hint tune-note" id="tune-note" hidden></p>
               <p class="hint" id="tune-hint" hidden>ลากปุ่มกลมบนแถบ (หรือแตะตรงไหนของแถบก็ได้) ปรับละเอียดด้วยการปัดซ้าย-ขวาบนช่อง หรือแตะตัวเลขเพื่อพิมพ์ · กด "บันทึก" เพื่อเก็บค่า ถ้าไม่กด ค่าเดิมยังอยู่ · "กินไฟ" คือค่าเฉลี่ยขับทั่วไป ระบบคิดเพิ่มเองเมื่อวิ่งเร็วบนทางหลวง · "เผื่อไว้" ใช้กับแอร์ ผู้โดยสาร สัมภาระ หรือฝนตก</p>
             </div>

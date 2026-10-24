@@ -147,8 +147,11 @@
     $('brand').value = base.brand;
     fillModels(base.brand, base.id);
     var t = tuned && tuned.id === base.id ? tuned : {};
+    // "ไม่มีรุ่นของฉัน": the driver's own brand, model and socket.
+    var mine = base.id === 'custom' && t.brand && t.model;
     R.car = {
-      id: base.id, brand: base.brand, model: base.model, plugs: base.plugs.slice(), ac: base.ac,
+      id: base.id, brand: mine ? t.brand : base.brand, model: mine ? t.model : base.model, ac: base.ac,
+      plugs: mine ? (t.plug ? [t.plug] : []) : base.plugs.slice(), named: !!mine,
       kwh: +t.kwh || base.kwh, use: +t.use || base.use, dc: t.dc != null ? +t.dc : base.dc,
       margin: t.margin != null ? +t.margin : MARGIN,
     };
@@ -170,13 +173,19 @@
   }
 
   function saveCar() {
-    var c = R.car;
-    store('car', { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin });
+    var c = R.car, s = { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin };
+    if (c.named) { s.brand = c.brand; s.model = c.model; s.plug = c.plugs[0] || ''; }
+    store('car', s);
   }
 
   // The model's own figures, and whether the car has been changed from them.
   var MARGIN = 10;
-  function factory() { var c = R.car; return CARS.filter(function (x) { return x.id === c.id; })[0] || c; }
+  function factory() {
+    var c = R.car, m = load('mycar');
+    // A car entered under "ไม่มีรุ่นของฉัน": the figures the driver typed in are its own.
+    if (c.id === 'custom' && c.named && m && m.brand === c.brand && m.model === c.model) return { kwh: m.kwh, use: m.use, dc: m.dc };
+    return CARS.filter(function (x) { return x.id === c.id; })[0] || c;
+  }
   function isTuned() {
     var c = R.car, f = factory();
     return c.kwh !== f.kwh || c.use !== f.use || c.dc !== f.dc || c.margin !== MARGIN;
@@ -259,7 +268,7 @@
   function showSpec() {
     var c = R.car;
     $('car-brand').textContent = c.brand === 'อื่น ๆ' ? 'รถของคุณ' : c.brand;
-    $('car-name').textContent = c.id === 'custom' ? 'กำหนดเอง' : c.model;
+    $('car-name').textContent = c.id === 'custom' && !c.named ? 'ระบุรุ่นเอง' : c.model;
     var plugs = esc(c.plugs.join(', ') || 'ไม่รองรับ DC'), range = '<span id="range-km">' + Math.round(rangeKm(100)) + '</span>';
     $('spec').innerHTML = R.tuning
       ? editTile('lav', 'bat', 'แบตที่ใช้ได้', 'kwh', c.kwh, 'kWh', 10, 200, 0.1, '', 0.5, 20, 120) +
@@ -319,14 +328,18 @@
   // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
   function showPhoto() {
     if (!R.car) return; // the photo list can arrive before the car is chosen
-    var id = R.car.id, img = null;
-    Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
+    var img = carPhoto();
+    $('photo-btn').querySelector('span').textContent = img && img.own ? 'เปลี่ยนรูปรถ' : 'รูปรถของคุณ';
     $('car-photo').hidden = !img;
     $('car-hero').classList.toggle('has-photo', !!img);
     renderHome();
     if (!img) return;
     $('car-img').src = img.thumb;
     $('car-img').alt = R.car.brand + ' ' + R.car.model;
+    if (img.own) {
+      $('car-credit').innerHTML = 'รูปของคุณ เก็บในเครื่องนี้เท่านั้น · <button type="button" class="link-btn" id="photo-clear">ใช้รูปมาตรฐาน</button>';
+      return;
+    }
     $('car-credit').innerHTML = 'ภาพ: <a href="' + esc(img.page) + '" target="_blank" rel="noopener">' + esc(img.artist || 'Wikimedia Commons') + '</a> · ' +
       (img.licenseUrl ? '<a href="' + esc(img.licenseUrl) + '" target="_blank" rel="noopener">' + esc(img.license) + '</a>' : esc(img.license)) + ' · ภาพประกอบ อาจไม่ใช่รุ่นย่อยหรือปีเดียวกัน';
   }
@@ -1730,19 +1743,38 @@
     var p = $('picker'), btn = $('switch-car');
     p.hidden = open === undefined ? !p.hidden : !open;
     btn.setAttribute('aria-expanded', !p.hidden);
+    showMyCar();
   }
 
   // ---------- events ----------
-  $('brand').innerHTML = brands().map(function (b) { return '<option>' + esc(b) + '</option>'; }).join('');
+  $('brand').innerHTML = brands().map(function (b) { return '<option value="' + esc(b) + '">' + esc(b) + '</option>'; }).join(''); // the value stays Thai when the label is translated
   $('switch-car').addEventListener('click', function () { togglePicker(); });
   $('brand').addEventListener('change', function () {
     if (R.tuning) setTuning(false);
     fillModels($('brand').value);
-    setCar($('model').value);
+    if ($('model').value === 'custom') {
+      var mine = load('mycar'); // the last car entered under "ไม่มีรุ่นของฉัน"
+      showMyCar();
+      if (!(mine && mine.id === 'custom' && mine.brand)) { $('my-brand').focus(); return; } // used once its name is filled in
+      setCar('custom', mine);
+    } else {
+      $('mycar').hidden = true;
+      setCar($('model').value, load('car'));
+    }
     readTune();
     if (R.result) replan();
   });
-  $('model').addEventListener('change', function () { if (R.tuning) setTuning(false); setCar($('model').value); readTune(); if (R.result) replan(); });
+  $('model').addEventListener('change', function () {
+    if (R.tuning) setTuning(false);
+    if ($('model').value === 'custom') { showMyCar(); $('my-brand').focus(); return; } // used once its name is filled in
+    $('mycar').hidden = true;
+    setCar($('model').value); readTune(); if (R.result) replan();
+  });
+  $('my-use-car').addEventListener('click', useMyCar);
+  $('mycar').addEventListener('input', function () { $('my-err').textContent = ''; });
+  $('photo-btn').addEventListener('click', pickPhoto);
+  $('photo-in').addEventListener('change', function () { savePhoto(this.files && this.files[0]); });
+  $('car-photo').addEventListener('click', function (e) { if (e.target.id === 'photo-clear') clearPhoto(); });
   $('tune-btn').addEventListener('click', function () { setTuning(!R.tuning, true); });
   $('tune-cancel').addEventListener('click', function () { setTuning(false); });
   $('tune-reset').addEventListener('click', toFactory);
@@ -2201,8 +2233,115 @@
 
   function carPhoto() {
     var id = R.car && R.car.id, img = null;
+    if (!id) return null;
+    var own = ownPhoto();
+    if (own) return { thumb: own, own: true };
     Object.keys(R.photos || {}).forEach(function (k) { if (id === k || id.indexOf(k + '-') === 0) img = R.photos[k]; });
     return img;
+  }
+
+  // ---------- the driver's own car photo ----------
+  // Kept in this browser only, for this brand and model (a rental, or a car not on the list). It is
+  // scaled down to 1280 px first so it fits the browser's storage.
+  function photoKey() {
+    var c = R.car;
+    if (c.id !== 'custom') return 'photo:' + c.id;
+    return c.named ? 'photo:custom:' + (c.brand + '|' + c.model).toLowerCase() : null;
+  }
+  function ownPhoto() {
+    var k = photoKey();
+    if (!k) return null;
+    try { return localStorage.getItem(k); } catch (e) { return null; }
+  }
+
+  function pickPhoto() {
+    if (!photoKey()) {
+      openPicker();
+      showMyCar();
+      $('my-err').textContent = I18N.t('ใส่ยี่ห้อและรุ่นรถก่อน แล้วค่อยใส่รูป');
+      $('my-brand').focus();
+      return;
+    }
+    $('photo-in').value = '';
+    $('photo-in').click();
+  }
+
+  function savePhoto(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      var max = 1280, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      var cv = document.createElement('canvas');
+      cv.width = Math.round(img.naturalWidth * k);
+      cv.height = Math.round(img.naturalHeight * k);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url);
+      var data = cv.toDataURL('image/jpeg', 0.82);
+      try {
+        localStorage.setItem(photoKey(), data);
+      } catch (e) {
+        toast('เก็บรูปไม่ได้ พื้นที่ในเบราว์เซอร์เต็ม ลองรูปที่เล็กลง', 6000);
+        return;
+      }
+      showPhoto();
+      toast('✓ ใช้รูปรถของคุณแล้ว · ' + esc(R.car.brand + ' ' + R.car.model));
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); toast('เปิดรูปนี้ไม่ได้ ลองรูปอื่น'); };
+    img.src = url;
+  }
+
+  function clearPhoto() {
+    try { localStorage.removeItem(photoKey()); } catch (e) {}
+    showPhoto();
+    toast('กลับไปใช้รูปมาตรฐานแล้ว');
+  }
+
+  // ---------- "ไม่มีรุ่นของฉัน" ----------
+  function openPicker() {
+    $('picker').hidden = false;
+    $('switch-car').setAttribute('aria-expanded', 'true');
+    if (R.car.id !== 'custom') { $('brand').value = 'อื่น ๆ'; fillModels('อื่น ๆ', 'custom'); }
+  }
+
+  function showMyCar() {
+    var on = $('model').value === 'custom' && !$('picker').hidden;
+    $('mycar').hidden = !on;
+    if (!on) return;
+    var m = load('mycar');
+    var c = R.car.id === 'custom' ? R.car : m && m.brand ? { named: true, brand: m.brand, model: m.model, kwh: m.kwh, use: m.use, dc: m.dc, plugs: [m.plug] }
+      : CARS.filter(function (x) { return x.id === 'custom'; })[0];
+    $('my-brand').value = c.named ? c.brand : '';
+    $('my-model').value = c.named ? c.model : '';
+    $('my-kwh').value = c.kwh;
+    $('my-use').value = c.use;
+    $('my-dc').value = c.dc;
+    $('my-plug').value = c.named ? (c.plugs[0] || '') : 'CCS2';
+    $('my-err').textContent = '';
+  }
+
+  function useMyCar() {
+    var brand = $('my-brand').value.trim().replace(/\s+/g, ' '), model = $('my-model').value.trim().replace(/\s+/g, ' ');
+    var num = function (id, lo, hi) { var v = parseFloat($(id).value); return isFinite(v) && v >= lo && v <= hi ? v : null; };
+    var kwh = num('my-kwh', 10, 200), use = num('my-use', 8, 40), dc = num('my-dc', 0, 400), plug = $('my-plug').value;
+    var err = !brand ? 'ใส่ยี่ห้อรถ' : !model ? 'ใส่รุ่นรถ' : kwh == null ? 'ใส่ขนาดแบตที่ใช้ได้ 10–200 kWh' : use == null ? 'ใส่อัตรากินไฟ 8–40 kWh/100กม.' : dc == null ? 'ใส่กำลังชาร์จ DC สูงสุด 0–400 kW' : '';
+    if (err) { $('my-err').textContent = I18N.t(err); return; }
+    if (/^(อื่น ๆ|other)$/i.test(brand)) { $('my-err').textContent = I18N.t('ใส่ยี่ห้อจริงของรถ เช่น AVATR'); return; }
+    if (R.tuning) setTuning(false);
+    setCar('custom', { id: 'custom', brand: brand, model: model, kwh: kwh, use: use, dc: plug ? dc : 0, plug: plug, margin: R.car.margin });
+    saveCar();
+    store('mycar', load('car'));
+    $('picker').hidden = true;
+    $('switch-car').setAttribute('aria-expanded', 'false');
+    $('mycar').hidden = true;
+    toast('✓ ใช้ ' + esc(brand + ' ' + model) + ' แล้ว');
+    // The team adds models people ask for to the list (the admin page shows these requests).
+    if ($('my-send').checked && R.cfg && R.cfg.stats) {
+      fetch('/api/feedback', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'car', message: 'ขอเพิ่มรุ่น: ' + brand + ' ' + model + ' · แบต ' + kwh + ' kWh · กินไฟ ' + use + ' · DC ' + dc + ' kW · ' + (plug || 'ไม่มี DC'), lang: I18N.lang, ua: uaShort(), dev: devId(), page: 'car' }),
+      }).catch(function () {});
+    }
+    if (R.result) replan();
   }
 
   // When the on-peak/off-peak price next changes, looking ahead in half hours.
@@ -2510,7 +2649,7 @@
     var useReal = e.target.closest('[data-use-real-home]');
     if (useReal) {
       R.car.use = +useReal.dataset.useRealHome;
-      store('car', { id: R.car.id, kwh: R.car.kwh, use: R.car.use, dc: R.car.dc, margin: R.car.margin });
+      saveCar();
       showSpec();
       renderHome();
       toast('ใช้อัตรากินไฟจริงของรถคุณในการวางแผนแล้ว');
@@ -2943,7 +3082,7 @@
     if (e.target.closest('[data-premium]')) { store('premium', 1); logEvent('premium', null, 'menu'); renderAcct(); return; }
     if ((t = e.target.closest('[data-use-real]'))) {
       R.car.use = +t.dataset.useReal;
-      store('car', { id: R.car.id, kwh: R.car.kwh, use: R.car.use, dc: R.car.dc, margin: R.car.margin });
+      saveCar();
       showSpec();
       renderAcct();
       toast('ใช้อัตรากินไฟจริงของรถคุณในการวางแผนแล้ว');

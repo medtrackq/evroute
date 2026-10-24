@@ -939,3 +939,10 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .fb-done { display: grid; justify-items: center; gap: 12px; text-align: center; }
 .fb-done p { margin: 0; }
 .tune-note { flex-basis: 100%; margin: 0; }
+.mycar { display: grid; gap: 10px; margin-top: 10px; padding: 14px; border-radius: 18px; background: var(--surface-2); }
+.mycar .hint { margin: 0; }
+.mycar__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mycar__grid label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.mycar .btn { justify-self: start; }
+.car-photo figcaption .link-btn { color: #fff; font-size: inherit; }
+.picker .mycar { grid-column: 1 / -1; }

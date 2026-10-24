@@ -46,7 +46,7 @@
     { id: 'vinfast-vf5', brand: 'VinFast', model: 'VF 5', kwh: 37.2, use: 15.5, dc: 50, ac: 7.4, plugs: ['CCS2'] },
     { id: 'vinfast-vf6', brand: 'VinFast', model: 'VF 6', kwh: 59.6, use: 17.0, dc: 100, ac: 7.4, plugs: ['CCS2'] },
     { id: 'wuling-air', brand: 'Wuling', model: 'Air EV', kwh: 26.7, use: 12.0, dc: 0, ac: 6.6, plugs: [] },
-    { id: 'custom', brand: 'อื่น ๆ', model: 'กำหนดเอง', kwh: 60, use: 17, dc: 80, ac: 7, plugs: ['CCS2'] },
+    { id: 'custom', brand: 'อื่น ๆ', model: 'ไม่มีรุ่นของฉัน (ระบุเอง)', kwh: 60, use: 17, dc: 80, ac: 7, plugs: ['CCS2'] },
   ];
 
   root.EVCars = CARS;

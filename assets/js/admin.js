@@ -12,7 +12,7 @@
   };
   var dayLabel = function (d) { return new Date(d + 'T12:00:00+07:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' }); };
 
-  var KINDS = { bug: '🐞 ใช้งานไม่ได้', station: '📍 ข้อมูลสถานีผิด', idea: '💡 อยากให้มี', other: '💬 อื่น ๆ' };
+  var KINDS = { bug: '🐞 ใช้งานไม่ได้', station: '📍 ข้อมูลสถานีผิด', idea: '💡 อยากให้มี', car: '🚗 ขอเพิ่มรุ่นรถ', other: '💬 อื่น ๆ' };
   var ACTIONS = {
     app: 'เปิดแอปผู้ให้บริการ', nav: 'นำทางทั้งเส้น', nav_leg: 'นำทางทีละช่วง', nav_stop: 'นำทางไปจุดชาร์จ', skip: 'ไม่แวะสถานี',
     swap: 'เปลี่ยนสถานี', fav: 'กดสถานีโปรด', save: 'บันทึกแผน', share: 'แชร์ลิงก์', pin: 'เลือกสถานีเอง', nudge: 'เห็นชวนสมัคร',
