@@ -101,3 +101,21 @@ test('a reverse geocode gives the district for the search word', async () => {
   assert.deepEqual(areaFromPhoton({ features: [{ properties: { county: 'เขตจตุจักร' } }] }), { amphoe: 'จตุจักร', sub: null, province: null });
   assert.deepEqual(areaFromPhoton({}), { amphoe: null, sub: null, province: null });
 });
+
+test('a select over 1,000 rows is read a page at a time', async () => {
+  const urls = [];
+  const fetchFn = async (url) => {
+    urls.push(url);
+    const off = +(/offset=(\d+)/.exec(url) || [0, 0])[1], n = +/limit=(\d+)/.exec(url)[1];
+    const rows = Array.from({ length: Math.max(0, Math.min(n, 2500 - off)) }, (_, i) => ({ i: off + i }));
+    return { ok: true, json: async () => rows };
+  };
+  const sb = supabase({ url: 'https://p.supabase.co', key: 'k', fetchFn });
+  const rows = await sb.select('events', 'select=i&order=id.asc&limit=100000');
+  assert.equal(rows.length, 2500);
+  assert.equal(rows[2499].i, 2499);
+  assert.equal(urls.length, 3);
+  assert.match(urls[2], /order=id\.asc&limit=1000&offset=2000$/);
+  assert.equal((await sb.select('events', 'select=i&limit=5')).length, 5);
+  assert.equal(urls.length, 4); // small reads stay one request
+});

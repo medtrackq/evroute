@@ -408,7 +408,7 @@ async function loadSwept() {
   if (!stats || !places) return;
   try {
     await stats.remove('swept_places', 'fetched_at=lt.' + new Date(Date.now() - SWEEP_KEEP).toISOString());
-    const rows = await stats.select('swept_places', 'select=place_id,lat,lng,op&limit=20000');
+    const rows = await stats.select('swept_places', 'select=place_id,lat,lng,op&order=place_id.asc&limit=20000');
     const stations = rows.map((r) => guessPlugs({
       id: 'g:' + r.place_id, name: r.op || 'สถานีชาร์จ EV', op: r.op || '', lat: Number(r.lat), lng: Number(r.lng),
       plugs: [], guess: true, src: 'google', addr: '', hours: '', url: 'https://www.google.com/maps/place/?q=place_id:' + encodeURIComponent(r.place_id),
@@ -486,13 +486,13 @@ async function admin(req, res, url) {
       const since = (d) => new Date(Date.now() - d * 864e5).toISOString();
       const m = since(31);
       const [opens, plans, events, errors, fb, problems, charges, users] = await Promise.all([
-        stats.select('events', 'select=created_at,dev,lang&kind=eq.open&created_at=gte.' + m + '&limit=100000'),
-        stats.select('plans', 'select=created_at,brand,model,ok&created_at=gte.' + m + '&limit=100000'),
-        stats.select('events', 'select=created_at,kind,op,ref,dev&kind=neq.open&created_at=gte.' + m + '&limit=100000'),
-        stats.select('errors', 'select=created_at,src,msg,at,page,ua,dev&created_at=gte.' + since(14) + '&order=created_at.desc&limit=2000'),
+        stats.select('events', 'select=created_at,dev,lang&kind=eq.open&created_at=gte.' + m + '&order=id.asc&limit=100000'),
+        stats.select('plans', 'select=created_at,brand,model,ok&created_at=gte.' + m + '&order=id.asc&limit=100000'),
+        stats.select('events', 'select=created_at,kind,op,ref,dev&kind=neq.open&created_at=gte.' + m + '&order=id.asc&limit=100000'),
+        stats.select('errors', 'select=created_at,src,msg,at,page,ua,dev&created_at=gte.' + since(14) + '&order=id.desc&limit=2000'),
         stats.select('feedback', 'select=id,created_at,kind,message,email,page,lang,car_id,ua,status&order=created_at.desc&limit=200'),
         stats.select('charges', 'select=created_at,station_name,op,problem,note&ok=is.false&created_at=gte.' + since(14) + '&order=created_at.desc&limit=50'),
-        stats.select('charges', 'select=ok&created_at=gte.' + m + '&limit=100000'),
+        stats.select('charges', 'select=ok&created_at=gte.' + m + '&order=id.asc&limit=100000'),
         accounts.listUsers(),
       ]);
       const out = adminSummary({ opens, plans, events, errors, feedback: fb, problems, charges, users });
@@ -522,7 +522,7 @@ async function reloadReports() {
   if (!stats) return;
   try {
     const since = new Date(Date.now() - 90 * 864e5).toISOString();
-    const rows = await stats.select('charges', 'select=station_id,ok,plug,max_kw,problem,created_at&created_at=gte.' + since + '&order=created_at.desc&limit=5000');
+    const rows = await stats.select('charges', 'select=station_id,ok,plug,max_kw,problem,created_at&created_at=gte.' + since + '&order=id.desc&limit=5000');
     reportsBody = JSON.stringify({ reports: summarize(rows) });
   } catch (err) {
     report('reports', err.message);
