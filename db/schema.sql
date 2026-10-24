@@ -186,4 +186,12 @@ create table if not exists swept_places (
 alter table sweeps enable row level security;
 alter table swept_places enable row level security;
 
-revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars, sweeps, swept_places from anon, authenticated;
+-- Switches set on the admin page, e.g. key 'floods' = {"on": false} turns route-around-floods off.
+create table if not exists settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table settings enable row level security;
+
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars, sweeps, swept_places, settings from anon, authenticated;

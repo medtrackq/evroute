@@ -683,6 +683,8 @@
     return getJSON('/api/floods').then(function (d) {
       R.floods = d.floods || [];
       R.floodsAt = Date.now();
+      R.floodsOff = !!d.off; // switched off on the admin page
+      if ($('flood-credit')) $('flood-credit').hidden = R.floodsOff;
       floodHome();
       return R.floods;
     }, function () { R.floods = R.floods || []; return R.floods; });

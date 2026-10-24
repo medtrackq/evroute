@@ -151,6 +151,7 @@
         ['เซิร์ฟเวอร์ทำงานมาแล้ว', num(h.up) + ' นาที' + (h.commit ? ' · เวอร์ชัน ' + esc(h.commit) : '') + ' · หน่วยความจำ ' + num(h.memoryMb) + ' MB'],
         ['โควต้า Google วันนี้', h.google ? 'ใช้ ' + num(h.google.used) + ' · เหลือ ' + num(h.google.left) : 'ไม่ได้เปิด Google'],
         ['กวาดหา PTT PluZ ทั่วประเทศ', sweepText(h.sweep)],
+        ['เลี่ยงถนนน้ำท่วม (Longdo Traffic)', floodText(h.floods)],
       ].concat(Object.keys(h.stations || {}).map(function (k) {
         var s = h.stations[k];
         return [esc(SOURCES[k] || k), num(s.count) + ' แห่ง · ' + (s.at ? 'อัปเดต ' + esc(when(s.at)) : '–') + (s.note ? ' · ' + esc(s.note) : '')];
@@ -168,6 +169,15 @@
       : l ? (SWEEP[l.status] || l.status) + ' ' + esc(when(l.finished_at || l.updated_at)) + ' · ใช้ Google ' + num(l.calls) + ' ครั้ง (เพดาน ' + num(w.cap) + ')' : 'ยังไม่เคยกวาด') +
       '<br>มีสถานีจากการกวาด ' + num(w.places) + ' แห่ง (PTT PluZ ' + num(w.pluz) + ')' + (next && !w.running ? ' · รอบถัดไปราว ' + esc(when(next)) : '') +
       (w.running ? '' : ' <button type="button" class="btn adm-sweep">เริ่มกวาดตอนนี้</button>');
+  }
+
+  // The switch for routing around floods (server.mjs: /api/admin/floods).
+  function floodText(f) {
+    if (!f) return '–';
+    if (f.forcedOff) return '⛔ ปิดอยู่ ด้วย FLOODS=off ใน Render → Environment (ลบค่านั้นแล้วรอ deploy เพื่อเปิดจากหน้านี้)';
+    return (f.on ? '✅ เปิดอยู่' + (f.count != null ? ' · ตอนนี้มีจุดน้ำท่วม ' + num(f.count) + ' จุด (ผ่านไม่ได้ ' + num(f.block) + ')' : ' · อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้')
+      : '⏸ ปิดอยู่ · แอปไม่ดึงข้อมูลจาก Longdo และไม่เลี่ยงน้ำท่วม') +
+      ' <button type="button" class="btn adm-floods" data-on="' + (f.on ? '0' : '1') + '">' + (f.on ? 'ปิด' : 'เปิด') + '</button>';
   }
 
   function tips(daily) {
@@ -205,6 +215,15 @@
     var c = e.target.closest('.adm-copy');
     if (c) {
       navigator.clipboard.writeText(c.dataset.copy).then(function () { c.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { c.textContent = 'คัดลอก'; }, 1500); });
+      return;
+    }
+    var fl = e.target.closest('.adm-floods');
+    if (fl) {
+      var on = fl.dataset.on === '1';
+      if (!confirm(on ? 'เปิดการเลี่ยงถนนน้ำท่วม? แอปจะดึงข้อมูลจาก Longdo Traffic และพาเลี่ยงถนนที่ผ่านไม่ได้'
+        : 'ปิดการเลี่ยงถนนน้ำท่วม? แอปจะหยุดดึงข้อมูลจาก Longdo Traffic ทันที และไม่เตือนเรื่องน้ำท่วมในแผนการเดินทาง')) return;
+      fl.disabled = true;
+      api('/api/admin/floods', { method: 'POST', body: JSON.stringify({ on: on }) }).then(loadAll, function (err) { fl.disabled = false; alert(err.message); });
       return;
     }
     var sw = e.target.closest('.adm-sweep');

@@ -60,6 +60,10 @@ const WEATHER = 'https://api.open-meteo.com/v1/forecast?timezone=Asia%2FBangkok&
 const WEATHER_TTL = 30 * 60 * 1000;
 const FLOODS_TTL = 2 * 60 * 1000; // roadflood reads its feeds every 2 minutes too
 let floodsMemo = {};
+// The flood feature can be switched off on the admin page (kept in the settings table) or, whatever
+// that says, with FLOODS=off in the environment. Off: Longdo isn't asked and the page gets no points.
+const FLOODS_FORCED_OFF = /^(off|0|false|no)$/i.test(process.env.FLOODS || '');
+let floodsOn = !FLOODS_FORCED_OFF;
 const OVERPASS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -450,6 +454,35 @@ async function checkSweep() {
 // ---------- admin ----------
 // admin.html: who uses the app, what broke, what users wrote. Signed-in admins only.
 let adminCache = null;
+// Flood points from both feeds through the shared cache (a feed that is down leaves the other's
+// points), as the JSON the page gets; null when both are down.
+async function floodsNow() {
+  const [ev, bkk] = await Promise.all([
+    cached(LONGDO, FLOODS_TTL).catch((err) => { report('/api/floods longdo', err.message); return null; }),
+    cached(BKK_SENSORS, FLOODS_TTL).catch(() => null),
+  ]);
+  if (!ev && !bkk) return null;
+  if (floodsMemo.ev !== ev?.body || floodsMemo.bkk !== bkk?.body || Date.now() - floodsMemo.at > FLOODS_TTL) {
+    const parse = (r) => { try { return r && JSON.parse(r.body); } catch { return null; } };
+    const floods = floodList(parse(ev), parse(bkk));
+    floodsMemo = {
+      ev: ev?.body, bkk: bkk?.body, at: Date.now(), count: floods.length, block: floods.filter((f) => f.block).length,
+      body: JSON.stringify({ at: new Date().toISOString(), floods, partial: !ev || !bkk }),
+    };
+  }
+  return floodsMemo.body;
+}
+
+async function loadSettings() {
+  if (!stats || FLOODS_FORCED_OFF) return;
+  try {
+    const row = (await stats.select('settings', 'select=value&key=eq.floods&limit=1'))[0];
+    if (row && row.value && typeof row.value.on === 'boolean') floodsOn = row.value.on;
+  } catch (err) {
+    report('settings', err.message); // no settings table yet (db/schema.sql not re-run): stays on
+  }
+}
+
 async function admin(req, res, url) {
   if (!stats || !accounts) { json(res, 404, { error: 'ยังไม่ได้ตั้งค่า Supabase' }); return; }
   if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
@@ -479,6 +512,20 @@ async function admin(req, res, url) {
       } else { res.writeHead(405).end(); return; }
       await reloadCars();
       json(res, 200, { ok: true, cars: carRows });
+      return;
+    }
+    if (url.pathname === '/api/admin/floods' && req.method === 'POST') {
+      if (FLOODS_FORCED_OFF) { json(res, 400, { error: 'ปิดไว้ด้วย FLOODS=off ใน Render → Environment ต้องลบค่านั้นก่อน' }); return; }
+      const on = (await bodyJSON(req))?.on === true;
+      try {
+        await stats.upsert('settings', { key: 'floods', value: { on }, updated_at: new Date().toISOString() });
+      } catch (err) {
+        json(res, 502, { error: 'บันทึกไม่ได้ (ต้องรัน db/schema.sql ใหม่เพื่อสร้างตาราง settings): ' + err.message });
+        return;
+      }
+      floodsOn = on;
+      adminCache = null;
+      json(res, 200, { ok: true, on });
       return;
     }
     if (url.pathname === '/api/admin/sweep' && req.method === 'POST') {
@@ -515,7 +562,11 @@ async function admin(req, res, url) {
       };
       adminCache = { at: Date.now(), body: JSON.stringify(out) };
     }
-    json(res, 200, adminCache.body, { 'Cache-Control': 'no-store' });
+    // The switch and today's points, fresh on every load (the rest is cached for a minute).
+    const out = JSON.parse(adminCache.body);
+    if (floodsOn) await floodsNow().catch(() => null);
+    out.health.floods = { on: floodsOn, forcedOff: FLOODS_FORCED_OFF, count: floodsOn ? floodsMemo.count ?? null : null, block: floodsOn ? floodsMemo.block ?? null : null };
+    json(res, 200, out, { 'Cache-Control': 'no-store' });
   } catch (err) {
     report('admin', err.message);
     json(res, 502, { error: 'อ่านข้อมูลจาก Supabase ไม่ได้: ' + err.message });
@@ -810,17 +861,11 @@ createServer(async (req, res) => {
     return;
   }
   if (url.pathname === '/api/floods') {
-    // Both feeds through the shared cache; a feed that is down leaves the other's points.
-    const [ev, bkk] = await Promise.all([
-      cached(LONGDO, FLOODS_TTL).catch((err) => { report('/api/floods longdo', err.message); return null; }),
-      cached(BKK_SENSORS, FLOODS_TTL).catch(() => null),
-    ]);
-    if (!ev && !bkk) { json(res, 502, { error: 'flood feeds unavailable' }); return; }
-    if (floodsMemo.ev !== ev?.body || floodsMemo.bkk !== bkk?.body || Date.now() - floodsMemo.at > FLOODS_TTL) {
-      const parse = (r) => { try { return r && JSON.parse(r.body); } catch { return null; } };
-      floodsMemo = { ev: ev?.body, bkk: bkk?.body, at: Date.now(), body: JSON.stringify({ at: new Date().toISOString(), floods: floodList(parse(ev), parse(bkk)), partial: !ev || !bkk }) };
-    }
-    json(res, 200, floodsMemo.body, { 'Cache-Control': 'public, max-age=60' });
+    await settingsLoaded; // switched off on the admin page: not even once after a restart
+    if (!floodsOn) { json(res, 200, { at: new Date().toISOString(), floods: [], off: true }, { 'Cache-Control': 'public, max-age=60' }); return; }
+    const body = await floodsNow();
+    if (!body) { json(res, 502, { error: 'flood feeds unavailable' }); return; }
+    json(res, 200, body, { 'Cache-Control': 'public, max-age=60' });
     return;
   }
   if (url.pathname === '/api/weather') {
@@ -867,6 +912,7 @@ createServer(async (req, res) => {
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
 reloadReports();
 reloadCars();
+const settingsLoaded = loadSettings();
 if (places && stats) {
   loadSwept();
   setTimeout(checkSweep, 60 * 1000); // after start-up settles
