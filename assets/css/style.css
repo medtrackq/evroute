@@ -778,6 +778,7 @@ button.w:active, a.w:active { transform: scale(0.98); }
 .row__more > summary::before { content: "▸ "; }
 .row__more[open] > summary::before { content: "▾ "; }
 .row__more[open] { display: grid; gap: 4px; }
+.row__more > span { display: block; margin-top: 4px; } /* some browsers don't lay <details> out as a grid */
 .row__doubt { color: var(--muted); font-size: 12px; margin-left: 4px; }
 .dock { display: none; }
 

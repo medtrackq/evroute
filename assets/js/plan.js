@@ -292,6 +292,10 @@
         return arrive >= minSoc; // a replan may add a stop after it if needed
       }).sort(function (x, y) {
         return (y.kw - x.kw) || (x.detourKm - y.detourKm) || (y.along - x.along);
+      }).filter(function (a, i, list) {
+        // One entry per site: Google often has two pins a few hundred metres apart for one place.
+        var same = function (b) { return b.st.op === a.st.op && km(a.st, b.st) < 0.4; };
+        return !same(c) && !list.slice(0, i).some(same);
       }).slice(0, 5).map(function (a) { return { c: a, arrive: a._arrive }; });
     }
   }

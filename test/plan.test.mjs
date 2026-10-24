@@ -244,3 +244,16 @@ test('stops with what the driver wants win when they cost little, food only at m
   assert.equal(P.mealAt(12 * 60), 'มื้อกลางวัน');
   assert.equal(P.mealAt(15 * 60), null);
 });
+
+test('alternatives list one entry per site when a site has two pins', () => {
+  const c = car('byd-atto3-std');
+  const sts = stationsEvery(30);
+  // A second pin 100 m from each station, same network.
+  sts.slice().forEach((s) => sts.push({ ...s, id: s.id + '-twin', lat: s.lat + 0.0009 }));
+  const res = P.plan(prof, P.candidates(prof, sts, c), c, { startSoc: 90, minSoc: 20, targetSoc: 80 });
+  for (const s of res.stops) {
+    const ids = s.alts.map((a) => a.c.st.id.replace('-twin', ''));
+    assert.equal(new Set(ids).size, ids.length, JSON.stringify(ids));
+    assert.ok(!ids.includes(s.st.id.replace('-twin', '')), 'the stop itself is not offered again');
+  }
+});
