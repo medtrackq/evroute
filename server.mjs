@@ -8,7 +8,8 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from './lib/stations.mjs';
+import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton, networkOf, guessPlugs } from './lib/stations.mjs';
+import { sweep } from './lib/sweep.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
@@ -381,6 +382,64 @@ async function reloadCars() {
   }
 }
 
+// ---------- monthly sweep for PTT EV Station PluZ (lib/sweep.mjs) ----------
+// Needs Google Places (the key) and Supabase (so a restart neither loses the result nor pays for a
+// new sweep). Runs again after 27 days, before the 30 days Google lets us keep positions run out;
+// a sweep stopped by a restart carries on where it was.
+const SWEEP_EVERY = 27 * 24 * HOUR, SWEEP_KEEP = 30 * 24 * HOUR;
+const SWEEP_MAX = Number(process.env.SWEEP_MAX_CALLS) || 3000; // calls per sweep, a safety cap
+let swept = { count: 0, body: '{"stations":[]}' }, sweeping = null, lastSweep = null;
+
+const sweepStore = {
+  async current() { return (await stats.select('sweeps', 'select=*&status=eq.running&order=started_at.desc&limit=1'))[0] || null; },
+  async start(cells) { await stats.insert('sweeps', { cells, status: 'running', cursor: 0, calls: 0, found: 0 }); return this.current(); },
+  async progress(id, p) { await stats.update('sweeps', 'id=eq.' + id, { ...p, updated_at: new Date().toISOString() }); },
+  async finish(id, p) {
+    const now = new Date().toISOString();
+    await stats.update('sweeps', 'id=eq.' + id, { ...p, updated_at: now, finished_at: now });
+    return { id, ...p, finished_at: now };
+  },
+  async save(rows) {
+    if (rows.length) await stats.upsert('swept_places', rows.map((r) => ({ ...r, fetched_at: new Date().toISOString() })));
+  },
+};
+
+async function loadSwept() {
+  if (!stats || !places) return;
+  try {
+    await stats.remove('swept_places', 'fetched_at=lt.' + new Date(Date.now() - SWEEP_KEEP).toISOString());
+    const rows = await stats.select('swept_places', 'select=place_id,lat,lng,op&limit=20000');
+    const stations = rows.map((r) => guessPlugs({
+      id: 'g:' + r.place_id, name: r.op || 'สถานีชาร์จ EV', op: r.op || '', lat: Number(r.lat), lng: Number(r.lng),
+      plugs: [], guess: true, src: 'google', addr: '', hours: '', url: 'https://www.google.com/maps/place/?q=place_id:' + encodeURIComponent(r.place_id),
+    }));
+    for (const st of stations) { const am = amenitiesOf(st, nearby.index); if (am) st.am = am; }
+    swept = { count: stations.length, pluz: stations.filter((x) => x.op === 'PTT EV Station PluZ').length, body: JSON.stringify({ stations }) };
+  } catch (err) {
+    report('sweep load', err.message);
+  }
+}
+
+function runSweep() {
+  if (sweeping) return sweeping;
+  sweeping = sweep({ ask: places.sweepAsk, store: sweepStore, cap: SWEEP_MAX, networkOf, log: (m) => console.log(new Date().toISOString(), 'sweep', m) })
+    .then((r) => { lastSweep = r; console.log(new Date().toISOString(), 'sweep', r.status, r.calls, 'calls', r.found, 'places'); return loadSwept(); })
+    .catch((err) => report('sweep', err.message)) // stays "running": the next check carries on
+    .finally(() => { sweeping = null; });
+  return sweeping;
+}
+
+async function checkSweep() {
+  if (!stats || !places || sweeping) return;
+  try {
+    lastSweep = (await stats.select('sweeps', 'select=*&order=started_at.desc&limit=1'))[0] || null;
+    const l = lastSweep;
+    if (!l || l.status === 'running' || Date.now() - Date.parse(l.finished_at || l.updated_at) > SWEEP_EVERY) runSweep();
+  } catch (err) {
+    report('sweep check', err.message);
+  }
+}
+
 // ---------- admin ----------
 // admin.html: who uses the app, what broke, what users wrote. Signed-in admins only.
 let adminCache = null;
@@ -415,6 +474,13 @@ async function admin(req, res, url) {
       json(res, 200, { ok: true, cars: carRows });
       return;
     }
+    if (url.pathname === '/api/admin/sweep' && req.method === 'POST') {
+      if (!places) { json(res, 400, { error: 'ยังไม่ได้เปิด Google Places' }); return; }
+      runSweep();
+      adminCache = null;
+      json(res, 202, { ok: true, running: true });
+      return;
+    }
     if (url.pathname !== '/api/admin/summary') { res.writeHead(404).end(); return; }
     if (!adminCache || Date.now() - adminCache.at > 60 * 1000) {
       const since = (d) => new Date(Date.now() - d * 864e5).toISOString();
@@ -430,7 +496,9 @@ async function admin(req, res, url) {
         accounts.listUsers(),
       ]);
       const out = adminSummary({ opens, plans, events, errors, feedback: fb, problems, charges, users });
+      if (places && !sweeping) lastSweep = (await stats.select('sweeps', 'select=*&order=started_at.desc&limit=1').catch(() => []))[0] || lastSweep;
       out.health = {
+        sweep: places ? { running: !!sweeping, last: lastSweep, places: swept.count, pluz: swept.pluz || 0, cap: SWEEP_MAX, everyDays: 27 } : null,
         up: Math.round((Date.now() - STARTED) / 60000), commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || null,
         memoryMb: Math.round(process.memoryUsage().rss / 1048576),
         google: places ? { used: places.counter.used, left: places.counter.remaining } : null,
@@ -703,6 +771,12 @@ createServer(async (req, res) => {
     json(res, 200, { at: nearby.at ? new Date(nearby.at).toISOString() : null, source: 'OpenStreetMap contributors (ODbL)', places: nearby.list }, { 'Cache-Control': 'public, max-age=3600' });
     return;
   }
+  // Stations the monthly sweep found, for pages that show the Google map (Google's data stays on it).
+  if (url.pathname === '/api/google/swept') {
+    if (!places) { json(res, 404, { error: 'google disabled' }); return; }
+    json(res, 200, swept.body, { 'Cache-Control': 'public, max-age=3600' });
+    return;
+  }
   if (url.pathname === '/api/cars.js') {
     if (Date.now() - carsAt > CARS_TTL) reloadCars(); // stale-while-revalidate
     res.writeHead(200, { 'Content-Type': TYPES['.js'], 'Cache-Control': 'no-cache' }).end(carsJs);
@@ -767,4 +841,9 @@ createServer(async (req, res) => {
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
 reloadReports();
 reloadCars();
+if (places && stats) {
+  loadSwept();
+  setTimeout(checkSweep, 60 * 1000); // after start-up settles
+  setInterval(checkSweep, 6 * HOUR);
+}
 Promise.all([loadOSMSnapshot(), loadPlacesSnapshot(), loadCurated(), reloadUsers()]).then(() => { rebuild(); return refreshRemote(); }).catch((err) => console.error('stations', err));

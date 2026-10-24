@@ -166,4 +166,24 @@ create table if not exists cars (
 );
 alter table cars enable row level security;
 
-revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars from anon, authenticated;
+-- The monthly sweep of Google Places for PTT EV Station PluZ (lib/sweep.mjs). Google's terms allow
+-- keeping place ids, and positions for at most 30 days: the server deletes older rows.
+create table if not exists sweeps (
+  id bigint generated always as identity primary key,
+  started_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  finished_at timestamptz,
+  status text not null default 'running', -- running, done, capped, failed
+  cells int, cursor int not null default 0, calls int not null default 0, found int not null default 0,
+  note text
+);
+create table if not exists swept_places (
+  place_id text primary key,
+  lat numeric not null, lng numeric not null,
+  op text,
+  fetched_at timestamptz not null default now()
+);
+alter table sweeps enable row level security;
+alter table swept_places enable row level security;
+
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars, sweeps, swept_places from anon, authenticated;

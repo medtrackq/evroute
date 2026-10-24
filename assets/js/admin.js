@@ -150,6 +150,7 @@
       '<section class="card adm-card"><h2>สถานะระบบ</h2>' + table(['', ''], [
         ['เซิร์ฟเวอร์ทำงานมาแล้ว', num(h.up) + ' นาที' + (h.commit ? ' · เวอร์ชัน ' + esc(h.commit) : '') + ' · หน่วยความจำ ' + num(h.memoryMb) + ' MB'],
         ['โควต้า Google วันนี้', h.google ? 'ใช้ ' + num(h.google.used) + ' · เหลือ ' + num(h.google.left) : 'ไม่ได้เปิด Google'],
+        ['กวาดหา PTT PluZ ทั่วประเทศ', sweepText(h.sweep)],
       ].concat(Object.keys(h.stations || {}).map(function (k) {
         var s = h.stations[k];
         return [esc(SOURCES[k] || k), num(s.count) + ' แห่ง · ' + (s.at ? 'อัปเดต ' + esc(when(s.at)) : '–') + (s.note ? ' · ' + esc(s.note) : '')];
@@ -157,6 +158,16 @@
     $('adm-body').innerHTML = html;
     $('adm-when').textContent = 'ข้อมูล ณ ' + when(Date.now()) + ' · อัปเดตทุก 1 นาที';
     tips(d.daily);
+  }
+
+  var SWEEP = { running: 'กำลังกวาด', done: 'เสร็จ', capped: 'หยุดที่เพดาน', failed: 'ไม่สำเร็จ' };
+  function sweepText(w) {
+    if (!w) return 'ต้องเปิด Google Places และ Supabase';
+    var l = w.last, next = l && l.finished_at ? new Date(Date.parse(l.finished_at) + w.everyDays * 864e5) : null;
+    return (w.running ? '⏳ กำลังกวาดอยู่' + (l ? ' · ' + num(l.cursor) + '/' + num(l.cells) + ' ช่อง · ใช้ ' + num(l.calls) + ' ครั้ง' : '')
+      : l ? (SWEEP[l.status] || l.status) + ' ' + esc(when(l.finished_at || l.updated_at)) + ' · ใช้ Google ' + num(l.calls) + ' ครั้ง (เพดาน ' + num(w.cap) + ')' : 'ยังไม่เคยกวาด') +
+      '<br>มีสถานีจากการกวาด ' + num(w.places) + ' แห่ง (PTT PluZ ' + num(w.pluz) + ')' + (next && !w.running ? ' · รอบถัดไปราว ' + esc(when(next)) : '') +
+      (w.running ? '' : ' <button type="button" class="btn adm-sweep">เริ่มกวาดตอนนี้</button>');
   }
 
   function tips(daily) {
@@ -194,6 +205,13 @@
     var c = e.target.closest('.adm-copy');
     if (c) {
       navigator.clipboard.writeText(c.dataset.copy).then(function () { c.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { c.textContent = 'คัดลอก'; }, 1500); });
+      return;
+    }
+    var sw = e.target.closest('.adm-sweep');
+    if (sw) {
+      if (!confirm('เริ่มกวาดหา PTT PluZ ทั่วประเทศตอนนี้? ใช้ Google ราว 400–1,000 ครั้ง (อยู่ในโควต้าฟรี 5,000/เดือน) ใช้เวลาราว 5–10 นาที')) return;
+      sw.disabled = true;
+      api('/api/admin/sweep', { method: 'POST' }).then(function () { setTimeout(loadAll, 1500); }, function (err) { sw.disabled = false; alert(err.message); });
       return;
     }
     var b = e.target.closest('.adm-done');

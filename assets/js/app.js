@@ -679,7 +679,7 @@
   var BRAND_RADIUS_KM = 20;
   var BRAND_MAX_POINTS = 4;
   function findBrand(res) {
-    if (!R.cfg || !R.cfg.places || !res.stops.length) return Promise.resolve(0);
+    if (!R.cfg || !R.cfg.places || !res.stops.length || R.swept) return Promise.resolve(0); // the monthly sweep has them all
     R.bAsked = R.bAsked || [];
     var pts = res.stops.map(function (s) { return { lat: s.st.lat, lng: s.st.lng }; }).filter(function (p) {
       return !R.bAsked.some(function (q) { return P.km(p, q) < BRAND_RADIUS_KM; });
@@ -693,6 +693,17 @@
       if (d.remaining === 0) R.cfg.places = null;
       return addStations(d.stations || []);
     }).catch(function () { return 0; });
+  }
+
+  // PluZ stations from the server's monthly sweep of Google Places, shown with the Google map only
+  // (Google's data may not be shown on another map).
+  function loadSwept() {
+    R.ready.then(function () { return getJSON('/api/google/swept'); }).then(function (d) {
+      var n = addStations(d.stations || []);
+      R.swept = (d.stations || []).length;
+      if (n && R.result && !R.busy) replan();
+      else if (n) renderHome();
+    }).catch(function () {});
   }
 
   // Adds stations for this visit only. One within 120 m of a station we know is the same site:
@@ -3234,6 +3245,7 @@
     });
   }).then(function (view) {
     map = view;
+    if (view.kind === 'google') loadSwept();
     $('map').classList.add('map--' + view.kind);
     showStatsNote();
     initAccount();
