@@ -150,22 +150,36 @@
     R.car = {
       id: base.id, brand: base.brand, model: base.model, plugs: base.plugs.slice(), ac: base.ac,
       kwh: +t.kwh || base.kwh, use: +t.use || base.use, dc: t.dc != null ? +t.dc : base.dc,
-      margin: t.margin != null ? +t.margin : 10,
+      margin: t.margin != null ? +t.margin : MARGIN,
     };
     showSpec();
     showPhoto();
   }
 
-  // Reads the tile inputs while they're open for editing; otherwise just saves the current car.
+  // Reads the tile inputs while they're open for editing (a draft, kept only when "บันทึก" is
+  // pressed); otherwise saves the current car.
   function readTune() {
     var c = R.car, n = function (id, lo, hi, def) { var v = $(id) ? parseFloat($(id).value) : NaN; return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : def; };
     c.kwh = n('kwh', 10, 200, c.kwh);
     c.use = n('use', 8, 40, c.use);
     c.dc = n('dc', 0, 400, c.dc);
     c.margin = n('margin', 0, 50, c.margin);
-    store('car', { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin });
+    if (!R.tuning) saveCar();
     $('range-km').textContent = Math.round(rangeKm(100));
     syncRange();
+  }
+
+  function saveCar() {
+    var c = R.car;
+    store('car', { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin });
+  }
+
+  // The model's own figures, and whether the car has been changed from them.
+  var MARGIN = 10;
+  function factory() { var c = R.car; return CARS.filter(function (x) { return x.id === c.id; })[0] || c; }
+  function isTuned() {
+    var c = R.car, f = factory();
+    return c.kwh !== f.kwh || c.use !== f.use || c.dc !== f.dc || c.margin !== MARGIN;
   }
 
   function rangeKm(soc) {
@@ -257,16 +271,49 @@
         tile('mint', 'dc', 'DC สูงสุด', c.dc || '–', c.dc ? 'kW' : '', plugs) +
         tile('sky', 'road', 'วิ่งได้ราว', range, 'กม.', 'ต่อแบตเต็ม');
     syncRange();
+    showTuneNote();
   }
 
-  function setTuning(on) {
+  // "ปรับค่ารถ" opens the tiles as a draft: "บันทึก" keeps it, "ยกเลิก" puts the saved values back,
+  // and "คืนค่าโรงงาน" fills in the model's own figures (still to be saved).
+  var TUNED = ['kwh', 'use', 'dc', 'margin'];
+  function setTuning(on, keep) {
+    var c = R.car, was = R.tuning;
+    if (on && !was) R.tuneSnap = TUNED.map(function (k) { return c[k]; });
+    var changed = was && R.tuneSnap && TUNED.some(function (k, i) { return c[k] !== R.tuneSnap[i]; });
+    if (was && !on) {
+      if (keep) { saveCar(); if (changed) toast('✓ บันทึกค่ารถแล้ว'); }
+      else TUNED.forEach(function (k, i) { c[k] = R.tuneSnap[i]; });
+    }
     R.tuning = on;
     $('tune-btn').setAttribute('aria-expanded', on);
     $('tune-btn').classList.toggle('is-on', on);
-    $('tune-btn').querySelector('span').textContent = on ? 'เสร็จ' : 'ปรับค่ารถ';
+    $('tune-btn').querySelector('span').textContent = on ? 'บันทึก' : 'ปรับค่ารถ';
     $('tune-hint').hidden = !on;
+    $('tune-cancel').hidden = !on;
     showSpec();
     if (on) document.querySelector('#spec .is-scrub').focus();
+    else if (changed && R.result) replan();
+  }
+
+  // Outside the editor: say when the car isn't on its factory figures, and offer them back.
+  function showTuneNote() {
+    var f = factory(), tuned = !R.tuning && isTuned();
+    $('tune-reset').hidden = !(R.tuning || tuned);
+    $('tune-note').hidden = !tuned;
+    if (tuned) {
+      $('tune-note').textContent = 'ใช้ค่าที่ปรับเอง · ค่าโรงงาน: แบต ' + f.kwh + ' kWh · กินไฟ ' + f.use + '/100กม. · DC ' + (f.dc || '–') + ' kW · เผื่อไว้ ' + MARGIN + '%';
+    }
+  }
+
+  function toFactory() {
+    var c = R.car, f = factory();
+    c.kwh = f.kwh; c.use = f.use; c.dc = f.dc; c.margin = MARGIN;
+    if (R.tuning) { showSpec(); toast('ใส่ค่าโรงงานแล้ว · กด "บันทึก" เพื่อใช้ค่านี้'); return; }
+    saveCar();
+    showSpec();
+    toast('✓ กลับไปใช้ค่าโรงงานแล้ว');
+    if (R.result) replan();
   }
 
   // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
@@ -1689,13 +1736,16 @@
   $('brand').innerHTML = brands().map(function (b) { return '<option>' + esc(b) + '</option>'; }).join('');
   $('switch-car').addEventListener('click', function () { togglePicker(); });
   $('brand').addEventListener('change', function () {
+    if (R.tuning) setTuning(false);
     fillModels($('brand').value);
     setCar($('model').value);
     readTune();
     if (R.result) replan();
   });
-  $('model').addEventListener('change', function () { setCar($('model').value); readTune(); if (R.result) replan(); });
-  $('tune-btn').addEventListener('click', function () { setTuning(!R.tuning); });
+  $('model').addEventListener('change', function () { if (R.tuning) setTuning(false); setCar($('model').value); readTune(); if (R.result) replan(); });
+  $('tune-btn').addEventListener('click', function () { setTuning(!R.tuning, true); });
+  $('tune-cancel').addEventListener('click', function () { setTuning(false); });
+  $('tune-reset').addEventListener('click', toFactory);
   // Swiping on a tile in "ปรับค่ารถ": every 8 px moves the value one drag step; a tap types instead.
   var scrub = null;
   $('spec').addEventListener('pointerdown', function (e) {

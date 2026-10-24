@@ -2,6 +2,11 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "ใช้ค่าที่ปรับเอง · ค่าโรงงาน: แบต # kWh · กินไฟ #/#กม. · DC # kW · เผื่อไว้ #%": "Using your own values · Factory: battery # kWh · consumption #/# km · DC # kW · buffer #%",
+    "✓ บันทึกค่ารถแล้ว": "✓ Car settings saved",
+    "ใส่ค่าโรงงานแล้ว · กด \"บันทึก\" เพื่อใช้ค่านี้": "Factory values filled in · press \"Save\" to use them",
+    "✓ กลับไปใช้ค่าโรงงานแล้ว": "✓ Back to factory values",
+    "กด \"บันทึก\" เพื่อเก็บค่า ถ้าไม่กด ค่าเดิมยังอยู่": "Press \"Save\" to keep your changes; otherwise the old values stay",
     "EVROUTE วางแผนชาร์จ · ปรับปรุงล่าสุด # ตุลาคม #": "EVROUTE Charging Planner · Last updated 24 October 2026",
     "ขอบคุณที่ช่วยให้ EVROUTE ดีขึ้น เราจะตอบกลับทาง *": "Thanks for helping make EVROUTE better. We'll reply to *",
     "ขอบคุณที่ช่วยให้ EVROUTE ดีขึ้น": "Thanks for helping make EVROUTE better.",
@@ -18,6 +23,7 @@ I18N.load({
     "ชาร์จหลัง # ถูกกว่า ถ้ารอได้": "Charging after # is cheaper, if you can wait",
   },
   runs: {
+    "คืนค่าโรงงาน": "Factory values",
     "ถูกกว่า ถ้ารอได้": "is cheaper, if you can wait",
     "หรืออีเมลถึง": "or email",
     "เขียนข้อความก่อนส่ง": "Write a message first",

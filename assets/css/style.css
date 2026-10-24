@@ -938,3 +938,4 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .sheet__foot .link-btn { justify-self: center; }
 .fb-done { display: grid; justify-items: center; gap: 12px; text-align: center; }
 .fb-done p { margin: 0; }
+.tune-note { flex-basis: 100%; margin: 0; }
