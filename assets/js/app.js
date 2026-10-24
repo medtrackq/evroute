@@ -1593,6 +1593,8 @@
   function say(msg, kind) {
     $('result').hidden = false;
     $('result').innerHTML = '<div class="verdict verdict--' + (kind || 'info') + '"><span>' + esc(msg) + '</span></div>';
+    // The result panel isn't on screen while the form is: say it where it shows.
+    if (document.body.dataset.view !== 'result') toast(esc(msg), 6000);
   }
 
   // ---------- inputs ----------
@@ -1890,7 +1892,30 @@
     newTrip();
     if (R.a && R.dests[0] && R.result) plan();
   });
-  $('form').addEventListener('submit', function (e) { e.preventDefault(); if (!R.busy) plan(); });
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (R.busy) return;
+    resolveTyped().then(function (missing) {
+      if (missing.length) say(I18N.t('ไม่พบสถานที่') + ' "' + missing[0] + '" · ' + I18N.t('ลองพิมพ์ชื่ออำเภอหรือจังหวัด หรือแตะบนแผนที่'));
+      else plan();
+    });
+  });
+
+  // A place typed but not picked from the list (or before the list came): take the best match, as
+  // any search box would, instead of planning as if the box were empty.
+  function resolveTyped() {
+    var jobs = [], missing = [];
+    var need = function (which, input) {
+      var q = input ? input.value.trim() : '';
+      if ((which === 'a' ? R.a : R.dests[which]) || q.length < 2) return;
+      jobs.push(geocode(q).then(function (res) { if (res && res.length) setPoint(which, res[0]); else missing.push(q); }, function () { missing.push(q); }));
+    };
+    need('a', $('from'));
+    R.dests.forEach(function (p, i) { need(i, destInput(i)); });
+    if (!jobs.length) return Promise.resolve(missing);
+    setBusy(true, 'กำลังค้นหาสถานที่…');
+    return Promise.all(jobs).then(function () { setBusy(false); newTrip(); return missing; });
+  }
   if (!$('depart').min) $('depart').min = localInput(Date.now());
   $('depart').addEventListener('change', function () {
     showDepart();

@@ -2,6 +2,7 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "กำลังค้นหาสถานที่…": "Finding the place…",
     "กำลังหาเส้นทาง…": "Finding the route…",
     "กำลังเลือกจุดชาร์จ…": "Choosing charging stops…",
     "กำลังหาสถานีเพิ่ม…": "Looking for more stations…",
@@ -34,6 +35,8 @@ I18N.load({
     "ชาร์จหลัง # ถูกกว่า ถ้ารอได้": "Charging after # is cheaper, if you can wait",
   },
   runs: {
+    "ไม่พบสถานที่": "Place not found",
+    "ลองพิมพ์ชื่ออำเภอหรือจังหวัด หรือแตะบนแผนที่": "Try a district or province name, or tap the map",
     "ระบุรุ่นเอง": "Your own model",
     "ระบุเอง": "enter it yourself",
     "ไม่มีรุ่นของฉัน": "My model isn't listed",
