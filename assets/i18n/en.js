@@ -2,6 +2,7 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "จองล่วงหน้าได้ # ชม. · ค่าจองราว ฿#/ชม. ไม่มาตามนัดไม่คืนเงิน · มาถึงก่อนเวลาจองได้ # นาที": "Book up to # h ahead · fee about ฿#/h, not refunded on no-show · you may start up to # min early",
     "จองได้เฉพาะวันนี้และพรุ่งนี้ · เฉพาะหัว DC · ต้องเริ่มชาร์จภายใน # นาทีหลังเวลาจอง": "today and tomorrow only · DC chargers only · start charging within # min of the slot",
     "จองได้เมื่ออยู่ห่างไม่เกิน # กม. และต้องถึงภายใน # นาที": "only within # km, and you must arrive within # min",
     "เฉพาะสถานีของ MEA": "MEA stations only",

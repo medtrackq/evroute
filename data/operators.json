@@ -67,5 +67,27 @@
     "ios": "https://apps.apple.com/th/app/tesla/id582007913",
     "booking": false
   },
-  "_booking": "booking: the app takes bookings · bookAhead: calendar days that can be booked, today included · bookNear: only when close by, not ahead · checked Oct 2026 (operators' sites, Shell/PluZ fee notes, EGAT EleXA page); EA Anywhere and PEA VOLTA unclear, so left as no booking"
+  "Sharge": {
+    "name": "Sharge (RêverSharger)",
+    "name_th": "ชาร์จ (เรฟเวอร์ชาร์จเจอร์)",
+    "app": "RêverSharger",
+    "web": "https://sharge.co.th/",
+    "android": "com.sharge.shargeapp",
+    "ios": "https://apps.apple.com/th/app/reversharger/id1492566430",
+    "booking": true,
+    "bookAhead": 2,
+    "bookNote": "จองล่วงหน้าได้ 24 ชม. · ค่าจองราว ฿10/ชม. ไม่มาตามนัดไม่คืนเงิน · มาถึงก่อนเวลาจองได้ 10 นาที"
+  },
+  "Shell Recharge": {
+    "name": "Shell Recharge",
+    "name_th": "เชลล์ รีชาร์จ",
+    "app": "RêverSharger",
+    "web": "https://www.shell.co.th/th_th/customer/electric-vehicle-charging.html",
+    "android": "com.sharge.shargeapp",
+    "ios": "https://apps.apple.com/th/app/reversharger/id1492566430",
+    "booking": true,
+    "bookAhead": 2,
+    "bookNote": "จองล่วงหน้าได้ 24 ชม. · ค่าจองราว ฿10/ชม. ไม่มาตามนัดไม่คืนเงิน · มาถึงก่อนเวลาจองได้ 10 นาที"
+  },
+  "_booking": "booking: the app takes bookings · bookAhead: calendar days that can be booked, today included · bookNear: only when close by, not ahead · checked Oct 2026 (operators' sites, Shell/PluZ fee notes, EGAT EleXA page); EA Anywhere and PEA VOLTA unclear, so left as no booking · Sharge and Shell Recharge (Thailand) book and pay in the RêverSharger app (Sharge Management): 24 h ahead, ~10 THB/h, kept on no-show, start up to 10 min early (shell.co.th fee notes)"
 }
