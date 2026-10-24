@@ -359,7 +359,6 @@
   function loadStations() {
     var ops = getJSON('data/operators.json').then(function (d) { R.operators = d; }, function () {});
     getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; R.petrol = d.petrol || null; if (R.result) render(); renderHome(); }, function () {});
-    getJSON('data/holidays.json').then(function (d) { R.holidays = d; renderHome(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
       $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
@@ -1994,32 +1993,27 @@
     return h < 5 ? 'สวัสดีตอนดึก' : h < 11 ? 'สวัสดีตอนเช้า' : h < 13 ? 'สวัสดีตอนเที่ยง' : h < 16 ? 'สวัสดีตอนบ่าย' : h < 19 ? 'สวัสดีตอนเย็น' : 'สวัสดีตอนค่ำ';
   }
 
-  // Three or more days off in a row (weekends plus public holidays) that include today or start
-  // within a week: { start, end, days, name, now }.
-  function longWeekend() {
-    var hol = {};
-    ((R.holidays && R.holidays.days) || []).forEach(function (d) { hol[d.date] = d.name; });
-    var off = function (iso) { var w = new Date(iso + 'T12:00:00Z').getUTCDay(); return w === 0 || w === 6 || !!hol[iso]; };
-    var today = bkkDay(Date.now()), day = function (n) { return bkkDay(Date.now() + n * 864e5); };
-    for (var i = -3; i <= 7; i++) {
-      var iso = day(i);
-      if (!off(iso) || (i > -3 && off(day(i - 1)))) continue; // only the first day of a run
-      var j = i;
-      while (off(day(j + 1))) j++;
-      var n = j - i + 1;
-      if (n < 3 || day(j) < today) continue;
-      var name = '';
-      for (var k = i; k <= j && !name; k++) name = hol[day(k)] || '';
-      return { start: day(i), end: day(j), days: n, name: name, now: day(i) <= today };
-    }
-    return null;
+  // A short line under the greeting that changes with the time of day and from day to day, in a
+  // friendly voice. Nothing about holidays or days off: not everyone gets them.
+  var HELLO = [
+    ['ยังไม่นอนอีกเหรอ พักผ่อนบ้างนะ', 'เดินทางกลางคืน ง่วงเมื่อไรแวะพักก่อนนะ', 'ดึกแล้ว วางแผนไว้ก่อน พรุ่งนี้ค่อยไปก็ได้'],
+    ['เริ่มวันใหม่ วันนี้อยากไปไหน?', 'เช้านี้แบตพร้อมแค่ไหนแล้ว?', 'ขอให้วันนี้เดินทางราบรื่นนะ', 'กาแฟสักแก้ว แล้วออกเดินทางกัน', 'อากาศเช้า ๆ แบบนี้ เหมาะกับการขับรถเล่น'],
+    ['ทานข้าวหรือยัง? แวะชาร์จไปด้วยก็ได้นะ', 'พักเที่ยงแล้ว เติมแรงให้ตัวเองกับรถไปพร้อมกัน', 'แดดแรง เปิดแอร์ 25°C ก็เย็นสบายแล้ว'],
+    ['บ่ายนี้มีแผนไปไหนต่อ?', 'ง่วงหลังมื้อเที่ยง แวะพักสักครู่ก่อนนะ', 'ขับมาไกลแล้ว ยืดเส้นยืดสายบ้างนะ', 'วางแผนทริปถัดไปไว้ล่วงหน้า สบายใจกว่า'],
+    ['กลับบ้านปลอดภัยนะ', 'เย็นนี้ไปไหนต่อ?', 'ชาร์จหลัง 4 ทุ่มถูกกว่า ถ้ารอได้', 'เหนื่อยมาทั้งวัน ให้เราช่วยวางแผนเส้นทางเอง'],
+    ['คืนนี้วางแผนทริปถัดไปไว้ก่อนไหม?', 'ชาร์จที่บ้านช่วง Off-Peak คุ้มที่สุด', 'พักผ่อนให้เต็มที่ พรุ่งนี้ค่อยลุยต่อ', 'ขับกลางคืน ระวังสายตาล้านะ'],
+  ];
+
+  function helloLine() {
+    var h = bkkNow().getUTCHours(), slot = h < 5 ? 0 : h < 11 ? 1 : h < 13 ? 2 : h < 16 ? 3 : h < 19 ? 4 : 5;
+    var lines = HELLO[slot], seed = 0, key = bkkDay(Date.now()) + slot;
+    for (var i = 0; i < key.length; i++) seed = (seed * 31 + key.charCodeAt(i)) % 9973;
+    return lines[seed % lines.length]; // the same line all through this part of the day
   }
 
   function headWidget() {
-    var nick = load('nick'), img = carPhoto(), lw = longWeekend();
-    var chip = !lw ? '' : lw.now
-      ? '<button type="button" class="h-chip" data-go="plan" data-focus="to">🎉 วันหยุดยาว' + (lw.name ? ' · ' + esc(lw.name) : '') + ' · หยุดถึง ' + esc(dayLabel(lw.end)) + '</button>'
-      : '<button type="button" class="h-chip" data-go="plan" data-focus="to">🗓 วันหยุดยาว ' + lw.days + ' วัน ' + esc(dayLabel(lw.start)) + ' – ' + esc(dayLabel(lw.end)) + ' ไปไหนดี?</button>';
+    var nick = load('nick'), img = carPhoto();
+    var chip = '<p class="h-chip">' + esc(helloLine()) + '</p>';
     return '<header class="w w--wide h-head">' +
       (img ? '<img class="h-head__car" src="' + esc(img.thumb) + '" alt="' + esc(R.car.brand + ' ' + R.car.model) + '" loading="lazy">' : '') +
       '<h1 class="h-head__hi"' + (nick ? ' data-nick title="แตะเพื่อเปลี่ยนชื่อเล่น"' : '') + '>' + esc(greeting()) + (nick ? ',<br>คุณ' + esc(nick) : '') + '</h1>' +

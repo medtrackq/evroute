@@ -803,17 +803,17 @@ button.w:active, a.w:active { transform: scale(0.98); }
 .w__ico--sun { background: var(--tile-sun); color: var(--tile-sun-ink); }
 .w__ico--wx { background: none; font-size: 26px; width: auto; }
 
-.h-head { min-height: 210px; padding: 22px 20px 20px; align-content: start; gap: 6px; color: #fff; overflow: hidden;
+.h-head { min-height: 252px; padding: 22px 20px 20px; align-content: start; gap: 6px; color: #fff; overflow: hidden;
   background: radial-gradient(90% 120% at 100% 0%, #1d3a7a 0%, transparent 60%), linear-gradient(160deg, #0d1424, #141f36); }
 .h-head__hi { position: relative; z-index: 1; margin: 0; max-width: 60%; font-size: 27px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; cursor: default; }
 .h-head__hi[data-nick] { cursor: pointer; }
 .h-head__nick, .h-head__car-name { position: relative; z-index: 1; justify-self: start; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
 .h-head__nick { font-size: 13px; color: rgb(255 255 255 / 70%); text-decoration: underline; text-underline-offset: 3px; }
 .h-head__car-name { margin-top: 2px; font-size: 13.5px; color: rgb(255 255 255 / 72%); letter-spacing: 0.02em; }
-.h-head__car { position: absolute; right: -6%; bottom: -2px; width: 62%; height: 78%; object-fit: cover; object-position: center 62%;
+.h-head__car { position: absolute; right: -8%; bottom: -2px; width: 74%; height: 94%; object-fit: cover; object-position: center 62%;
   -webkit-mask-image: radial-gradient(75% 85% at 62% 62%, #000 45%, transparent 78%); mask-image: radial-gradient(75% 85% at 62% 62%, #000 45%, transparent 78%); }
-.h-chip { position: relative; z-index: 1; justify-self: start; max-width: 100%; margin-top: auto; padding: 7px 12px; border: 1px solid rgb(255 255 255 / 18%); border-radius: 999px;
-  background: rgb(255 255 255 / 10%); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); text-align: left; }
+.h-chip { position: relative; z-index: 1; justify-self: start; max-width: 100%; margin: auto 0 0; padding: 7px 12px; border: 1px solid rgb(255 255 255 / 18%); border-radius: 999px;
+  background: rgb(255 255 255 / 10%); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); text-align: left; }
 
 .w-batt { grid-row: span 2; grid-template-rows: auto auto 1fr auto; align-content: stretch; }
 .w-batt__body { display: flex; align-items: center; gap: 14px; margin: 10px 0 8px; }
