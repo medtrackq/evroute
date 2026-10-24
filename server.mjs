@@ -9,7 +9,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton, networkOf, guessPlugs } from './lib/stations.mjs';
-import { sweep } from './lib/sweep.mjs';
+import { sweep, cells } from './lib/sweep.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces, BRANDS } from './lib/google.mjs';
 import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
@@ -392,7 +392,7 @@ let swept = { count: 0, body: '{"stations":[]}' }, sweeping = null, lastSweep = 
 
 const sweepStore = {
   async current() { return (await stats.select('sweeps', 'select=*&status=eq.running&order=started_at.desc&limit=1'))[0] || null; },
-  async start(cells) { await stats.insert('sweeps', { cells, status: 'running', cursor: 0, calls: 0, found: 0 }); return this.current(); },
+  async start(cells, from = 0) { await stats.insert('sweeps', { cells, status: 'running', cursor: from, calls: 0, found: 0 }); return this.current(); },
   async progress(id, p) { await stats.update('sweeps', 'id=eq.' + id, { ...p, updated_at: new Date().toISOString() }); },
   async finish(id, p) {
     const now = new Date().toISOString();
@@ -420,9 +420,13 @@ async function loadSwept() {
   }
 }
 
+// A sweep done in the last few days with the first pass only (before the second pass existed)
+// goes on with the second pass alone instead of asking Google the same again.
 function runSweep() {
   if (sweeping) return sweeping;
-  sweeping = sweep({ ask: places.sweepAsk, store: sweepStore, cap: SWEEP_MAX, networkOf, log: (m) => console.log(new Date().toISOString(), 'sweep', m) })
+  const l = lastSweep, one = cells().length;
+  const from = l && l.status === 'done' && l.cells === one && Date.now() - Date.parse(l.finished_at) < 3 * 24 * HOUR ? one : 0;
+  sweeping = sweep({ ask: places.sweepAsk, store: sweepStore, cap: SWEEP_MAX, networkOf, from, log: (m) => console.log(new Date().toISOString(), 'sweep', m) })
     .then((r) => { lastSweep = r; console.log(new Date().toISOString(), 'sweep', r.status, r.calls, 'calls', r.found, 'places'); return loadSwept(); })
     .catch((err) => report('sweep', err.message)) // stays "running": the next check carries on
     .finally(() => { sweeping = null; });
@@ -476,6 +480,7 @@ async function admin(req, res, url) {
     }
     if (url.pathname === '/api/admin/sweep' && req.method === 'POST') {
       if (!places) { json(res, 400, { error: 'ยังไม่ได้เปิด Google Places' }); return; }
+      if (!sweeping) lastSweep = (await stats.select('sweeps', 'select=*&order=started_at.desc&limit=1'))[0] || null;
       runSweep();
       adminCache = null;
       json(res, 202, { ok: true, running: true });

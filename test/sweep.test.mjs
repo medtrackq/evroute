@@ -17,7 +17,7 @@ function memoryStore() {
   return {
     s,
     async current() { return s.runs.find((r) => r.status === 'running') || null; },
-    async start(n) { const r = { id: s.runs.length + 1, cells: n, cursor: 0, calls: 0, found: 0, status: 'running' }; s.runs.push(r); return r; },
+    async start(n, from = 0) { const r = { id: s.runs.length + 1, cells: n, cursor: from, calls: 0, found: 0, status: 'running' }; s.runs.push(r); return r; },
     async progress(id, p) { Object.assign(s.runs.find((r) => r.id === id), p); },
     async finish(id, p) { const r = s.runs.find((x) => x.id === id); Object.assign(r, p); return r; },
     async save(rows) { rows.forEach((r) => s.places.set(r.place_id, r)); },
@@ -35,8 +35,8 @@ test('a full answer is asked again in quarters; only id, position and network ar
   const store = memoryStore();
   const r = await sweep({ ask, store, cap: 5000, networkOf, wait: 0 });
   assert.equal(r.status, 'done');
-  assert.equal(r.calls, cells().length + 4);
-  assert.equal(store.s.places.size, 20 + 3); // only the quarter with the point has places
+  assert.equal(r.calls, 2 * (cells().length + 4)); // both passes, each cutting the full square
+  assert.equal(store.s.places.size, 2 * (20 + 3)); // only the quarter with the point has places
   const one = [...store.s.places.values()][1];
   assert.deepEqual(Object.keys(one).sort(), ['lat', 'lng', 'op', 'place_id']);
   assert.ok([...store.s.places.values()].some((p) => p.op === 'PTT EV Station PluZ'));
@@ -52,6 +52,22 @@ test('the cap stops a sweep, and a stopped one carries on where it was', async (
   store2.s.runs.push({ id: 1, cells: cells().length, cursor: 30, calls: 30, found: 0, status: 'running' });
   let asked = 0;
   const r = await sweep({ ask: async () => { asked++; return []; }, store: store2, cap: 5000, networkOf, wait: 0 });
-  assert.equal(asked, cells().length - 30);
+  assert.equal(asked, 2 * cells().length - 30);
+  assert.equal(r.calls, 2 * cells().length);
+});
+
+test('the second pass keeps only places whose name says they charge, and a sweep can start at it', async () => {
+  const { charges } = await import('../lib/sweep.mjs');
+  assert.equal(charges('PTT EV Station PluZ บางนา'), true);
+  assert.equal(charges('สถานีชาร์จ EV ปตท. สระบุรี'), true);
+  assert.equal(charges('ปตท. สาขาวังน้อย'), false); // a fuel station without chargers
+  const store = memoryStore();
+  const seen = new Set();
+  const r = await sweep({
+    ask: async (c) => { seen.add(c.pass); return c.pass === 'name' && c.s < 6 ? [{ id: 'x', name: 'ปตท. ปั๊ม', lat: 5.7, lng: 101 , keep: false }] : []; },
+    store, cap: 5000, networkOf, from: cells().length, wait: 0,
+  });
+  assert.deepEqual([...seen], ['name']);
   assert.equal(r.calls, cells().length);
+  assert.equal(store.s.places.size, 0);
 });
