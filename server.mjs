@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 import { fromOSM, fromOCM, fromCurated, fromUser, merge, areaFromPhoton } from './lib/stations.mjs';
 import { validate, localStore, githubStore, userStations, rateLimiter } from './lib/userstore.mjs';
 import { googlePlaces, BRANDS } from './lib/google.mjs';
-import { record, supabase, summarize } from './lib/stats.mjs';
+import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
+import { adminEmails, summarize as adminSummary } from './lib/admin.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
@@ -37,7 +38,11 @@ const stats = SUPABASE_URL && SUPABASE_KEY ? supabase({ url: SUPABASE_URL, key: 
 const allowLog = rateLimiter(300, 60 * 60 * 1000);
 // Optional accounts ride on the same Supabase project (lib/account.mjs).
 const accounts = stats ? supabaseAuth({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page and the contact form
+// Who may open admin.html (signed in with one of these emails), comma separated.
+const ADMINS = adminEmails(process.env.ADMIN_EMAILS);
+const allowFeedback = rateLimiter(10, 60 * 60 * 1000);
+const STARTED = Date.now();
 const HOUR = 60 * 60 * 1000;
 const pending = handoffs(), allowPoll = rateLimiter(1500, HOUR);
 const allowCode = rateLimiter(6, HOUR), allowCodeTo = rateLimiter(3, HOUR), allowVerify = rateLimiter(30, HOUR), allowMe = rateLimiter(600, HOUR);
@@ -163,7 +168,7 @@ async function refreshOSM() {
       sources.osm = { list, at: Date.parse(d.osm3s?.timestamp_osm_base) || Date.now(), note: 'live', fetched: Date.now() };
       return;
     } catch (err) {
-      console.error(new Date().toISOString(), 'overpass', ep, err.message);
+      report('overpass', ep, err.message);
     }
   }
   sources.osm.failed = Date.now();
@@ -196,7 +201,7 @@ async function refreshPlaces() {
         ok = true;
         break;
       } catch (err) {
-        console.error(new Date().toISOString(), 'overpass places', ep, err.message);
+        report('overpass places', ep, err.message);
       }
     }
     if (!ok) { nearby.failed = Date.now(); return; }
@@ -212,7 +217,7 @@ async function refreshOCM() {
     const d = await r.json();
     sources.ocm = { list: d.map(fromOCM).filter(Boolean), at: Date.now(), note: 'live', fetched: Date.now() };
   } catch (err) {
-    console.error(new Date().toISOString(), 'ocm', err.message);
+    report('ocm', err.message);
     sources.ocm.failed = Date.now();
   }
 }
@@ -261,7 +266,7 @@ async function reloadUsers() {
     await users.load();
     if (stationsBody) rebuild();
   } catch (err) {
-    console.error(new Date().toISOString(), 'user stations', err.message);
+    report('user stations', err.message);
   }
 }
 
@@ -277,7 +282,7 @@ async function addStation(req, res) {
     console.log(new Date().toISOString(), 'station added', rec.id, rec.name);
     json(res, 201, { station: fromUser(rec) });
   } catch (err) {
-    console.error(new Date().toISOString(), 'add station', err.message);
+    report('add station', err.message);
     json(res, 502, { error: 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง' });
   }
 }
@@ -303,9 +308,24 @@ async function googleStations(req, res) {
     console.log(new Date().toISOString(), 'google places', brand || 'nearby', r.calls, 'calls,', r.stations.length, 'stations,', r.remaining, 'left today');
     json(res, 200, r, { 'Cache-Control': 'no-store' });
   } catch (err) {
-    console.error(new Date().toISOString(), 'google places', err.message);
+    report('google places', err.message);
     json(res, 502, { error: 'google unavailable' });
   }
+}
+
+// ---------- what broke ----------
+// Server errors go to the log and, when statistics are on, to the errors table for the admin page;
+// the same one at most once every 10 minutes so a source that is down doesn't fill the table.
+const reported = new Map();
+function report(where, ...parts) {
+  const msg = parts.map((p) => (p instanceof Error ? p.message : String(p))).join(' ').slice(0, 300);
+  console.error(new Date().toISOString(), where, msg);
+  if (!stats) return;
+  const key = where + '|' + msg, last = reported.get(key) || 0;
+  if (Date.now() - last < 10 * 60 * 1000) return;
+  reported.set(key, Date.now());
+  if (reported.size > 500) reported.delete(reported.keys().next().value);
+  stats.insert('errors', { src: 'server', msg, at: where }).catch((err) => console.error(new Date().toISOString(), 'stats', err.message));
 }
 
 // ---------- usage statistics ----------
@@ -327,6 +347,73 @@ async function logStat(req, res) {
     .catch((err) => console.error(new Date().toISOString(), 'stats', err.message));
 }
 
+// A message from the app's contact form.
+async function feedback(req, res) {
+  if (!stats) { json(res, 503, { error: 'ส่งข้อความไม่ได้ในตอนนี้', contact: CONTACT_EMAIL || null }); return; }
+  if (!allowFeedback(clientIp(req))) { json(res, 429, { error: 'ส่งบ่อยเกินไป รอสักครู่แล้วลองใหม่' }); return; }
+  const row = cleanFeedback(await bodyJSON(req));
+  if (!row) { json(res, 400, { error: 'เขียนข้อความก่อนส่ง' }); return; }
+  const user = accounts ? await bearerUser(req).catch(() => null) : null;
+  if (user) { row.user_id = user.id; row.email = row.email || user.email; }
+  try {
+    await stats.insert('feedback', row);
+    json(res, 201, { ok: true });
+  } catch (err) {
+    report('feedback', err.message);
+    json(res, 502, { error: 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง', contact: CONTACT_EMAIL || null });
+  }
+}
+
+// ---------- admin ----------
+// admin.html: who uses the app, what broke, what users wrote. Signed-in admins only.
+let adminCache = null;
+async function admin(req, res, url) {
+  if (!stats || !accounts) { json(res, 404, { error: 'ยังไม่ได้ตั้งค่า Supabase' }); return; }
+  if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
+  const user = await bearerUser(req).catch(() => null);
+  if (!user) { json(res, 401, { error: 'เข้าสู่ระบบก่อน' }); return; }
+  if (!ADMINS.includes(String(user.email).toLowerCase())) { json(res, 403, { error: 'อีเมลนี้ไม่ใช่ผู้ดูแล (ตั้ง ADMIN_EMAILS ใน Render)' }); return; }
+  try {
+    if (url.pathname === '/api/admin/feedback' && req.method === 'POST') {
+      const b = await bodyJSON(req);
+      const id = Number(b?.id), status = b?.status === 'done' ? 'done' : 'new';
+      if (!Number.isInteger(id)) { json(res, 400, { error: 'bad id' }); return; }
+      await stats.update('feedback', 'id=eq.' + id, { status });
+      adminCache = null;
+      json(res, 200, { ok: true });
+      return;
+    }
+    if (url.pathname !== '/api/admin/summary') { res.writeHead(404).end(); return; }
+    if (!adminCache || Date.now() - adminCache.at > 60 * 1000) {
+      const since = (d) => new Date(Date.now() - d * 864e5).toISOString();
+      const m = since(31);
+      const [opens, plans, events, errors, fb, problems, charges, users] = await Promise.all([
+        stats.select('events', 'select=created_at,dev,lang&kind=eq.open&created_at=gte.' + m + '&limit=100000'),
+        stats.select('plans', 'select=created_at,brand,model,ok&created_at=gte.' + m + '&limit=100000'),
+        stats.select('events', 'select=created_at,kind,op&kind=neq.open&created_at=gte.' + m + '&limit=100000'),
+        stats.select('errors', 'select=created_at,src,msg,at,page,ua,dev&created_at=gte.' + since(14) + '&order=created_at.desc&limit=2000'),
+        stats.select('feedback', 'select=id,created_at,kind,message,email,page,lang,car_id,ua,status&order=created_at.desc&limit=200'),
+        stats.select('charges', 'select=created_at,station_name,op,problem,note&ok=is.false&created_at=gte.' + since(14) + '&order=created_at.desc&limit=50'),
+        stats.select('charges', 'select=ok&created_at=gte.' + m + '&limit=100000'),
+        accounts.listUsers(),
+      ]);
+      const out = adminSummary({ opens, plans, events, errors, feedback: fb, problems, charges, users });
+      out.health = {
+        up: Math.round((Date.now() - STARTED) / 60000), commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || null,
+        memoryMb: Math.round(process.memoryUsage().rss / 1048576),
+        google: places ? { used: places.counter.used, left: places.counter.remaining } : null,
+        stations: stationsBody ? JSON.parse(stationsBody).sources : null,
+        reportsAt: reportsAt ? new Date(reportsAt).toISOString() : null,
+      };
+      adminCache = { at: Date.now(), body: JSON.stringify(out) };
+    }
+    json(res, 200, adminCache.body, { 'Cache-Control': 'no-store' });
+  } catch (err) {
+    report('admin', err.message);
+    json(res, 502, { error: 'อ่านข้อมูลจาก Supabase ไม่ได้: ' + err.message });
+  }
+}
+
 // Drivers' charging reports from the last 90 days, summed up per station for the page.
 const REPORTS_TTL = 10 * 60 * 1000;
 let reportsBody = '{"reports":{}}', reportsAt = 0;
@@ -338,7 +425,7 @@ async function reloadReports() {
     const rows = await stats.select('charges', 'select=station_id,ok,plug,max_kw,problem,created_at&created_at=gte.' + since + '&order=created_at.desc&limit=5000');
     reportsBody = JSON.stringify({ reports: summarize(rows) });
   } catch (err) {
-    console.error(new Date().toISOString(), 'reports', err.message);
+    report('reports', err.message);
   }
 }
 
@@ -352,7 +439,7 @@ function bearerUser(req) {
   return h.startsWith('Bearer ') ? accounts.user(h.slice(7)) : Promise.resolve(null);
 }
 
-const say = (err) => console.error(new Date().toISOString(), 'account', err.message);
+const say = (err) => report('account', err.message);
 
 async function sendCode(req, res) {
   const email = cleanEmail((await bodyJSON(req))?.email);
@@ -490,7 +577,7 @@ async function proxyRoute(req, res) {
     // Pass Valhalla's own answer through, including "no path" errors the page explains to the user.
     json(res, r.status, Buffer.from(await r.arrayBuffer()), { 'Cache-Control': 'no-store' });
   } catch (err) {
-    console.error(new Date().toISOString(), '/api/route', err.message);
+    report('/api/route', err.message);
     json(res, 502, { error: 'route service unavailable' });
   }
 }
@@ -536,6 +623,14 @@ createServer(async (req, res) => {
     else if (url.pathname === '/api/auth/approve' && (req.method === 'GET' || req.method === 'POST')) await handoffApproval(req, res, url);
     else if (url.pathname.startsWith('/api/me')) await me(req, res, url);
     else res.writeHead(404).end();
+    return;
+  }
+  if (url.pathname === '/api/feedback' && req.method === 'POST') {
+    await feedback(req, res);
+    return;
+  }
+  if (url.pathname.startsWith('/api/admin/')) {
+    await admin(req, res, url);
     return;
   }
   if (url.pathname === '/api/log' && req.method === 'POST') {
@@ -584,7 +679,7 @@ createServer(async (req, res) => {
       const r = await cached(WEATHER + 'latitude=' + lat.toFixed(2) + '&longitude=' + lng.toFixed(2), WEATHER_TTL);
       json(res, 200, r.body, { 'Cache-Control': 'public, max-age=1800' });
     } catch (err) {
-      console.error(new Date().toISOString(), '/api/weather', err.message);
+      report('/api/weather', err.message);
       json(res, 502, { error: 'weather unavailable' });
     }
     return;
@@ -596,7 +691,7 @@ createServer(async (req, res) => {
       const r = await cached(PHOTON_REVERSE + 'lat=' + lat.toFixed(4) + '&lon=' + lng.toFixed(4), AREA_TTL);
       json(res, 200, areaFromPhoton(JSON.parse(r.body)), { 'Cache-Control': 'public, max-age=86400' });
     } catch (err) {
-      console.error(new Date().toISOString(), '/api/area', err.message);
+      report('/api/area', err.message);
       json(res, 502, { error: 'geocoder unavailable' });
     }
     return;
@@ -608,7 +703,7 @@ createServer(async (req, res) => {
       const r = await cached(PHOTON + encodeURIComponent(q), GEO_TTL);
       json(res, 200, r.body, { 'Cache-Control': 'public, max-age=600', 'X-Cache': r.cache });
     } catch (err) {
-      console.error(new Date().toISOString(), '/api/geocode', err.message);
+      report('/api/geocode', err.message);
       json(res, 502, { error: 'geocoder unavailable' });
     }
     return;

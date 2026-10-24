@@ -104,8 +104,10 @@
 
   function walk(node) {
     if (node.nodeType === 3) { if (!(node.parentNode && SKIP[node.parentNode.nodeName])) text(node); return; }
-    if (node.nodeType !== 1 || SKIP[node.nodeName] || node.getAttribute('translate') === 'no') return;
+    if (node.nodeType !== 1 || node.getAttribute('translate') === 'no') return;
+    if (SKIP[node.nodeName] && node.nodeName !== 'TEXTAREA') return;
     for (var i = 0; i < ATTRS.length; i++) if (node.hasAttribute(ATTRS[i])) attr(node, ATTRS[i]);
+    if (node.nodeName === 'TEXTAREA') return; // its placeholder, never what the user typed
     for (var c = node.firstChild; c; c = c.nextSibling) walk(c);
   }
 

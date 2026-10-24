@@ -3,7 +3,7 @@
 
   var P = window.EVPlan, CARS = window.EVCars;
   // Dates and numbers in the page's language (assets/js/i18n.js translates the words).
-  var I18N = window.I18N || { lang: 'th', locale: LOC, t: function (x) { return x; } };
+  var I18N = window.I18N || { lang: 'th', locale: 'th-TH', t: function (x) { return x; } };
   var LOC = I18N.locale;
 
   // server.mjs proxies both; the public services also send CORS headers, so direct calls are the fallback.
@@ -33,6 +33,46 @@
   }
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  // ---------- what broke ----------
+  // Errors in this page go to the admin page (the message and where, nothing the user typed), at most
+  // five different ones per visit. Those before the server's settings arrive wait for them.
+  var ERR = { n: 0, seen: {}, queue: [] };
+  function reportError(msg, at) {
+    msg = String(msg || '').slice(0, 300);
+    if (!msg || msg === 'Script error.' || ERR.seen[msg] || ERR.n >= 5) return;
+    ERR.seen[msg] = 1;
+    ERR.n++;
+    var d = { msg: msg, at: at || null, page: document.body.dataset.view || null, lang: I18N.lang, ua: uaShort(), dev: devId() };
+    if (R.cfg) send('error', d); else ERR.queue.push(d);
+  }
+  window.addEventListener('error', function (e) {
+    if (e.message) reportError(e.message, (e.filename || '').split('/').pop() + ':' + e.lineno + ':' + e.colno);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason;
+    reportError('unhandled: ' + (r && r.message || r), r && r.stack ? String(r.stack).split('\n')[1] : null);
+  });
+
+  // Browser and system only, e.g. "Chrome 126 · Android".
+  function uaShort() {
+    var u = navigator.userAgent, b = u.match(/(Line|FBAN|Instagram|SamsungBrowser|Edg|OPR|CriOS|FxiOS|Firefox|Chrome|Version)\/?\s?(\d+)/);
+    var os = /iPhone|iPad/.test(u) ? 'iOS' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Mac OS/.test(u) ? 'Mac' : /Linux/.test(u) ? 'Linux' : 'other';
+    var name = b ? (b[1] === 'Version' ? 'Safari' : b[1] === 'CriOS' ? 'Chrome' : b[1] === 'FxiOS' ? 'Firefox' : b[1] === 'FBAN' ? 'Facebook' : b[1]) + ' ' + b[2] : 'other';
+    return name + ' · ' + os;
+  }
+
+  // A random id per browser, to count how many people use the app ("เริ่มรหัสใหม่" makes a new one).
+  function devId() {
+    var d = load('dev');
+    if (!/^d-[a-z0-9]{8}$/.test(d || '')) {
+      var r = '';
+      while (r.length < 8) r += Math.random().toString(36).slice(2);
+      d = 'd-' + r.slice(0, 8);
+      store('dev', d);
+    }
+    return d;
+  }
+
   function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; }
   function setRadio(name, v) {
     var el = document.querySelector('input[name="' + name + '"][value="' + v + '"]');
@@ -516,6 +556,7 @@
       logPlan(res);
     }).catch(function (err) {
       console.error(err);
+      reportError('plan: ' + err.message, 'plan');
       clearResult();
       say(/no path|no suitable/i.test(err.message) ? 'ไม่พบเส้นทางรถยนต์ระหว่าง 2 จุดนี้' : 'บริการหาเส้นทางหรือข้อมูลสถานีไม่ตอบ ลองใหม่อีกครั้ง', 'crit');
     }).then(function () { setBusy(false); });
@@ -2020,6 +2061,7 @@
   }
   $('stats-reset').addEventListener('click', function () {
     store('cuids', {});
+    store('dev', null);
     this.textContent = 'เริ่มรหัสใหม่แล้ว ✓';
   });
   $('stats-toggle').addEventListener('click', function () {
@@ -2713,6 +2755,71 @@
     }).catch(function () { toast('ลบไม่สำเร็จ ลองใหม่อีกครั้ง'); });
   }
 
+  // ---------- contact form ----------
+  var FB = { kind: 'bug', busy: false };
+
+  function openFb(kind) {
+    FB.kind = kind || 'bug';
+    if (!$('acct').hidden) closeAcct();
+    showFbKind();
+    $('fb-form').hidden = false;
+    $('fb-done').hidden = true;
+    $('fb-err').textContent = '';
+    if (signedIn() && !$('fb-email').value) $('fb-email').value = (A.s.user && A.s.user.email) || '';
+    $('fb-contact').textContent = R.cfg && R.cfg.contact ? ' · หรืออีเมลถึง ' + R.cfg.contact : '';
+    $('fb').hidden = false;
+    document.body.classList.add('no-scroll');
+    $('fb-msg').focus();
+  }
+
+  function closeFb() {
+    $('fb').hidden = true;
+    document.body.classList.remove('no-scroll');
+  }
+
+  function showFbKind() {
+    document.querySelectorAll('[data-fb-kind]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.fbKind === FB.kind ? 'true' : 'false'); });
+  }
+
+  function sendFb(e) {
+    e.preventDefault();
+    if (FB.busy) return;
+    var msg = $('fb-msg').value.trim(), email = $('fb-email').value.trim();
+    if (msg.length < 3) { $('fb-err').textContent = I18N.t('เขียนข้อความก่อนส่ง'); $('fb-msg').focus(); return; }
+    var body = JSON.stringify({
+      kind: FB.kind, message: msg, email: email, page: document.body.dataset.view || null, lang: I18N.lang,
+      car: R.car && R.car.id, pid: R.result && R.result.pid, ua: uaShort(), dev: devId(),
+    });
+    var btn = $('fb-form').querySelector('[type=submit]');
+    FB.busy = true;
+    btn.disabled = true;
+    var go = signedIn() ? authFetch('/api/feedback', { method: 'POST', body: body })
+      : fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body });
+    go.then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) throw d;
+        $('fb-msg').value = '';
+        $('fb-form').hidden = true;
+        $('fb-done').innerHTML = '<div class="tabnote__icon" aria-hidden="true">✓</div><h2 class="sheet__title">ได้รับข้อความแล้ว</h2>' +
+          '<p>' + (email ? 'ขอบคุณที่ช่วยให้ EVROUTE ดีขึ้น เราจะตอบกลับทาง ' + esc(email) : 'ขอบคุณที่ช่วยให้ EVROUTE ดีขึ้น') + '</p>' +
+          '<button type="button" class="btn btn--primary btn--block" data-fb-close>ปิด</button>';
+        $('fb-done').hidden = false;
+      });
+    }).catch(function (d) {
+      var contact = (d && d.contact) || (R.cfg && R.cfg.contact);
+      $('fb-err').textContent = ((d && d.error) || 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง') + (contact ? ' · หรืออีเมลถึง ' + contact : '');
+    }).then(function () { FB.busy = false; btn.disabled = false; });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t;
+    if (e.target.closest('[data-fb-open]')) { openFb(); return; }
+    if (e.target.closest('[data-fb-close]')) { closeFb(); return; }
+    if ((t = e.target.closest('[data-fb-kind]'))) { FB.kind = t.dataset.fbKind; showFbKind(); }
+  });
+  $('fb-form').addEventListener('submit', sendFb);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('fb').hidden) closeFb(); });
+
   // ---------- sign-up prompts ----------
   var NUDGES = {
     save: '★ บันทึกในเครื่องนี้แล้ว · <b>ใส่อีเมลเพื่อเก็บไว้ถาวร</b> เปิดได้ทุกเครื่อง',
@@ -2915,6 +3022,13 @@
     $('map').classList.add('map--' + view.kind);
     showStatsNote();
     initAccount();
+    ERR.queue.splice(0).forEach(function (d) { send('error', d); });
+    // One "open" a day per browser: how many people use the app, and in which language.
+    var day = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    if (load('opened') !== day && R.cfg.stats && !load('nostats')) {
+      store('opened', day);
+      send('event', { kind: 'open', dev: devId(), lang: I18N.lang });
+    }
     if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
     routeLayer = map.layer();
     candLayer = map.layer();

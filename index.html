@@ -297,7 +297,7 @@
 
     <footer class="foot">
       <p class="foot__warn"><strong>ใช้ประกอบการวางแผนเท่านั้น</strong> ระยะวิ่งจริงขึ้นกับสภาพถนน อากาศ และการขับขี่ สถานีอาจปิดหรือหัวชาร์จเสีย ตรวจสอบในแอปผู้ให้บริการก่อนเดินทาง</p>
-      <p><a href="privacy.html">นโยบายความเป็นส่วนตัว</a></p>
+      <p class="foot__links"><button type="button" class="btn btn--soft" data-fb-open>ติดต่อเรา / แจ้งปัญหา</button> <a href="privacy.html">นโยบายความเป็นส่วนตัว</a></p>
       <p id="stats-note" hidden>เก็บสถิติการใช้งาน (รุ่นรถ แผนการชาร์จ สถานีที่เลือก ปุ่มที่กด และบันทึกการชาร์จที่คุณส่ง) เพื่อปรับปรุงข้อมูลและบริการ ข้อมูลของรถคันเดียวกันเชื่อมกันด้วยรหัสสุ่มที่เก็บในเบราว์เซอร์นี้ ไม่ผูกกับชื่อ เบอร์โทร ทะเบียนรถ หรือ IP และไม่เก็บตำแหน่งละเอียด · <button type="button" class="link-btn" id="stats-reset">เริ่มรหัสใหม่</button> · <button type="button" class="link-btn" id="stats-toggle">ไม่ร่วมส่งสถิติ</button></p>
       <p id="sources">สถานีชาร์จ: <a href="https://peavoltaev.pea.co.th/pea-volta-charging-stations/" target="_blank" rel="noopener">PEA VOLTA</a> · <a href="https://evolt.co.th/driver/" target="_blank" rel="noopener">EVolt</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · <a href="https://openchargemap.org" target="_blank" rel="noopener">Open Charge Map</a> (CC BY 4.0) · ราคาค่าชาร์จ: ตามที่ผู้ให้บริการประกาศ ใช้ประมาณการเท่านั้น · เส้นทาง: <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> (FOSSGIS) · ค้นหาสถานที่: <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · แผนที่ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
     </footer>
@@ -317,6 +317,7 @@
     <section class="sheet__card" role="dialog" aria-modal="true" aria-labelledby="acct-title">
       <button type="button" class="sheet__x" data-acct-close aria-label="ปิด">×</button>
       <div id="acct-body"></div>
+      <p class="sheet__foot"><button type="button" class="link-btn" data-fb-open>ติดต่อเรา / แจ้งปัญหา</button></p>
     </section>
   </div>
 
@@ -329,6 +330,31 @@
       <button type="button" class="btn btn--primary" id="tabnote-close">ปิดแท็บนี้</button>
       <p class="hint" id="tabnote-hint" hidden>ปิดแท็บนี้จากปุ่มแท็บของเบราว์เซอร์ได้เลย แล้วสลับไปแท็บ EVROUTE เดิม</p>
       <button type="button" class="link-btn" id="tabnote-stay"></button>
+    </section>
+  </div>
+
+  <div class="sheet" id="fb" hidden>
+    <div class="sheet__backdrop" data-fb-close></div>
+    <section class="sheet__card" role="dialog" aria-modal="true" aria-labelledby="fb-title">
+      <button type="button" class="sheet__x" data-fb-close aria-label="ปิด">×</button>
+      <form id="fb-form" class="sheet__form" novalidate>
+        <h2 class="sheet__title" id="fb-title">ติดต่อเรา / แจ้งปัญหา</h2>
+        <p class="hint">เล่าให้ฟังได้เลย ทีมงานอ่านทุกข้อความ</p>
+        <div class="want__row" role="radiogroup" aria-label="เรื่อง">
+          <button type="button" class="want__chip" data-fb-kind="bug" aria-pressed="true">🐞 ใช้งานไม่ได้</button>
+          <button type="button" class="want__chip" data-fb-kind="station" aria-pressed="false">📍 ข้อมูลสถานีผิด</button>
+          <button type="button" class="want__chip" data-fb-kind="idea" aria-pressed="false">💡 อยากให้มี</button>
+          <button type="button" class="want__chip" data-fb-kind="other" aria-pressed="false">💬 อื่น ๆ</button>
+        </div>
+        <label class="opt__label" for="fb-msg">ข้อความ</label>
+        <textarea id="fb-msg" class="field" rows="5" maxlength="2000" placeholder="เกิดอะไรขึ้น ตอนทำอะไรอยู่ หรืออยากให้เพิ่มอะไร"></textarea>
+        <label class="opt__label" for="fb-email">อีเมล (ไม่บังคับ ถ้าอยากให้ตอบกลับ)</label>
+        <input id="fb-email" class="field" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com">
+        <p class="sheet__msg" id="fb-err" role="alert"></p>
+        <button type="submit" class="btn btn--primary btn--block">ส่งข้อความ</button>
+        <p class="hint">ส่งไปพร้อมข้อมูลเครื่องเพื่อช่วยหาปัญหา: หน้าที่เปิด ภาษา รุ่นรถ และเบราว์เซอร์ ไม่ส่งตำแหน่งหรือเส้นทางของคุณ<span id="fb-contact"></span></p>
+      </form>
+      <div id="fb-done" class="fb-done" hidden></div>
     </section>
   </div>
 

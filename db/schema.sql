@@ -124,4 +124,32 @@ select ctx, count(*) filter (where kind = 'nudge') as shown, count(*) filter (wh
        count(*) filter (where kind = 'signin') as signed_in, count(*) filter (where kind = 'premium') as premium_interest
 from events where kind in ('nudge', 'nudge_go', 'signin', 'premium') group by ctx order by shown desc;
 
-revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel from anon, authenticated;
+-- The admin page (admin.html): one "open" event a day per browser (a random id, dev) for counting
+-- people, the language they use, what broke, and messages sent from the contact form.
+alter table events add column if not exists dev text;
+alter table events add column if not exists lang text;
+create index if not exists events_dev on events (kind, created_at, dev);
+
+create table if not exists errors (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  src text not null,            -- web (the page) or server
+  msg text not null, at text,   -- message, and file:line or the server part that failed
+  page text, lang text, ua text, dev text
+);
+alter table errors enable row level security;
+create index if not exists errors_created on errors (created_at);
+
+create table if not exists feedback (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  kind text not null,           -- bug, station, idea, other
+  message text not null, email text,
+  page text, lang text, car_id text, plan_id text, ua text, dev text,
+  user_id uuid references auth.users (id) on delete set null,
+  status text not null default 'new'
+);
+alter table feedback enable row level security;
+create index if not exists feedback_created on feedback (created_at);
+
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback from anon, authenticated;
