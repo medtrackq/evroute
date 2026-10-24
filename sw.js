@@ -1,8 +1,8 @@
 // Lets EVROUTE be installed to the home screen and open without a connection. Pages and files come
 // from the network first (so a new deploy shows at once), with the last copy kept for offline use.
 // Live data (/api/...) is never cached here.
-const CACHE = 'evroute-v1';
-const SHELL = ['./', 'index.html', 'assets/css/style.css', 'assets/js/app.js', 'assets/js/plan.js', 'assets/js/cars.js', 'assets/js/mapview.js', 'assets/icons/icon-192.png'];
+const CACHE = 'evroute-v2';
+const SHELL = ['./', 'index.html', 'assets/css/style.css', 'assets/js/i18n.js', 'assets/js/app.js', 'assets/js/plan.js', 'assets/js/cars.js', 'assets/js/mapview.js', 'assets/icons/icon-192.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

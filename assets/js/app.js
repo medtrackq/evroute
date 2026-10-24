@@ -2,6 +2,9 @@
   'use strict';
 
   var P = window.EVPlan, CARS = window.EVCars;
+  // Dates and numbers in the page's language (assets/js/i18n.js translates the words).
+  var I18N = window.I18N || { lang: 'th', locale: LOC, t: function (x) { return x; } };
+  var LOC = I18N.locale;
 
   // server.mjs proxies both; the public services also send CORS headers, so direct calls are the fallback.
   var ROUTE_URLS = ['/api/route', 'https://valhalla1.openstreetmap.de/route'];
@@ -361,7 +364,7 @@
     getJSON('data/prices.json').then(function (d) { R.prices = d.prices || {}; R.petrol = d.petrol || null; if (R.result) render(); renderHome(); }, function () {});
     var st = getJSON('/api/stations').then(function (d) {
       R.stations = d.stations || [];
-      $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
+      $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString(LOC) + ' แห่ง';
       $('live').className = 'live is-fresh';
     }, function (err) {
       console.error(err);
@@ -664,7 +667,7 @@
       var p = x.p, ahead = upcoming(p), when = p.dep ? new Date(p.dep).getTime() : NaN;
       var tag = ahead ? '<span class="saved-when is-ahead">เดินทาง ' + esc(thaiDate(when, true)) + '</span>'
         : isFinite(when) ? '<span class="saved-when">เคยเดินทาง ' + esc(thaiDate(when)) + ' · กดเพื่อใช้อีกครั้ง</span>'
-        : '<span class="saved-when">ยังไม่ระบุวัน · บันทึก ' + esc(new Date(p.at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })) + '</span>';
+        : '<span class="saved-when">ยังไม่ระบุวัน · บันทึก ' + esc(new Date(p.at).toLocaleDateString(LOC, { day: 'numeric', month: 'short' })) + '</span>';
       return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b>' + tag + '<span>จาก ' + esc(p.from) + ' · ' + esc(p.car) + ' · ' + p.km + ' กม. · ชาร์จ ' + p.stops + ' จุด</span></a>' +
         '<button type="button" class="saved-del" data-unsave="' + x.i + '" aria-label="ลบแผนนี้">×</button></li>';
     }).join('') + (list.length && accountsOn() && !signedIn()
@@ -680,12 +683,12 @@
     return m < 60 ? m + ' นาที' : Math.floor(m / 60) + ' ชม.' + (m % 60 ? ' ' + (m % 60) + ' นาที' : '');
   }
   function pct(v) { return Math.round(v) + '%'; }
-  function km1(v) { return v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString('th-TH'); }
+  function km1(v) { return v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString(LOC); }
   // Arrival time, minutes after departure; with the date when that isn't today.
   function clock(minAfterStart) {
     var d = new Date(departAt() + minAfterStart * 60000);
-    var t = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-    return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + t;
+    var t = d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' });
+    return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + t;
   }
 
   // ---------- what to stop for ----------
@@ -760,8 +763,8 @@
 
   function thaiDate(t, withTime) {
     var d = new Date(t);
-    return d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' }) +
-      (withTime ? ' ' + d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.' : '');
+    return d.toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' }) +
+      (withTime ? ' ' + d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' }) + ' น.' : '');
   }
 
   function showDepart() {
@@ -1028,7 +1031,7 @@
       '<div class="tiles">' +
         (res.chargeMin < 60 ? tile('lav', 'time', 'ชาร์จรวม', Math.round(res.chargeMin || 0), 'นาที')
           : tile('lav', 'time', 'ชาร์จรวม', Math.floor(res.chargeMin / 60) + ':' + String(Math.round(res.chargeMin % 60)).padStart(2, '0'), 'ชม.')) +
-        (res.cost != null ? tile('sun', 'dc', 'ค่าไฟโดยประมาณ', '฿' + Math.round(res.cost).toLocaleString('th-TH'), '', Math.round(t.kwh) + ' kWh')
+        (res.cost != null ? tile('sun', 'dc', 'ค่าไฟโดยประมาณ', '฿' + Math.round(res.cost).toLocaleString(LOC), '', Math.round(t.kwh) + ' kWh')
           : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
@@ -1109,7 +1112,7 @@
 
   function costText(c) {
     if (!c) return '';
-    return ' · <b>~฿' + Math.round(c.baht).toLocaleString('th-TH') + '</b> <span class="hint">(' + c.rate + ' ฿/kWh' +
+    return ' · <b>~฿' + Math.round(c.baht).toLocaleString(LOC) + '</b> <span class="hint">(' + c.rate + ' ฿/kWh' +
       (c.offPeak ? ' ช่วง Off-Peak' : '') + (c.known ? '' : ' ราคาเฉลี่ย') + ')</span>';
   }
 
@@ -1372,7 +1375,7 @@
         '<text class="axis" x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle">จุด ' + (i + 1) + '</text>' +
         '<rect class="hit" x="' + (cx - slot / 2) + '" y="0" width="' + slot + '" height="' + H + '"/></g>';
     }).join('');
-    $('chart-kpi').innerHTML = 'เติมไฟรวม<b>' + Math.round(t.kwh) + '<small>kWh · ' + dur(res.chargeMin) + (res.cost != null ? ' · ~฿' + Math.round(res.cost).toLocaleString('th-TH') : '') + '</small></b>';
+    $('chart-kpi').innerHTML = 'เติมไฟรวม<b>' + Math.round(t.kwh) + '<small>kWh · ' + dur(res.chargeMin) + (res.cost != null ? ' · ~฿' + Math.round(res.cost).toLocaleString(LOC) : '') + '</small></b>';
     $('chart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="พลังงานที่เติมแต่ละจุด (kWh)">' + grid + bars +
       '</svg><div class="tip" hidden></div>';
     var svg = $('chart').querySelector('svg'), tip = $('chart').querySelector('.tip');
@@ -1839,6 +1842,9 @@
   renderSaved();
   $('nav').addEventListener('click', onResultClick);
 
+  $('lang').value = I18N.lang;
+  $('lang').addEventListener('change', function () { I18N.use && I18N.use($('lang').value); });
+
   $('theme').addEventListener('click', function () {
     var t = document.documentElement.dataset.theme;
     var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
@@ -1973,7 +1979,7 @@
       })
       .then(function (d) {
         R.stations.push(d.station);
-        $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString('th-TH') + ' แห่ง';
+        $('updated').textContent = 'สถานีชาร์จ ' + R.stations.length.toLocaleString(LOC) + ' แห่ง';
         openAdd(false);
         // Leave a thank-you in place of the form for a moment.
         $('add-card').hidden = false;
@@ -2072,8 +2078,8 @@
   }
 
   function tripFacts(km, stops, cost, mins) {
-    return [km != null ? Math.round(km).toLocaleString('th-TH') + ' กม.' : '', mins ? dur(mins) : '', stops != null ? (stops ? 'ชาร์จ ' + stops + ' จุด' : 'ไม่ต้องชาร์จ') : '',
-      cost != null ? '฿' + Math.round(cost).toLocaleString('th-TH') : ''].filter(Boolean).join(' · ');
+    return [km != null ? Math.round(km).toLocaleString(LOC) + ' กม.' : '', mins ? dur(mins) : '', stops != null ? (stops ? 'ชาร์จ ' + stops + ' จุด' : 'ไม่ต้องชาร์จ') : '',
+      cost != null ? '฿' + Math.round(cost).toLocaleString(LOC) : ''].filter(Boolean).join(' · ');
   }
 
   function carPhoto() {
@@ -2102,7 +2108,7 @@
   // ---- greeting header ----
   function bkkNow() { return new Date(Date.now() + 7 * 3600e3); } // read with getUTC*
   function bkkDay(t) { return new Date(t + 7 * 3600e3).toISOString().slice(0, 10); }
-  function dayLabel(iso) { return new Date(iso + 'T12:00:00+07:00').toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' }); }
+  function dayLabel(iso) { return new Date(iso + 'T12:00:00+07:00').toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' }); }
 
   function greeting() {
     var h = bkkNow().getUTCHours();
@@ -2289,8 +2295,8 @@
   function priceWidget() {
     var now = new Date(), off = P.isOffPeak(now), sw = nextPriceSwitch(now);
     // On/off-peak hours are Thai time, whatever the device's clock is set to.
-    var hm = sw.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
-    var when = bkkDay(sw.getTime()) === bkkDay(now.getTime()) ? hm : sw.toLocaleDateString('th-TH', { weekday: 'short', timeZone: 'Asia/Bangkok' }) + ' ' + hm;
+    var hm = sw.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
+    var when = bkkDay(sw.getTime()) === bkkDay(now.getTime()) ? hm : sw.toLocaleDateString(LOC, { weekday: 'short', timeZone: 'Asia/Bangkok' }) + ' ' + hm;
     var best = Object.keys(R.prices || {}).filter(function (k) { return k !== '_default' && R.prices[k].dc; }).map(function (k) {
       var p = R.prices[k];
       return { op: k, rate: off && p.dcOff ? p.dcOff : p.dc };
@@ -2310,7 +2316,7 @@
     if (!list.length) return '';
     var rows = list.slice(0, 3).map(function (p) {
       var when = upcoming(p) ? thaiDate(new Date(p.dep).getTime()) : p.dep ? 'เคยไป ' + thaiDate(new Date(p.dep).getTime()) : 'ยังไม่ระบุวัน';
-      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span' + (upcoming(p) ? ' class="is-ahead"' : '') + '>' + esc(when) + '</span><span>' + (p.km ? Math.round(p.km).toLocaleString('th-TH') + ' กม.' : '') + '</span></a></li>';
+      return '<li><a href="' + esc(p.q) + '"><b>' + esc(p.title) + '</b><span' + (upcoming(p) ? ' class="is-ahead"' : '') + '>' + esc(when) + '</span><span>' + (p.km ? Math.round(p.km).toLocaleString(LOC) + ' กม.' : '') + '</span></a></li>';
     }).join('');
     return '<div class="w w--wide w-saved"><div class="w__top"><span class="w__title">ทริปที่บันทึกไว้</span>' +
       (list.length > 3 ? '<button type="button" class="link-btn" data-go="plan" data-open="saved">ดูทั้งหมด (' + list.length + ')</button>' : '') + '</div>' +
@@ -2330,8 +2336,8 @@
     var diff = real ? Math.round((real.kwh100 - base.use) / base.use * 100) : null;
     return '<div class="w w--wide w-mine"><div class="w__top"><span class="w__title">รถของฉัน เดือนนี้</span><button type="button" class="link-btn" data-acct-open="menu">ดูประวัติ ›</button></div>' +
       '<div class="w-mine__grid">' +
-        '<div><span class="w__sub">ค่าชาร์จ</span><b class="w__big">฿' + Math.round(baht).toLocaleString('th-TH') + '</b><span class="w__sub">' + (kwh ? Math.round(kwh) + ' kWh · ~' + Math.round(km).toLocaleString('th-TH') + ' กม.' : 'ยังไม่มีบันทึกเดือนนี้') + '</span></div>' +
-        '<div><span class="w__sub">ประหยัดกว่ารถน้ำมัน</span><b class="w__big' + (save > 0 ? ' is-good' : '') + '">' + (save != null ? '฿' + Math.round(Math.max(0, save)).toLocaleString('th-TH') : '–') + '</b>' +
+        '<div><span class="w__sub">ค่าชาร์จ</span><b class="w__big">฿' + Math.round(baht).toLocaleString(LOC) + '</b><span class="w__sub">' + (kwh ? Math.round(kwh) + ' kWh · ~' + Math.round(km).toLocaleString(LOC) + ' กม.' : 'ยังไม่มีบันทึกเดือนนี้') + '</span></div>' +
+        '<div><span class="w__sub">ประหยัดกว่ารถน้ำมัน</span><b class="w__big' + (save > 0 ? ' is-good' : '') + '">' + (save != null ? '฿' + Math.round(Math.max(0, save)).toLocaleString(LOC) : '–') + '</b>' +
           '<span class="w__sub">' + (pet ? 'เทียบ ' + pet.kmPerLitre + ' กม./ลิตร ลิตรละ ฿' + pet.bahtPerLitre : '') + '</span></div>' +
         '<div><span class="w__sub">กินไฟจริง</span><b class="w__big">' + (real ? real.kwh100 + ' <small>kWh/100 กม.</small>' : '–') + '</b>' +
           '<span class="w__sub">' + (real ? (diff === 0 ? 'เท่าค่าจากโรงงาน' : (diff < 0 ? 'ดีกว่า' : 'มากกว่า') + 'ค่าโรงงาน ' + Math.abs(diff) + '%') : 'ใส่เลขไมล์ตอนบันทึกการชาร์จ 2 ครั้ง') + '</span>' +
@@ -2395,7 +2401,7 @@
     }
     if (e.target.closest('[data-addopen-home]')) { setView('plan'); openAdd(true); document.querySelector('.map-card').scrollIntoView({ block: 'center' }); return; }
     if (e.target.closest('[data-nick]')) {
-      var n = prompt('ชื่อเล่นที่อยากให้ทักทาย (เว้นว่างเพื่อลบ)', load('nick') || '');
+      var n = prompt(I18N.t('ชื่อเล่นที่อยากให้ทักทาย (เว้นว่างเพื่อลบ)'), load('nick') || '');
       if (n !== null) { store('nick', n.trim().slice(0, 20) || null); renderHome(); }
       return;
     }
@@ -2570,17 +2576,17 @@
     charges.forEach(function (c) { if (c.ok && String(c.created_at).slice(0, 7) === month) { mBaht += +c.baht || 0; mKwh += +c.kwh || 0; } });
     var useHtml = Object.keys(use).map(function (id) {
       var u = use[id];
-      return '<li><b>' + esc(carName(id)) + '</b> กินไฟจริง <b>' + u.kwh100 + '</b> kWh/100 กม. <span class="hint">(จาก ' + u.km.toLocaleString('th-TH') + ' กม.)</span>' +
+      return '<li><b>' + esc(carName(id)) + '</b> กินไฟจริง <b>' + u.kwh100 + '</b> kWh/100 กม. <span class="hint">(จาก ' + u.km.toLocaleString(LOC) + ' กม.)</span>' +
         (R.car && R.car.id === id && Math.abs(R.car.use - u.kwh100) >= 0.1 ? ' <button type="button" class="link-btn" data-use-real="' + u.kwh100 + '">ใช้ค่านี้วางแผน</button>' : '') + '</li>';
     }).join('');
     b.innerHTML = '<h2 class="sheet__title" id="acct-title">บัญชีของฉัน</h2><p class="hint">' + esc(A.s.user && A.s.user.email || '') + '</p>' +
       '<div class="sheet__stats"><div><b>' + trips + '</b><span>ทริปที่บันทึกไว้</span></div><div><b>' + charges.length + '</b><span>บันทึกการชาร์จ</span></div>' +
-      '<div><b>฿' + Math.round(mBaht).toLocaleString('th-TH') + '</b><span>ค่าชาร์จเดือนนี้' + (mKwh ? ' · ' + Math.round(mKwh) + ' kWh' : '') + '</span></div></div>' +
+      '<div><b>฿' + Math.round(mBaht).toLocaleString(LOC) + '</b><span>ค่าชาร์จเดือนนี้' + (mKwh ? ' · ' + Math.round(mKwh) + ' kWh' : '') + '</span></div></div>' +
       '<h3 class="sheet__h">อัตรากินไฟจริงของรถคุณ</h3>' +
       (useHtml ? '<ul class="sheet__list">' + useHtml + '</ul>' : '<p class="hint">ใส่ <b>เลขไมล์</b> ตอน "บันทึกการชาร์จจริง" ตั้งแต่ 2 ครั้งขึ้นไป ระบบจะคำนวณให้ แม่นกว่าค่าจากโรงงาน</p>') +
       '<h3 class="sheet__h">ประวัติการชาร์จ</h3>' +
       (charges.length ? '<ul class="sheet__list sheet__hist">' + charges.slice(0, 20).map(function (c) {
-        return '<li><span>' + esc(new Date(c.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })) + '</span><b>' + esc(c.station_name || c.op || 'สถานี') + '</b>' +
+        return '<li><span>' + esc(new Date(c.created_at).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: '2-digit' })) + '</span><b>' + esc(c.station_name || c.op || 'สถานี') + '</b>' +
           '<span>' + (c.ok ? [c.kwh != null ? c.kwh + ' kWh' : '', c.baht != null ? '฿' + c.baht : '', c.max_kw ? c.max_kw + ' kW' : ''].filter(Boolean).join(' · ') || 'ชาร์จได้' : '⚠ ' + esc(problemText(c.problem))) + '</span></li>';
       }).join('') + '</ul>' : '<p class="hint">ยังไม่มี กด "บันทึกการชาร์จจริง" ที่จุดชาร์จในแผน หลังชาร์จเสร็จ</p>') +
       '<div class="sheet__premium">' + (load('premium') ? '<b>ขอบคุณที่สนใจ!</b> เราจะแจ้งทางอีเมลเมื่อเปิดสมาชิกรุ่นแรก'
@@ -2697,7 +2703,7 @@
   }
 
   function deleteAccount() {
-    if (!confirm('ลบบัญชี ทริปที่บันทึกไว้บนระบบ และการเชื่อมประวัติการชาร์จกับอีเมลนี้ทั้งหมด?\n\nบันทึกการชาร์จจะยังอยู่แบบไม่ระบุตัวตนเพื่อช่วยข้อมูลสถานี ลบแล้วกู้คืนไม่ได้')) return;
+    if (!confirm(I18N.t('ลบบัญชี ทริปที่บันทึกไว้บนระบบ และการเชื่อมประวัติการชาร์จกับอีเมลนี้ทั้งหมด?\n\nบันทึกการชาร์จจะยังอยู่แบบไม่ระบุตัวตนเพื่อช่วยข้อมูลสถานี ลบแล้วกู้คืนไม่ได้'))) return;
     authFetch('/api/me', { method: 'DELETE' }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       saveSession(null);

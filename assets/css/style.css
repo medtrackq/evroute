@@ -131,6 +131,12 @@ button { -webkit-tap-highlight-color: transparent; font: inherit; }
   color: var(--text); background: var(--surface-2); border: 0; border-radius: 50%; cursor: pointer;
 }
 .icon-btn:hover { color: var(--accent); }
+.lang-pick { position: relative; flex: none; }
+.lang-pick select { height: 42px; padding: 0 26px 0 12px; border: 0; border-radius: 999px; appearance: none; -webkit-appearance: none; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--text); background: var(--surface-2); }
+.lang-pick::after { content: ""; position: absolute; right: 11px; top: 50%; width: 6px; height: 6px; margin-top: -5px; pointer-events: none;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); }
+.lang-pick select:hover { color: var(--accent); }
 .icon-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .i-sun { display: none; }
 :root[data-theme="dark"] .i-sun { display: block; }
@@ -922,3 +928,4 @@ button.w:active, a.w:active { transform: scale(0.98); }
 @media (max-width: 400px) { .w-mine__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .w-mine__grid > div:last-child { grid-column: span 2; } }
 .want-res { margin: 10px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--surface-2); font-size: 13.5px; font-weight: 600; }
 .want-res .hint { font-weight: 500; }
+.lang-pick[hidden] { display: none; }
