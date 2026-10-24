@@ -133,7 +133,8 @@
   function brands() {
     var seen = [];
     CARS.forEach(function (c) { if (seen.indexOf(c.brand) < 0) seen.push(c.brand); });
-    return seen;
+    // A to Z, with "อื่น ๆ" (a model not on the list) last.
+    return seen.sort(function (a, b) { return (a === 'อื่น ๆ') - (b === 'อื่น ๆ') || a.localeCompare(b, 'en', { sensitivity: 'base' }); });
   }
 
   function fillModels(brand, pick) {
