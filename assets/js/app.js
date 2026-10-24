@@ -542,11 +542,16 @@
 
 
   // ---------- plan ----------
-  function setBusy(on) {
+  // While planning, the button spins and says which step it is on (a long trip takes a few seconds).
+  function setBusy(on, step) {
     R.busy = on;
     $('go').disabled = on;
-    $('go').querySelector('span').textContent = on ? 'กำลังวางแผน…' : 'วางแผนการเดินทาง';
+    $('go').classList.toggle('is-busy', on);
+    $('go').querySelector('span').textContent = on ? I18N.t(step || 'กำลังวางแผน…') : I18N.t('วางแผนการเดินทาง');
+    var bar = $('tripbar').querySelector('.tripbar__main span');
+    if (on && bar && document.body.dataset.view === 'result') bar.textContent = I18N.t(step || 'กำลังวางแผน…');
   }
+  function busyStep(step) { if (R.busy) setBusy(true, step); }
 
   function plan() {
     var t = trip();
@@ -558,7 +563,7 @@
     var minSoc = +radio('min'), target = +radio('target');
     if (soc <= minSoc) { say('แบตตอนออกเดินทาง (' + Math.round(soc) + '%) ต่ำกว่าหรือเท่ากับระดับที่ตั้งให้แวะชาร์จ (' + minSoc + '%) ควรชาร์จก่อนออกเดินทาง'); return; }
 
-    setBusy(true);
+    setBusy(true, 'กำลังหาเส้นทาง…');
     var box = $('result');
     box.hidden = false;
     box.innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
@@ -566,6 +571,7 @@
     var opts = { startSoc: soc, minSoc: minSoc, targetSoc: target, pinned: R.pinned.slice(), favs: favIds(), avoid: avoidIds(), want: wants(), departClock: localClock(departAt()) };
 
     R.ready.then(function () { return route([R.a].concat(t.targets)); }).then(function (d) {
+      busyStep('กำลังเลือกจุดชาร์จ…');
       var prof = P.profile(d.trip.legs);
       var cands = P.candidates(prof, R.stations, R.car, { exclude: R.excluded });
       var res = P.plan(prof, cands, R.car, opts);
@@ -574,6 +580,7 @@
       // A plan that already works only gets a few searches to improve its choices.
       var total = 0, budget = res.ok ? 3 : GOOGLE_MAX_POINTS;
       var round = function (n) {
+        if (R.cfg && R.cfg.places) busyStep('กำลังหาสถานีเพิ่ม…');
         return fillGaps(prof, cands, res, opts, Math.min(6, budget)).then(function (g) {
           budget -= g.asked;
           if (!g.added) return;
@@ -628,6 +635,7 @@
       if (!res.stops.length) return settle(prof);
       if (items.length + 2 > MAX_ROUTE_POINTS) return res;
       // Route again through the chosen stations for real distances, times and battery levels.
+      busyStep('กำลังคำนวณเวลาและค่าไฟ…');
       return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end])).then(function (d2) {
         return settle(P.profile(d2.trip.legs));
       }, function (err) {

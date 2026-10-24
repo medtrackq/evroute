@@ -62,7 +62,7 @@
           <div class="widgets" id="widgets"></div>
         </section>
         <div class="tripbar" id="tripbar" hidden></div>
-        <form id="form" class="dash__form" autocomplete="off">
+        <form id="form" class="dash__form" autocomplete="off" novalidate> <!-- app.js checks every field itself -->
           <section class="card car-card" aria-labelledby="car-name">
             <div class="card__head">
               <div>
@@ -82,8 +82,8 @@
               <div class="mycar" id="mycar" hidden>
                 <p class="hint">ใส่ยี่ห้อและรุ่นให้ชัด แล้วตัวเลขจากสเปกรถ (ดูในเว็บผู้ผลิตหรือคู่มือ) ทีมงานจะได้เพิ่มรุ่นนี้ในรายชื่อให้ทุกคน</p>
                 <div class="mycar__grid">
-                  <label>ยี่ห้อ<input id="my-brand" class="field" type="text" maxlength="30" placeholder="เช่น AVATR" required></label>
-                  <label>รุ่น<input id="my-model" class="field" type="text" maxlength="40" placeholder="เช่น 12 Long Range" required></label>
+                  <label>ยี่ห้อ<input id="my-brand" class="field" type="text" maxlength="30" placeholder="เช่น AVATR"></label>
+                  <label>รุ่น<input id="my-model" class="field" type="text" maxlength="40" placeholder="เช่น 12 Long Range"></label>
                   <label>แบตที่ใช้ได้ (kWh)<input id="my-kwh" class="field" type="number" inputmode="decimal" min="10" max="200" step="0.1" placeholder="เช่น 89"></label>
                   <label>กินไฟ (kWh/100กม.)<input id="my-use" class="field" type="number" inputmode="decimal" min="8" max="40" step="0.1" placeholder="เช่น 17.5"></label>
                   <label>DC สูงสุด (kW)<input id="my-dc" class="field" type="number" inputmode="numeric" min="0" max="400" step="1" placeholder="เช่น 240"></label>
@@ -225,7 +225,7 @@
               <p class="hint" id="want-note">ระบบจะเลือกจุดชาร์จที่มีให้ ถ้าไม่ต้องอ้อมไกล</p>
             </div>
             <p class="hint">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง) · จุดชาร์จจะถูกแทรกให้อัตโนมัติ</p>
-            <button type="submit" class="btn btn--primary btn--block" id="go">
+            <button type="submit" class="btn btn--primary btn--block" id="go" aria-live="polite">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
               <span>วางแผนการเดินทาง</span>
             </button>

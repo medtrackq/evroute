@@ -946,3 +946,8 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .mycar .btn { justify-self: start; }
 .car-photo figcaption .link-btn { color: #fff; font-size: inherit; }
 .picker .mycar { grid-column: 1 / -1; }
+/* Planning: the bolt turns into a spinner */
+#go.is-busy { cursor: progress; opacity: 0.9; }
+#go.is-busy svg { display: none; }
+#go.is-busy::before { content: ""; width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgb(255 255 255 / 35%); border-top-color: #fff; animation: spin 0.8s linear infinite; }
+@media (prefers-reduced-motion: reduce) { #go.is-busy::before { animation-duration: 2.4s; } }

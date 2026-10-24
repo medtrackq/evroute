@@ -2,6 +2,10 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "กำลังหาเส้นทาง…": "Finding the route…",
+    "กำลังเลือกจุดชาร์จ…": "Choosing charging stops…",
+    "กำลังหาสถานีเพิ่ม…": "Looking for more stations…",
+    "กำลังคำนวณเวลาและค่าไฟ…": "Working out times and costs…",
     "ใส่ขนาดแบตที่ใช้ได้ #–# kWh": "Enter usable battery size, #–# kWh",
     "ใส่อัตรากินไฟ #–# kWh/#กม.": "Enter consumption, #–# kWh/# km",
     "ใส่กำลังชาร์จ DC สูงสุด #–# kW": "Enter peak DC charging power, #–# kW",
