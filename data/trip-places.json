@@ -1,0 +1,572 @@
+{
+ "_note": "ร่างรายชื่อที่เที่ยวสายทาง (สาย 2 กรุงเทพฯ → หนองคาย) · พิกัดจาก OpenStreetMap ผ่าน Photon/Nominatim · checked: false = ยังไม่ได้ตรวจ · partner: true = พันธมิตร (ต้องติดป้าย)",
+ "places": [
+  {
+   "id": "wat-phra-phutthabat",
+   "name": "วัดพระพุทธบาท ราชวรมหาวิหาร",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.718473,
+   "lng": 100.788439,
+   "prov": "สระบุรี",
+   "area": "อ.พระพุทธบาท",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "namtok-chet-sao-noi",
+   "name": "น้ำตกเจ็ดสาวน้อย",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 14.724683,
+   "lng": 101.190913,
+   "prov": "สระบุรี",
+   "area": "อ.มวกเหล็ก",
+   "visit": 60,
+   "note": "เล่นน้ำได้",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "dairy-home",
+   "name": "Dairy Home (ถนนมิตรภาพ)",
+   "cat": [
+    "cafe",
+    "food",
+    "shop"
+   ],
+   "lat": 14.633374,
+   "lng": 101.211841,
+   "prov": "สระบุรี",
+   "area": "อ.ปากช่อง",
+   "visit": 40,
+   "note": "ร้านนม/ของฝาก ริมถนนมิตรภาพ",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "wat-thep-phithak-punnaram",
+   "name": "วัดเทพพิทักษ์ปุณณาราม",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 14.617314,
+   "lng": 101.265832,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 45,
+   "note": "พระพุทธรูปองค์ใหญ่ มองเห็นจากถนน",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "farm-chokchai",
+   "name": "ฟาร์มโชคชัย",
+   "cat": [
+    "kids",
+    "cafe",
+    "shop"
+   ],
+   "lat": 14.656434,
+   "lng": 101.346195,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "khao-yai-national-park-visitor-center",
+   "name": "อุทยานแห่งชาติเขาใหญ่ (ศูนย์บริการนักท่องเที่ยว)",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 14.439334,
+   "lng": 101.372237,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 240,
+   "note": "ครึ่งวันขึ้นไป",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "pak-chong-night-market",
+   "name": "ตลาดนัดกลางคืนปากช่อง",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 14.535825,
+   "lng": 101.378168,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 45,
+   "note": "เฉพาะช่วงเย็น",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "palio-khao-yai",
+   "name": "Palio เขาใหญ่",
+   "cat": [
+    "shop",
+    "kids",
+    "cafe"
+   ],
+   "lat": 14.537925,
+   "lng": 101.400243,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "the-chocolate-factory-khao-yai",
+   "name": "The Chocolate Factory เขาใหญ่",
+   "cat": [
+    "cafe",
+    "food"
+   ],
+   "lat": 14.562187,
+   "lng": 101.405767,
+   "prov": "นครราชสีมา",
+   "area": "อ.ปากช่อง",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "lam-takhong-dam",
+   "name": "เขื่อนลำตะคอง (จุดชมวิว)",
+   "cat": [
+    "view"
+   ],
+   "lat": 14.865455,
+   "lng": 101.560253,
+   "prov": "นครราชสีมา",
+   "area": "อ.สีคิ้ว",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "wat-thammachak-semaram",
+   "name": "วัดธรรมจักรเสมาราม (พระนอนหินทราย)",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.91644,
+   "lng": 101.793435,
+   "prov": "นครราชสีมา",
+   "area": "อ.สูงเนิน",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "petrified-wood-museum",
+   "name": "พิพิธภัณฑ์ไม้กลายเป็นหิน",
+   "cat": [
+    "kids"
+   ],
+   "lat": 14.857811,
+   "lng": 102.027569,
+   "prov": "นครราชสีมา",
+   "area": "อ.เมืองนครราชสีมา",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "thao-suranari-monument",
+   "name": "อนุสาวรีย์ท้าวสุรนารี (ย่าโม)",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.97473,
+   "lng": 102.098117,
+   "prov": "นครราชสีมา",
+   "area": "อ.เมืองนครราชสีมา",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "terminal-21-korat",
+   "name": "Terminal 21 โคราช",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 14.982495,
+   "lng": 102.089955,
+   "prov": "นครราชสีมา",
+   "area": "อ.เมืองนครราชสีมา",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "the-mall-korat",
+   "name": "The Mall โคราช",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 14.980664,
+   "lng": 102.076322,
+   "prov": "นครราชสีมา",
+   "area": "อ.เมืองนครราชสีมา",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "wat-sala-loi",
+   "name": "วัดศาลาลอย",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.980691,
+   "lng": 102.116901,
+   "prov": "นครราชสีมา",
+   "area": "อ.เมืองนครราชสีมา",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "phimai-historical-park",
+   "name": "อุทยานประวัติศาสตร์พิมาย",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 15.220607,
+   "lng": 102.493902,
+   "prov": "นครราชสีมา",
+   "area": "อ.พิมาย",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "wat-nong-waeng",
+   "name": "พระมหาธาตุแก่นนคร (วัดหนองแวง)",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 16.409255,
+   "lng": 102.834461,
+   "prov": "ขอนแก่น",
+   "area": "อ.เมืองขอนแก่น",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "bueng-kaen-nakhon",
+   "name": "บึงแก่นนคร",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 16.412827,
+   "lng": 102.83836,
+   "prov": "ขอนแก่น",
+   "area": "อ.เมืองขอนแก่น",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "central-khon-kaen",
+   "name": "เซ็นทรัล ขอนแก่น",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 16.433569,
+   "lng": 102.826228,
+   "prov": "ขอนแก่น",
+   "area": "อ.เมืองขอนแก่น",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "khao-suan-kwang",
+   "name": "ไก่ย่างเขาสวนกวาง (ย่านร้านริมถนน)",
+   "cat": [
+    "food"
+   ],
+   "lat": 16.851491,
+   "lng": 102.871886,
+   "prov": "ขอนแก่น",
+   "area": "อ.เขาสวนกวาง",
+   "visit": 30,
+   "note": "ร้านริมทางหลวงหลายร้าน · พิกัดเป็นตัวอำเภอ ต้องหาร้านพันธมิตร",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "talay-bua-daeng",
+   "name": "ทะเลบัวแดง (หนองหาน กุมภวาปี)",
+   "cat": [
+    "view"
+   ],
+   "lat": 17.171526,
+   "lng": 103.032993,
+   "prov": "อุดรธานี",
+   "area": "อ.กุมภวาปี",
+   "visit": 120,
+   "note": "บานช่วง ธ.ค.–ก.พ. ช่วงเช้า",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "ban-chiang-national-museum",
+   "name": "พิพิธภัณฑ์บ้านเชียง (มรดกโลก)",
+   "cat": [
+    "kids",
+    "temple"
+   ],
+   "lat": 17.407786,
+   "lng": 103.235779,
+   "prov": "อุดรธานี",
+   "area": "อ.หนองหาน",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "ud-town",
+   "name": "UD Town",
+   "cat": [
+    "shop",
+    "food"
+   ],
+   "lat": 17.403613,
+   "lng": 102.804647,
+   "prov": "อุดรธานี",
+   "area": "อ.เมืองอุดรธานี",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "central-udon-thani",
+   "name": "เซ็นทรัล อุดรธานี",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 17.405958,
+   "lng": 102.800139,
+   "prov": "อุดรธานี",
+   "area": "อ.เมืองอุดรธานี",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "nong-prajak",
+   "name": "หนองประจักษ์ศิลปาคม",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 17.417419,
+   "lng": 102.783369,
+   "prov": "อุดรธานี",
+   "area": "อ.เมืองอุดรธานี",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "sala-kaew-ku",
+   "name": "ศาลาแก้วกู่",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 17.887368,
+   "lng": 102.782545,
+   "prov": "หนองคาย",
+   "area": "อ.เมืองหนองคาย",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "wat-pho-chai",
+   "name": "วัดโพธิ์ชัย (หลวงพ่อพระใส)",
+   "cat": [
+    "temple"
+   ],
+   "lat": 17.884937,
+   "lng": 102.757267,
+   "prov": "หนองคาย",
+   "area": "อ.เมืองหนองคาย",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "tha-sadet-market",
+   "name": "ตลาดท่าเสด็จ",
+   "cat": [
+    "shop",
+    "food"
+   ],
+   "lat": 17.885398,
+   "lng": 102.747512,
+   "prov": "หนองคาย",
+   "area": "อ.เมืองหนองคาย",
+   "visit": 45,
+   "note": "ริมโขง",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  },
+  {
+   "id": "thai-lao-friendship-bridge",
+   "name": "สะพานมิตรภาพไทย-ลาว",
+   "cat": [
+    "view"
+   ],
+   "lat": 17.880126,
+   "lng": 102.715137,
+   "prov": "หนองคาย",
+   "area": "อ.เมืองหนองคาย",
+   "visit": 20,
+   "note": "",
+   "routes": [
+    "2"
+   ],
+   "checked": false,
+   "partner": false
+  }
+ ]
+}

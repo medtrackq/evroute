@@ -246,6 +246,7 @@ Render แบบฟรีจะหลับเมื่อไม่มีคน�
 | `data/car-images.json` | รูปรถแต่ละรุ่นจาก Wikimedia Commons พร้อมเครดิตและใบอนุญาต |
 | `data/prices.json` | ราคาค่าชาร์จ (บาท/kWh) ของแต่ละเครือข่าย พร้อมแหล่งอ้างอิงและวันที่ แก้ได้เมื่อราคาเปลี่ยน |
 | `data/operators.json` | ชื่อแอป ลิงก์ Play Store/App Store/เว็บ ของผู้ให้บริการ |
+| `data/trip-places.json` | ร่างรายชื่อที่เที่ยวระหว่างทาง (สาย 2 กรุงเทพฯ → หนองคาย) สำหรับฟีเจอร์ "แวะเที่ยวระหว่างทาง" ที่ยังไม่เปิด · ตรวจตาม `docs/route2-places.md` |
 | `data/osm-th.json` | snapshot สถานีจาก OpenStreetMap (ใช้เมื่อ Overpass ไม่ตอบ) |
 | `data/places-th.json` | (ถ้ามี) snapshot ร้านอาหาร กาแฟ ห้องน้ำ ร้านค้า รอบสถานี จาก `/api/places` (OpenStreetMap, ODbL) |
 | `test/` | ทดสอบตัววางแผนกับเส้นทางจริง กรุงเทพฯ → เชียงใหม่ และการเก็บสถานีที่ผู้ใช้เพิ่ม (จำลอง GitHub API) |
