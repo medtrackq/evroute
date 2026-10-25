@@ -859,6 +859,159 @@
     $('go').click();
   });
 
+  // ---------- places to see on the way (members) ----------
+  // Well-known places along the trip (data/trip-places.json, one highway at a time) that fit the
+  // kinds the driver picks and the extra time they allow. A place a short walk from a charging stop
+  // costs no extra time; any other is a detour, added to the trip as a stop. Members see them all,
+  // visitors one, with a free sign-up for the rest (everyone, when accounts are off).
+  var TP_CATS = { temple: '🙏 วัด/ไหว้พระ', cafe: '☕ คาเฟ่', food: '🍜 ร้านดัง', view: '🌄 ชมวิว/ธรรมชาติ', shop: '🛍 ของฝาก/ตลาด', kids: '👨‍👩‍👧 เด็กเล่นได้' };
+  var TP_TIMES = [[0, 'ไม่เพิ่มเวลา'], [30, '30 นาที'], [60, '1 ชม.'], [240, 'ครึ่งวัน']];
+  var TP_WALK_KM = 0.8;    // from a charging stop: walk there while the car charges
+  var TP_WALK_KMH = 4.5;
+  var TP_MAX_OFF_KM = 45;  // further than this from the route isn't "on the way"
+  R.tpPrefs = load('tpPrefs') || { cats: {}, time: 60 };
+  var tpLayer;
+
+  function loadTripPlaces() {
+    if (!R.tpLoad) {
+      R.tpLoad = getJSON('data/trip-places.json').then(function (d) {
+        R.tp = (d.places || []).filter(function (p) { return p.checked; });
+      }, function () { R.tp = []; });
+    }
+    return R.tpLoad;
+  }
+
+  function tpName(p) { return I18N.lang !== 'th' && p.name_en ? p.name_en : p.name; }
+  // Counted per place for the partners' report (admin page), by the same anonymous id as visits.
+  function tpLog(kind, id) {
+    send('event', { kind: kind, pid: R.result && R.result.pid, sid: 'tp:' + id, op: 'trip-place', car: R.car && R.car.id, dev: devId() });
+  }
+
+  // Minutes after departure the car passes this point: driving plus the charging stops before it.
+  function tpPassMin(res, along) {
+    var prof = res.final || res.prof;
+    return P.at(prof, prof.tm, along) + res.stops.reduce(function (t, s) {
+      var k = s.kmReal != null ? s.kmReal : s.along;
+      return k < along ? t + s.chargeMin + P.PLUG_MIN : t;
+    }, 0);
+  }
+
+  // The places on this plan's route that fit the driver's choices (plan.js), each marked when it
+  // is already a stop of the trip.
+  function tripPlaces(res) {
+    var prof = res.final || res.prof, start = departAt();
+    var added = function (p) { return R.dests.some(function (d) { return d && (d.tp === p.id || P.km(d, p) < 0.3); }); };
+    return P.placesOnWay(prof, res.stops, R.tp || [], {
+      cats: Object.keys(R.tpPrefs.cats).filter(function (k) { return R.tpPrefs.cats[k]; }),
+      maxExtra: R.tpPrefs.time, maxOff: TP_MAX_OFF_KM, walkKm: TP_WALK_KM, walkKmh: TP_WALK_KMH,
+      month: function (along) { return new Date(start + tpPassMin(res, along) * 60000).getMonth() + 1; },
+      keep: added,
+    }).map(function (it) { it.added = added(it.p); return it; });
+  }
+
+  function tpRow(it, res) {
+    var p = it.p, side;
+    if (it.stop) {
+      var st = it.stop.s.st;
+      side = '<span class="tp-row__tag">⚡ <span>ระหว่างชาร์จจุดที่ ' + (it.stop.i + 1) + '</span></span>' +
+        '<span class="hint"><span>เดินไป ~' + Math.max(1, Math.round(it.walkMin)) + ' นาที</span> · <span>ชาร์จ ~' + dur(it.stop.s.chargeMin) + '</span></span>' +
+        (it.extra >= 5 ? '<span class="hint">ถ้าเที่ยวเต็มที่ +' + dur(it.extra) + '</span>' : '') +
+        '<a class="btn tp-row__btn" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=' + (+st.lat).toFixed(6) + ',' + (+st.lng).toFixed(6) +
+          '&destination=' + p.lat.toFixed(6) + ',' + p.lng.toFixed(6) + '" target="_blank" rel="noopener" data-tp-walk="' + esc(p.id) + '">เดินไป</a>';
+    } else {
+      side = '<span class="tp-row__tag">+' + dur(it.extra) + '</span>' +
+        '<span class="hint">' + (it.detourMin < 1 ? '<span>ติดเส้นทาง</span>' : '<span>อ้อม ~' + dur(it.detourMin) + '</span>') + ' · <span>เที่ยว ~' + dur(p.visit) + '</span></span>' +
+        (it.added ? '<span class="chip">เพิ่มแล้ว ✓</span>' : '<button type="button" class="btn tp-row__btn" data-tp-add="' + esc(p.id) + '">เพิ่มจุดแวะ</button>');
+    }
+    // No opening hours yet: passing late or early says so.
+    var h = new Date(departAt() + tpPassMin(res, it.along) * 60000).getHours();
+    var late = (h >= 19 || h < 7) && !/ช่วงเย็น/.test(p.note || '');
+    return '<li class="tp-row' + (late ? ' is-late' : '') + '"><div class="tp-row__main">' +
+      '<b' + (I18N.lang === 'th' ? '' : ' translate="no"') + '>' + esc(tpName(p)) + '</b>' + (p.partner ? ' <span class="chip chip--partner">พันธมิตร</span>' : '') +
+      '<span class="hint">' + p.cat.map(function (c) { return TP_CATS[c].split(' ')[0]; }).join(' ') +
+        (I18N.lang === 'th' && p.area ? ' · ' + esc(p.area) : '') + ' · <span>กม. ' + Math.round(it.along) + '</span> · <span>ผ่านราว ' + clock(tpPassMin(res, it.along)) + '</span></span>' +
+      (p.note ? '<span class="hint">' + esc(p.note) + '</span>' : '') +
+      (late ? '<span class="hint tp-row__late">🌙 ผ่านช่วงค่ำ ตรวจเวลาเปิดก่อน</span>' : '') +
+      '</div><div class="tp-row__side">' + side + '</div></li>';
+  }
+
+  function renderPlaces() {
+    if (tpLayer) tpLayer.clear();
+    var box = $('tp-box'), res = R.result;
+    if (!box) return;
+    if (!res || !res.ok || !R.tp) { box.innerHTML = ''; return; }
+    var prof = res.final || res.prof;
+    var onRoute = R.tp.some(function (p) { return P.nearest(prof.pts, prof.cum, p).d <= TP_MAX_OFF_KM; });
+    var head = '<div class="tp__head"><h3>✨ แวะเที่ยวระหว่างทาง</h3>' + (accountsOn() ? '<span class="tp__badge">สมาชิก</span>' : '') + '</div>';
+    if (!onRoute) {
+      box.innerHTML = head + '<p class="hint">เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · ตอนนี้มีสายกรุงเทพฯ → หนองคาย กำลังเพิ่มสายอื่น</p>';
+      return;
+    }
+    var all = tripPlaces(res), locked = accountsOn() && !signedIn();
+    var shown = locked ? all.slice(0, 1) : all;
+    var during = shown.filter(function (it) { return it.stop; }), more = shown.filter(function (it) { return !it.stop; });
+    var html = head +
+      '<div class="want__row" role="group" aria-label="ประเภท">' + Object.keys(TP_CATS).map(function (k) {
+        return '<button type="button" class="want__chip tp-chip" data-tp-cat="' + k + '" aria-pressed="' + !!R.tpPrefs.cats[k] + '">' + TP_CATS[k] + '</button>';
+      }).join('') + '</div>' +
+      '<div class="tp__time"><span class="hint">เวลาเพิ่มได้ไม่เกิน</span><div class="want__row" role="group" aria-label="เวลาเพิ่มได้ไม่เกิน">' + TP_TIMES.map(function (t) {
+        return '<button type="button" class="want__chip tp-chip" data-tp-time="' + t[0] + '" aria-pressed="' + (R.tpPrefs.time === t[0]) + '">' + t[1] + '</button>';
+      }).join('') + '</div></div>';
+    if (!all.length) html += '<p class="hint">ไม่มีที่ตรงกับที่เลือก ลองเพิ่มเวลา หรือเลือกประเภทอื่น</p>';
+    if (during.length) html += '<p class="tp__group">⚡ เที่ยวระหว่างชาร์จ · ไม่เสียเวลาเพิ่ม</p><ol class="tp__list">' + during.map(function (it) { return tpRow(it, res); }).join('') + '</ol>';
+    if (more.length) html += '<p class="tp__group">➕ แวะเพิ่ม</p><ol class="tp__list">' + more.map(function (it) { return tpRow(it, res); }).join('') + '</ol>';
+    if (locked && all.length > 1) {
+      if (!A.shown.places) { A.shown.places = true; logEvent('nudge', null, 'places'); }
+      html += '<div class="tp__lock"><span>🔒 <span>อีก ' + (all.length - 1) + ' ที่ระหว่างทาง สำหรับสมาชิก</span></span>' +
+        '<button type="button" class="btn btn--primary" data-tp-signin>สมัครฟรีด้วยอีเมล</button></div>';
+    }
+    box.innerHTML = html;
+    if (tpLayer) shown.forEach(function (it) {
+      map.pin(it.p.lat, it.p.lng, {
+        html: '<span class="pin pin--tp">' + TP_CATS[it.p.cat[0]].split(' ')[0] + '</span>', z: 700, layer: tpLayer,
+        popup: '<b>' + esc(tpName(it.p)) + '</b>' + (it.p.partner ? ' · ' + esc(I18N.t('พันธมิตร')) : '') + (it.p.note ? '<br><span class="hint">' + esc(it.p.note) + '</span>' : ''),
+      });
+    });
+  }
+
+  // Adds a place as a stop of the trip, in driving order, and plans again.
+  function addTripPlace(id) {
+    var p = (R.tp || []).filter(function (x) { return x.id === id; })[0], res = R.result;
+    if (!p || !res || R.busy) return;
+    var dests = R.dests.filter(Boolean);
+    if (dests.length >= MAX_DESTS) { say('เพิ่มจุดหมายได้สูงสุด ' + MAX_DESTS + ' จุด ลบจุดหมายอื่นก่อน'); return; }
+    var prof = res.final || res.prof, at = P.nearest(prof.pts, prof.cum, p).along;
+    var last = dests.length - (R.round ? 0 : 1); // the last one is where the trip ends, unless it goes back home
+    var idx = last;
+    for (var i = 0; i < last; i++) if (P.nearest(prof.pts, prof.cum, dests[i]).along > at) { idx = i; break; }
+    dests.splice(idx, 0, { lat: p.lat, lng: p.lng, label: tpName(p), tp: p.id });
+    tpLog('tp_add', id);
+    R.dests = dests;
+    R.pinned = [];
+    renderDests();
+    plan();
+  }
+
+  function onPlacesClick(e) {
+    var t;
+    if ((t = e.target.closest('[data-tp-cat]'))) {
+      R.tpPrefs.cats[t.dataset.tpCat] = !R.tpPrefs.cats[t.dataset.tpCat];
+      store('tpPrefs', R.tpPrefs);
+      renderPlaces();
+    } else if ((t = e.target.closest('[data-tp-time]'))) {
+      R.tpPrefs.time = +t.dataset.tpTime;
+      store('tpPrefs', R.tpPrefs);
+      renderPlaces();
+    } else if ((t = e.target.closest('[data-tp-add]'))) {
+      addTripPlace(t.dataset.tpAdd);
+    } else if ((t = e.target.closest('[data-tp-walk]'))) {
+      tpLog('tp_walk', t.dataset.tpWalk);
+    } else if (e.target.closest('[data-tp-signin]')) {
+      logEvent('nudge_go', null, 'places');
+      openAcct('places');
+    }
+  }
+
   // ---------- Google gap filling ----------
   var GOOGLE_RADIUS_KM = 25;
   var GOOGLE_MAX_POINTS = 12; // searches per trip plan, across all rounds
@@ -1427,6 +1580,7 @@
     if (R.pinned.length || Object.keys(R.excluded).length) {
       html += '<button type="button" class="link-btn" id="reset">ล้างการเลือกสถานีเอง แล้วให้ระบบเลือกใหม่</button>';
     }
+    if (res.ok) html += '<section class="tp" id="tp-box" aria-live="polite"></section>';
     return html;
   }
 
@@ -1516,6 +1670,7 @@
     $('chart-card').hidden = !res.ok && !res.stops.length;
     chart();
     draw();
+    if (R.tp) renderPlaces(); else loadTripPlaces().then(renderPlaces);
     fillAreas(res);
     if (R.view === 'result') { renderTripbar(); showDock(); }
   }
@@ -1528,6 +1683,7 @@
     routeLayer.clear();
     candLayer.clear();
     stopLayer.clear();
+    if (tpLayer) tpLayer.clear();
   }
 
   // ---------- usage statistics ----------
@@ -2274,6 +2430,7 @@
     if (li) map.setView(+li.dataset.lat, +li.dataset.lng, 15);
   }
   $('result').addEventListener('click', onResultClick);
+  $('result').addEventListener('click', onPlacesClick);
   $('result').addEventListener('submit', function (e) {
     if (!e.target.matches('.report')) return;
     e.preventDefault();
@@ -3083,6 +3240,7 @@
     b.title = email || 'เข้าสู่ระบบด้วยอีเมล';
     showDeviceNudge();
     renderSaved();
+    if (R.result) renderPlaces(); // signing in opens the places on the way
   }
 
   function openAcct(from) {
@@ -3562,6 +3720,7 @@
     routeLayer = map.layer();
     candLayer = map.layer();
     stopLayer = map.layer();
+    tpLayer = map.layer();
     A.layer = map.layer(false);
     wireMap();
     fromURL();

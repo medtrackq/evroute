@@ -543,7 +543,7 @@ async function admin(req, res, url) {
       const [opens, plans, events, errors, fb, problems, charges, users] = await Promise.all([
         stats.select('events', 'select=created_at,dev,lang&kind=eq.open&created_at=gte.' + m + '&order=id.asc&limit=100000'),
         stats.select('plans', 'select=created_at,brand,model,ok&created_at=gte.' + m + '&order=id.asc&limit=100000'),
-        stats.select('events', 'select=created_at,kind,op,ref,dev&kind=neq.open&created_at=gte.' + m + '&order=id.asc&limit=100000'),
+        stats.select('events', 'select=created_at,kind,op,ref,dev,station_id&kind=neq.open&created_at=gte.' + m + '&order=id.asc&limit=100000'),
         stats.select('errors', 'select=created_at,src,msg,at,page,ua,dev&created_at=gte.' + since(14) + '&order=id.desc&limit=2000'),
         stats.select('feedback', 'select=id,created_at,kind,message,email,page,lang,car_id,ua,status&order=created_at.desc&limit=200'),
         stats.select('charges', 'select=created_at,station_name,op,problem,note&ok=is.false&created_at=gte.' + since(14) + '&order=created_at.desc&limit=50'),

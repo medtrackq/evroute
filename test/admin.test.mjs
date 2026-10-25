@@ -58,3 +58,19 @@ test('feedback and errors keep only their own fields', () => {
   assert.deepEqual(record({ t: 'error', d: { msg: 'boom', at: 'app.js:3:4', lang: 'th' } })[0], 'errors');
   assert.equal(record({ t: 'feedback', d: { message: 'hello' } }), null); // its own endpoint, not /api/log
 });
+
+test('places on the way are counted per place, for the partners\' report', () => {
+  const now = Date.parse('2026-10-24T12:00:00+07:00');
+  const events = [
+    { created_at: '2026-10-24T03:00:00Z', kind: 'tp_add', station_id: 'tp:farm-chokchai', dev: 'd-a' },
+    { created_at: '2026-10-24T04:00:00Z', kind: 'tp_add', station_id: 'tp:farm-chokchai', dev: 'd-b' },
+    { created_at: '2026-10-24T05:00:00Z', kind: 'tp_walk', station_id: 'tp:ud-town', dev: 'd-a' },
+    { created_at: '2026-10-24T05:00:00Z', kind: 'skip', station_id: 'osm:1', dev: 'd-a' },
+  ];
+  const s = summarize({ events }, now);
+  assert.deepEqual(s.tripPlaces, [
+    { key: 'farm-chokchai', add: 2, walk: 0, people: 2, count: 2 },
+    { key: 'ud-town', add: 0, walk: 1, people: 1, count: 1 },
+  ]);
+});
+

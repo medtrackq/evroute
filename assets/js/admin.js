@@ -18,6 +18,7 @@
     swap: 'เปลี่ยนสถานี', fav: 'กดสถานีโปรด', save: 'บันทึกแผน', share: 'แชร์ลิงก์', pin: 'เลือกสถานีเอง', nudge: 'เห็นชวนสมัคร',
     nudge_go: 'กดชวนสมัคร', signin: 'เข้าสู่ระบบ', premium: 'สนใจสมาชิก', install: 'ติดตั้งบนหน้าจอ', install_no: 'ไม่ติดตั้ง',
     flood_avoid: 'แผนที่พาเลี่ยงน้ำท่วม', flood_off: 'ผู้ใช้ปิดเลี่ยงน้ำท่วม', flood_on: 'ผู้ใช้เปิดเลี่ยงน้ำท่วม',
+    tp_add: 'เพิ่มที่เที่ยวเป็นจุดแวะ', tp_walk: 'เดินไปที่เที่ยวระหว่างชาร์จ',
   };
   var PROBLEMS = { broken: 'เครื่องเสีย', no_plug: 'ไม่มีหัวที่ใช้ได้', queue: 'คิวยาว', slow: 'ชาร์จช้า', closed: 'ปิด', blocked: 'รถอื่นจอดขวาง', app: 'แอปมีปัญหา', other: 'อื่น ๆ' };
   var LANGS = { th: 'ไทย', en: 'English', zh: '中文' };
@@ -98,6 +99,18 @@
     }).join('') + '</ul>';
   }
 
+  // Places on the way (data/trip-places.json ids): how often each was added as a stop or walked to.
+  function placeTable(list) {
+    if (!list.length) return '<p class="hint">ยังไม่มีข้อมูล</p>';
+    return table(['ที่', 'เพิ่มเป็นจุดแวะ', 'เดินไประหว่างชาร์จ', 'คน'], list.map(function (x) {
+      return [esc(PLACE_NAMES[x.key] || x.key), num(x.add), num(x.walk), num(x.people)];
+    }));
+  }
+  var PLACE_NAMES = {};
+  fetch('data/trip-places.json').then(function (r) { return r.json(); }).then(function (d) {
+    (d.places || []).forEach(function (p) { PLACE_NAMES[p.id] = p.name; });
+  }).catch(function () {});
+
   function render(d) {
     var langs = Object.keys(d.langs).map(function (k) { return { key: k, count: d.langs[k] }; }).sort(function (a, b) { return b.count - a.count; });
     var h = d.health || {};
@@ -147,6 +160,7 @@
         '<section class="card adm-card"><h2>รุ่นรถที่วางแผนมากที่สุด</h2>' + counts(d.cars) + '</section>' +
         '<section class="card adm-card"><h2>เปิดแอปผู้ให้บริการ</h2>' + counts(d.apps) + '</section>' +
         '<section class="card adm-card"><h2>ปุ่มที่กด</h2>' + counts(d.actions, ACTIONS) + '</section>' +
+        '<section class="card adm-card"><h2>ที่เที่ยวระหว่างทาง<small>30 วัน · ใช้ทำรายงานให้พันธมิตร</small></h2>' + placeTable(d.tripPlaces || []) + '</section>' +
       '</div>' +
       '<section class="card adm-card"><h2>สถานะระบบ</h2>' + table(['', ''], [
         ['เซิร์ฟเวอร์ทำงานมาแล้ว', num(h.up) + ' นาที' + (h.commit ? ' · เวอร์ชัน ' + esc(h.commit) : '') + ' · หน่วยความจำ ' + num(h.memoryMb) + ' MB'],

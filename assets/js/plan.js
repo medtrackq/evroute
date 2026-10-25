@@ -103,6 +103,44 @@
     return best;
   }
 
+  // Driving off the route to a point this far away (km, straight line) and back.
+  function detour(off) {
+    var km = off < 0.15 ? 0 : off * 2 * ROAD_FACTOR;
+    return { km: km, min: km / DETOUR_KMH * 60 };
+  }
+
+  // Places to see on the way (data/trip-places.json) for a planned route, in driving order. A place
+  // a short walk from a charging stop costs time only if the visit outlasts the charge; any other is
+  // a detour plus the visit, kept when that fits o.maxExtra (or o.keep(place) says so).
+  // stops: [{ st, chargeMin }]; o: { cats: [], maxExtra, maxOff, walkKm, walkKmh, month(along) -> 1-12, keep(place) }.
+  // Returns [{ p, along, stop?: { s, i, walk }, walkMin?, detourMin?, extra }].
+  function placesOnWay(prof, stops, places, o) {
+    var out = [], cats = o.cats || [], walkKm = o.walkKm || 0.8, walkKmh = o.walkKmh || 4.5;
+    places.forEach(function (p) {
+      var n = nearest(prof.pts, prof.cum, p);
+      if (n.d > (o.maxOff || 45)) return;
+      if (cats.length && !p.cat.some(function (c) { return cats.indexOf(c) >= 0; })) return;
+      if (p.months && o.month && p.months.indexOf(o.month(n.along)) < 0) return; // out of season that day
+      var stop = null;
+      stops.forEach(function (s, i) {
+        var w = km(s.st, p);
+        if (w <= walkKm && (!stop || w < stop.walk)) stop = { s: s, i: i, walk: w };
+      });
+      var it = { p: p, along: n.along };
+      if (stop) {
+        it.stop = stop;
+        it.walkMin = stop.walk / walkKmh * 60;
+        it.extra = Math.max(0, p.visit + it.walkMin * 2 - stop.s.chargeMin - PLUG_MIN);
+      } else {
+        it.detourMin = detour(n.d).min;
+        it.extra = it.detourMin + p.visit;
+        if (it.extra > o.maxExtra && !(o.keep && o.keep(p))) return;
+      }
+      out.push(it);
+    });
+    return out.sort(function (a, b) { return a.along - b.along; });
+  }
+
   // Fastest DC plug this car can use at a station, or null.
   function usable(st, car) {
     var best = null;
@@ -135,8 +173,8 @@
         var n = nearest(prof.pts, prof.cum, st, from, end);
         from = end;
         if (n.d > maxOff) return;
-        var detourKm = n.d < 0.15 ? 0 : n.d * 2 * ROAD_FACTOR;
-        out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: detourKm, detourMin: detourKm / DETOUR_KMH * 60 });
+        var dt = detour(n.d);
+        out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: dt.km, detourMin: dt.min });
       });
     });
     return out.sort(function (a, b) { return a.along - b.along; });
@@ -378,7 +416,7 @@
   }
 
   var api = {
-    km: km, decode: decode, speedFactor: speedFactor, profile: profile, at: at, nearest: nearest,
+    km: km, decode: decode, speedFactor: speedFactor, profile: profile, at: at, nearest: nearest, detour: detour, placesOnWay: placesOnWay,
     usable: usable, candidates: candidates, taper: taper, chargeMinutes: chargeMinutes, energy: energy,
     plan: plan, replay: replay, kmToSoc: kmToSoc, gapPoints: gapPoints, chargeCost: chargeCost, isOffPeak: isOffPeak, mealAt: mealAt, PLUG_MIN: PLUG_MIN, MAX_OFF_KM: MAX_OFF_KM,
   };

@@ -1,9 +1,10 @@
 {
- "_note": "ร่างรายชื่อที่เที่ยวสายทาง (สาย 2 กรุงเทพฯ → หนองคาย) · พิกัดจาก OpenStreetMap ผ่าน Photon/Nominatim · checked: false = ยังไม่ได้ตรวจ · partner: true = พันธมิตร (ต้องติดป้าย)",
+ "_note": "ที่เที่ยวสายทางสำหรับ \"แวะเที่ยวระหว่างทาง\" · พิกัดจาก OpenStreetMap (ODbL) · name_en ใช้กับภาษาอังกฤษ/จีน · months = เดือนที่ควรไป (ไม่มี = ทั้งปี) · partner: true = พันธมิตร (แอปติดป้ายให้) · routes = สายทางที่ตรวจแล้ว",
  "places": [
   {
    "id": "wat-phra-phutthabat",
    "name": "วัดพระพุทธบาท ราชวรมหาวิหาร",
+   "name_en": "Wat Phra Phutthabat",
    "cat": [
     "temple"
    ],
@@ -16,12 +17,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "namtok-chet-sao-noi",
    "name": "น้ำตกเจ็ดสาวน้อย",
+   "name_en": "Chet Sao Noi Waterfall",
    "cat": [
     "view",
     "kids"
@@ -35,12 +37,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "dairy-home",
    "name": "Dairy Home (ถนนมิตรภาพ)",
+   "name_en": "Dairy Home",
    "cat": [
     "cafe",
     "food",
@@ -55,12 +58,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "wat-thep-phithak-punnaram",
    "name": "วัดเทพพิทักษ์ปุณณาราม",
+   "name_en": "Wat Thep Phithak Punnaram",
    "cat": [
     "temple",
     "view"
@@ -74,12 +78,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "farm-chokchai",
    "name": "ฟาร์มโชคชัย",
+   "name_en": "Farm Chokchai",
    "cat": [
     "kids",
     "cafe",
@@ -94,12 +99,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "khao-yai-national-park-visitor-center",
    "name": "อุทยานแห่งชาติเขาใหญ่ (ศูนย์บริการนักท่องเที่ยว)",
+   "name_en": "Khao Yai National Park",
    "cat": [
     "view",
     "kids"
@@ -113,12 +119,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "pak-chong-night-market",
    "name": "ตลาดนัดกลางคืนปากช่อง",
+   "name_en": "Pak Chong Night Market",
    "cat": [
     "food",
     "shop"
@@ -132,12 +139,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "palio-khao-yai",
    "name": "Palio เขาใหญ่",
+   "name_en": "Palio Khao Yai",
    "cat": [
     "shop",
     "kids",
@@ -152,12 +160,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "the-chocolate-factory-khao-yai",
    "name": "The Chocolate Factory เขาใหญ่",
+   "name_en": "The Chocolate Factory Khao Yai",
    "cat": [
     "cafe",
     "food"
@@ -171,12 +180,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "lam-takhong-dam",
    "name": "เขื่อนลำตะคอง (จุดชมวิว)",
+   "name_en": "Lam Takhong Dam viewpoint",
    "cat": [
     "view"
    ],
@@ -189,12 +199,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "wat-thammachak-semaram",
    "name": "วัดธรรมจักรเสมาราม (พระนอนหินทราย)",
+   "name_en": "Wat Thammachak Semaram (sandstone reclining Buddha)",
    "cat": [
     "temple"
    ],
@@ -207,12 +218,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "petrified-wood-museum",
    "name": "พิพิธภัณฑ์ไม้กลายเป็นหิน",
+   "name_en": "Petrified Wood Museum",
    "cat": [
     "kids"
    ],
@@ -225,12 +237,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "thao-suranari-monument",
    "name": "อนุสาวรีย์ท้าวสุรนารี (ย่าโม)",
+   "name_en": "Thao Suranari Monument (Ya Mo)",
    "cat": [
     "temple"
    ],
@@ -243,12 +256,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "terminal-21-korat",
    "name": "Terminal 21 โคราช",
+   "name_en": "Terminal 21 Korat",
    "cat": [
     "shop",
     "food",
@@ -263,12 +277,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "the-mall-korat",
    "name": "The Mall โคราช",
+   "name_en": "The Mall Korat",
    "cat": [
     "shop",
     "food",
@@ -283,12 +298,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "wat-sala-loi",
    "name": "วัดศาลาลอย",
+   "name_en": "Wat Sala Loi",
    "cat": [
     "temple"
    ],
@@ -301,12 +317,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "phimai-historical-park",
    "name": "อุทยานประวัติศาสตร์พิมาย",
+   "name_en": "Phimai Historical Park",
    "cat": [
     "temple",
     "view"
@@ -320,12 +337,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "wat-nong-waeng",
    "name": "พระมหาธาตุแก่นนคร (วัดหนองแวง)",
+   "name_en": "Wat Nong Waeng",
    "cat": [
     "temple",
     "view"
@@ -339,12 +357,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "bueng-kaen-nakhon",
    "name": "บึงแก่นนคร",
+   "name_en": "Bueng Kaen Nakhon",
    "cat": [
     "view",
     "kids"
@@ -358,12 +377,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "central-khon-kaen",
    "name": "เซ็นทรัล ขอนแก่น",
+   "name_en": "Central Khon Kaen",
    "cat": [
     "shop",
     "food",
@@ -378,12 +398,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "khao-suan-kwang",
    "name": "ไก่ย่างเขาสวนกวาง (ย่านร้านริมถนน)",
+   "name_en": "Khao Suan Kwang grilled chicken",
    "cat": [
     "food"
    ],
@@ -392,16 +413,17 @@
    "prov": "ขอนแก่น",
    "area": "อ.เขาสวนกวาง",
    "visit": 30,
-   "note": "ร้านริมทางหลวงหลายร้าน · พิกัดเป็นตัวอำเภอ ต้องหาร้านพันธมิตร",
+   "note": "ย่านร้านไก่ย่างริมทางหลวง",
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "talay-bua-daeng",
    "name": "ทะเลบัวแดง (หนองหาน กุมภวาปี)",
+   "name_en": "Red Lotus Sea (Talay Bua Daeng)",
    "cat": [
     "view"
    ],
@@ -410,16 +432,22 @@
    "prov": "อุดรธานี",
    "area": "อ.กุมภวาปี",
    "visit": 120,
-   "note": "บานช่วง ธ.ค.–ก.พ. ช่วงเช้า",
+   "note": "บานช่วง ธ.ค.–ก.พ. สวยช่วงเช้า",
+   "months": [
+    12,
+    1,
+    2
+   ],
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "ban-chiang-national-museum",
    "name": "พิพิธภัณฑ์บ้านเชียง (มรดกโลก)",
+   "name_en": "Ban Chiang National Museum (World Heritage)",
    "cat": [
     "kids",
     "temple"
@@ -433,12 +461,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "ud-town",
    "name": "UD Town",
+   "name_en": "UD Town",
    "cat": [
     "shop",
     "food"
@@ -452,12 +481,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "central-udon-thani",
    "name": "เซ็นทรัล อุดรธานี",
+   "name_en": "Central Udon Thani",
    "cat": [
     "shop",
     "food",
@@ -472,12 +502,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "nong-prajak",
    "name": "หนองประจักษ์ศิลปาคม",
+   "name_en": "Nong Prajak Park",
    "cat": [
     "view",
     "kids"
@@ -491,12 +522,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "sala-kaew-ku",
    "name": "ศาลาแก้วกู่",
+   "name_en": "Sala Kaew Ku",
    "cat": [
     "temple",
     "view"
@@ -510,12 +542,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "wat-pho-chai",
    "name": "วัดโพธิ์ชัย (หลวงพ่อพระใส)",
+   "name_en": "Wat Pho Chai (Luang Pho Phra Sai)",
    "cat": [
     "temple"
    ],
@@ -528,12 +561,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "tha-sadet-market",
    "name": "ตลาดท่าเสด็จ",
+   "name_en": "Tha Sadet Market",
    "cat": [
     "shop",
     "food"
@@ -547,12 +581,13 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   },
   {
    "id": "thai-lao-friendship-bridge",
    "name": "สะพานมิตรภาพไทย-ลาว",
+   "name_en": "Thai-Lao Friendship Bridge",
    "cat": [
     "view"
    ],
@@ -565,7 +600,7 @@
    "routes": [
     "2"
    ],
-   "checked": false,
+   "checked": true,
    "partner": false
   }
  ]
