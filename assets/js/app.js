@@ -1049,7 +1049,7 @@
     var onRoute = R.tp.some(function (p) { return P.nearest(prof.pts, prof.cum, p).d <= TP_MAX_OFF_KM; });
     var head = '<div class="tp__head"><h3>✨ แวะเที่ยวระหว่างทาง</h3>' + (accountsOn() ? '<span class="tp__badge">สมาชิก</span>' : '') + '</div>';
     if (!onRoute) {
-      box.innerHTML = head + '<p class="hint">เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · กำลังเพิ่มทีละเส้นทาง เริ่มจากกรุงเทพฯ → หนองคาย</p>';
+      box.innerHTML = head + '<p class="hint">เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · ตอนนี้มีสายหลักจากกรุงเทพฯ ไปเหนือ อีสาน ใต้ ตะวันออก และตะวันตก กำลังเพิ่มเส้นทางอื่น</p>';
       return;
     }
     var all = tripPlaces(res), locked = accountsOn() && !signedIn();

@@ -2,6 +2,7 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · ตอนนี้มีสายหลักจากกรุงเทพฯ ไปเหนือ อีสาน ใต้ ตะวันออก และตะวันตก กำลังเพิ่มเส้นทางอื่น": "No places for this route yet · we cover the main highways from Bangkok to the north, northeast, south, east and west, with more to come",
     "⚠️ เผื่อขับเที่ยวที่ปลายทางไม่ได้": "⚠️ Couldn't keep charge for the destination",
     "สถานีชาร์จสุดท้ายอยู่ไกลปลายทาง ช่วงสุดท้ายใช้แบตเกือบหมด ถามที่พักว่ามีที่ชาร์จไหม": "The last station is far from the destination and the last stretch uses most of the battery · ask your hotel whether it has a charger",
     "⚠️ เผื่อขับเที่ยวที่ปลายทางได้ราว # กม. จากที่ตั้งไว้ # กม.": "⚠️ Could keep about # km for the destination, of the # km you set",
@@ -21,7 +22,6 @@ I18N.load({
     "🏁 ชาร์จสุดท้ายก่อนถึง": "🏁 Last charge before you arrive",
     "🏁 ชาร์จสุดท้ายก่อนถึง · เผื่อเที่ยว # กม.": "🏁 Last charge before you arrive · # km kept",
     "↩️ ต้องกลับรถเพื่อเข้าหรือออกจากสถานีนี้ · ช่วงนี้ไม่มีสถานีฝั่งขาไปที่เหมาะกว่า": "↩️ You'll need a U-turn to get in or out of this station · no better one on your side here",
-    "เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · กำลังเพิ่มทีละเส้นทาง เริ่มจากกรุงเทพฯ → หนองคาย": "No places for this route yet · we're adding routes one by one, starting with Bangkok → Nong Khai",
     "โปรสมาชิก:": "Member offer:",
     "ดูร้าน ↗": "Visit their page ↗",
     "🌙 ผ่านช่วงค่ำ ตรวจเวลาเปิดก่อน": "🌙 Passing in the evening · check opening hours",
