@@ -602,6 +602,1514 @@
    ],
    "checked": true,
    "partner": false
+  },
+  {
+   "id": "ayutthaya-historical-park",
+   "name": "อุทยานประวัติศาสตร์พระนครศรีอยุธยา",
+   "name_en": "Ayutthaya Historical Park",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 14.353546,
+   "lng": 100.562255,
+   "prov": "พระนครศรีอยุธยา",
+   "area": "อ.พระนครศรีอยุธยา",
+   "visit": 90,
+   "note": "มรดกโลก",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-yai-chai-mongkhon",
+   "name": "วัดใหญ่ชัยมงคล",
+   "name_en": "Wat Yai Chai Mongkhon",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.344269,
+   "lng": 100.593986,
+   "prov": "พระนครศรีอยุธยา",
+   "area": "อ.พระนครศรีอยุธยา",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-muang",
+   "name": "วัดม่วง (พระพุทธรูปองค์ใหญ่)",
+   "name_en": "Wat Muang",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.592983,
+   "lng": 100.378757,
+   "prov": "อ่างทอง",
+   "area": "อ.วิเศษชัยชาญ",
+   "visit": 45,
+   "note": "พระพุทธรูปองค์ใหญ่",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-khun-inthapramun",
+   "name": "วัดขุนอินทประมูล",
+   "name_en": "Wat Khun Inthapramun",
+   "cat": [
+    "temple"
+   ],
+   "lat": 14.643285,
+   "lng": 100.427597,
+   "prov": "อ่างทอง",
+   "area": "อ.โพธิ์ทอง",
+   "visit": 30,
+   "note": "พระนอนองค์ใหญ่",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "chai-nat-bird-park",
+   "name": "สวนนกชัยนาท",
+   "name_en": "Chai Nat Bird Park",
+   "cat": [
+    "kids",
+    "view"
+   ],
+   "lat": 15.207023,
+   "lng": 100.151982,
+   "prov": "ชัยนาท",
+   "area": "อ.เมืองชัยนาท",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "paknampho-pasan",
+   "name": "พาสาน ปากน้ำโพ",
+   "name_en": "Paknampho Pasan",
+   "cat": [
+    "view"
+   ],
+   "lat": 15.701595,
+   "lng": 100.142912,
+   "prov": "นครสวรรค์",
+   "area": "อ.เมืองนครสวรรค์",
+   "visit": 30,
+   "note": "แลนด์มาร์กต้นแม่น้ำเจ้าพระยา",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-khiri-wong",
+   "name": "วัดคีรีวงศ์",
+   "name_en": "Wat Khiri Wong",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 15.716475,
+   "lng": 100.126299,
+   "prov": "นครสวรรค์",
+   "area": "อ.เมืองนครสวรรค์",
+   "visit": 30,
+   "note": "วัดบนเขา มองเห็นเมือง",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "bueng-boraphet",
+   "name": "บึงบอระเพ็ด",
+   "name_en": "Bueng Boraphet",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 15.711741,
+   "lng": 100.175667,
+   "prov": "นครสวรรค์",
+   "area": "อ.เมืองนครสวรรค์",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "kamphaeng-phet-historical-park",
+   "name": "อุทยานประวัติศาสตร์กำแพงเพชร",
+   "name_en": "Kamphaeng Phet Historical Park",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 16.472066,
+   "lng": 99.527084,
+   "prov": "กำแพงเพชร",
+   "area": "อ.เมืองกำแพงเพชร",
+   "visit": 90,
+   "note": "มรดกโลก",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "king-taksin-shrine",
+   "name": "ศาลสมเด็จพระเจ้าตากสินมหาราช",
+   "name_en": "King Taksin Shrine",
+   "cat": [
+    "temple"
+   ],
+   "lat": 16.885831,
+   "lng": 99.121138,
+   "prov": "ตาก",
+   "area": "อ.เมืองตาก",
+   "visit": 20,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "thai-elephant-conservation-center",
+   "name": "ศูนย์อนุรักษ์ช้างไทย",
+   "name_en": "Thai Elephant Conservation Center",
+   "cat": [
+    "kids",
+    "view"
+   ],
+   "lat": 18.35775,
+   "lng": 99.243214,
+   "prov": "ลำปาง",
+   "area": "อ.ห้างฉัตร",
+   "visit": 120,
+   "note": "ชมช้าง",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-phra-that-lampang-luang",
+   "name": "วัดพระธาตุลำปางหลวง",
+   "name_en": "Wat Phra That Lampang Luang",
+   "cat": [
+    "temple"
+   ],
+   "lat": 18.216832,
+   "lng": 99.38868,
+   "prov": "ลำปาง",
+   "area": "อ.เกาะคา",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "kad-kong-ta",
+   "name": "กาดกองต้า",
+   "name_en": "Kad Kong Ta",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 18.291392,
+   "lng": 99.499102,
+   "prov": "ลำปาง",
+   "area": "อ.เมืองลำปาง",
+   "visit": 60,
+   "note": "ถนนคนเดิน ช่วงเย็นวันเสาร์–อาทิตย์",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-phra-that-hariphunchai",
+   "name": "วัดพระธาตุหริภุญชัย",
+   "name_en": "Wat Phra That Hariphunchai",
+   "cat": [
+    "temple"
+   ],
+   "lat": 18.577376,
+   "lng": 99.007824,
+   "prov": "ลำพูน",
+   "area": "อ.เมืองลำพูน",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-phra-that-doi-suthep",
+   "name": "วัดพระธาตุดอยสุเทพ",
+   "name_en": "Wat Phra That Doi Suthep",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 18.805009,
+   "lng": 98.922184,
+   "prov": "เชียงใหม่",
+   "area": "อ.เมืองเชียงใหม่",
+   "visit": 90,
+   "note": "ขึ้นเขา",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "one-nimman",
+   "name": "วัน นิมมาน",
+   "name_en": "One Nimman",
+   "cat": [
+    "cafe",
+    "shop",
+    "food"
+   ],
+   "lat": 18.800126,
+   "lng": 98.968073,
+   "prov": "เชียงใหม่",
+   "area": "อ.เมืองเชียงใหม่",
+   "visit": 60,
+   "note": "ย่านคาเฟ่นิมมาน",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "warorot-market",
+   "name": "กาดหลวง (ตลาดวโรรส)",
+   "name_en": "Warorot Market",
+   "cat": [
+    "shop",
+    "food"
+   ],
+   "lat": 18.790938,
+   "lng": 99.000739,
+   "prov": "เชียงใหม่",
+   "area": "อ.เมืองเชียงใหม่",
+   "visit": 60,
+   "note": "ของฝากเชียงใหม่",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "tha-phae-gate",
+   "name": "ประตูท่าแพ",
+   "name_en": "Tha Phae Gate",
+   "cat": [
+    "view"
+   ],
+   "lat": 18.787762,
+   "lng": 98.99327,
+   "prov": "เชียงใหม่",
+   "area": "อ.เมืองเชียงใหม่",
+   "visit": 20,
+   "note": "ถนนคนเดินช่วงเย็นวันอาทิตย์",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "central-festival-chiang-mai",
+   "name": "เซ็นทรัล เฟสติวัล เชียงใหม่",
+   "name_en": "Central Festival Chiang Mai",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 18.807402,
+   "lng": 99.018215,
+   "prov": "เชียงใหม่",
+   "area": "อ.เมืองเชียงใหม่",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "1"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "maeklong-railway-market",
+   "name": "ตลาดร่มหุบ (ตลาดแม่กลอง)",
+   "name_en": "Maeklong Railway Market",
+   "cat": [
+    "shop",
+    "food",
+    "view"
+   ],
+   "lat": 13.407731,
+   "lng": 100.000903,
+   "prov": "สมุทรสงคราม",
+   "area": "อ.เมืองสมุทรสงคราม",
+   "visit": 45,
+   "note": "รถไฟวิ่งผ่านกลางตลาด",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "amphawa-floating-market",
+   "name": "ตลาดน้ำอัมพวา",
+   "name_en": "Amphawa Floating Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 13.424872,
+   "lng": 99.955459,
+   "prov": "สมุทรสงคราม",
+   "area": "อ.อัมพวา",
+   "visit": 90,
+   "note": "ศุกร์–อาทิตย์ ช่วงบ่ายถึงค่ำ",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "don-hoi-lot",
+   "name": "ดอนหอยหลอด",
+   "name_en": "Don Hoi Lot",
+   "cat": [
+    "food",
+    "view"
+   ],
+   "lat": 13.362456,
+   "lng": 100.022619,
+   "prov": "สมุทรสงคราม",
+   "area": "อ.เมืองสมุทรสงคราม",
+   "visit": 60,
+   "note": "ร้านอาหารทะเล",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "phra-nakhon-khiri",
+   "name": "พระนครคีรี (เขาวัง)",
+   "name_en": "Phra Nakhon Khiri",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 13.108867,
+   "lng": 99.93775,
+   "prov": "เพชรบุรี",
+   "area": "อ.เมืองเพชรบุรี",
+   "visit": 90,
+   "note": "มีรถรางขึ้นเขา",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "tham-khao-luang",
+   "name": "ถ้ำเขาหลวง",
+   "name_en": "Tham Khao Luang",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 13.136092,
+   "lng": 99.933032,
+   "prov": "เพชรบุรี",
+   "area": "อ.เมืองเพชรบุรี",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "cha-am-beach",
+   "name": "หาดชะอำ",
+   "name_en": "Cha-am Beach",
+   "cat": [
+    "view",
+    "kids",
+    "food"
+   ],
+   "lat": 12.812555,
+   "lng": 99.993639,
+   "prov": "เพชรบุรี",
+   "area": "อ.ชะอำ",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "santorini-park-cha-am",
+   "name": "ซานโตรินี่ พาร์ค ชะอำ",
+   "name_en": "Santorini Park Cha-am",
+   "cat": [
+    "kids",
+    "shop",
+    "cafe"
+   ],
+   "lat": 12.830679,
+   "lng": 99.933515,
+   "prov": "เพชรบุรี",
+   "area": "อ.ชะอำ",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "mrigadayavan-palace",
+   "name": "พระราชนิเวศน์มฤคทายวัน",
+   "name_en": "Mrigadayavan Palace",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.697857,
+   "lng": 99.963055,
+   "prov": "เพชรบุรี",
+   "area": "อ.ชะอำ",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "hua-hin-railway-station",
+   "name": "สถานีรถไฟหัวหิน",
+   "name_en": "Hua Hin Railway Station",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.567322,
+   "lng": 99.954705,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.หัวหิน",
+   "visit": 20,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "hua-hin-night-market",
+   "name": "ตลาดโต้รุ่งหัวหิน",
+   "name_en": "Hua Hin Night Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 12.571018,
+   "lng": 99.955247,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.หัวหิน",
+   "visit": 60,
+   "note": "ช่วงเย็น",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "cicada-market",
+   "name": "ตลาดจักจั่น หัวหิน",
+   "name_en": "Cicada Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 12.534352,
+   "lng": 99.966212,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.หัวหิน",
+   "visit": 60,
+   "note": "ช่วงเย็น ศุกร์–อาทิตย์",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "bluport-hua-hin",
+   "name": "บลูพอร์ต หัวหิน",
+   "name_en": "Bluport Hua Hin",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 12.54802,
+   "lng": 99.961641,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.หัวหิน",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "phraya-nakhon-cave",
+   "name": "ถ้ำพระยานคร (เขาสามร้อยยอด)",
+   "name_en": "Phraya Nakhon Cave",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.197607,
+   "lng": 100.011398,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.สามร้อยยอด",
+   "visit": 180,
+   "note": "เดินขึ้นเขา ครึ่งวัน",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "ao-manao",
+   "name": "อ่าวมะนาว",
+   "name_en": "Ao Manao",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 11.774896,
+   "lng": 99.804986,
+   "prov": "ประจวบคีรีขันธ์",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "khao-chong-krachok",
+   "name": "เขาช่องกระจก",
+   "name_en": "Khao Chong Krachok",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 11.815508,
+   "lng": 99.798198,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.เมืองประจวบคีรีขันธ์",
+   "visit": 45,
+   "note": "มีลิงเยอะ",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-thang-sai",
+   "name": "วัดทางสาย",
+   "name_en": "Wat Thang Sai",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 11.361492,
+   "lng": 99.579982,
+   "prov": "ประจวบคีรีขันธ์",
+   "area": "อ.บางสะพาน",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "hat-sai-ri",
+   "name": "ศาลกรมหลวงชุมพร (หาดทรายรี)",
+   "name_en": "Hat Sai Ri",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 10.39969,
+   "lng": 99.27984,
+   "prov": "ชุมพร",
+   "area": "อ.เมืองชุมพร",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "suan-mokkh",
+   "name": "สวนโมกขพลาราม",
+   "name_en": "Suan Mokkh",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 9.35841,
+   "lng": 99.169182,
+   "prov": "สุราษฎร์ธานี",
+   "area": "อ.ไชยา",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-phra-borommathat-chaiya",
+   "name": "วัดพระบรมธาตุไชยา",
+   "name_en": "Wat Phra Borommathat Chaiya",
+   "cat": [
+    "temple"
+   ],
+   "lat": 9.383917,
+   "lng": 99.185167,
+   "prov": "สุราษฎร์ธานี",
+   "area": "อ.ไชยา",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "ratchaprapha-dam",
+   "name": "เขื่อนรัชชประภา (เชี่ยวหลาน)",
+   "name_en": "Ratchaprapha Dam",
+   "cat": [
+    "view"
+   ],
+   "lat": 8.972135,
+   "lng": 98.805781,
+   "prov": "สุราษฎร์ธานี",
+   "area": "อ.บ้านตาขุน",
+   "visit": 180,
+   "note": "ล่องเรือ ครึ่งวัน",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-suwan-khuha",
+   "name": "วัดสุวรรณคูหา (วัดถ้ำ)",
+   "name_en": "Wat Suwan Khuha",
+   "cat": [
+    "temple",
+    "kids"
+   ],
+   "lat": 8.428776,
+   "lng": 98.472351,
+   "prov": "พังงา",
+   "area": "อ.ตะกั่วทุ่ง",
+   "visit": 45,
+   "note": "มีลิง",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "heroines-monument",
+   "name": "อนุสาวรีย์ท้าวเทพกระษัตรี ท้าวศรีสุนทร",
+   "name_en": "Heroines Monument",
+   "cat": [
+    "temple"
+   ],
+   "lat": 7.980987,
+   "lng": 98.363922,
+   "prov": "ภูเก็ต",
+   "area": "อ.ถลาง",
+   "visit": 20,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "phuket-old-town",
+   "name": "ย่านเมืองเก่าภูเก็ต",
+   "name_en": "Phuket Old Town",
+   "cat": [
+    "cafe",
+    "food",
+    "shop"
+   ],
+   "lat": 7.884648,
+   "lng": 98.391137,
+   "prov": "ภูเก็ต",
+   "area": "อ.เมืองภูเก็ต",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "wat-chalong",
+   "name": "วัดฉลอง",
+   "name_en": "Wat Chalong",
+   "cat": [
+    "temple"
+   ],
+   "lat": 7.846263,
+   "lng": 98.337469,
+   "prov": "ภูเก็ต",
+   "area": "อ.เมืองภูเก็ต",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "big-buddha-phuket",
+   "name": "พระใหญ่ภูเก็ต",
+   "name_en": "Big Buddha Phuket",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 7.827679,
+   "lng": 98.313243,
+   "prov": "ภูเก็ต",
+   "area": "อ.เมืองภูเก็ต",
+   "visit": 60,
+   "note": "ขึ้นเขา",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "central-phuket",
+   "name": "เซ็นทรัล ภูเก็ต",
+   "name_en": "Central Phuket",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 7.891942,
+   "lng": 98.367934,
+   "prov": "ภูเก็ต",
+   "area": "อ.เมืองภูเก็ต",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "4"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "nong-mon-market",
+   "name": "ตลาดหนองมน",
+   "name_en": "Nong Mon Market",
+   "cat": [
+    "shop",
+    "food"
+   ],
+   "lat": 13.281284,
+   "lng": 100.93621,
+   "prov": "ชลบุรี",
+   "area": "อ.เมืองชลบุรี",
+   "visit": 45,
+   "note": "ของฝากชลบุรี",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "bang-saen-beach",
+   "name": "หาดบางแสน",
+   "name_en": "Bang Saen Beach",
+   "cat": [
+    "view",
+    "food",
+    "kids"
+   ],
+   "lat": 13.288354,
+   "lng": 100.911083,
+   "prov": "ชลบุรี",
+   "area": "อ.เมืองชลบุรี",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "nong-nooch-tropical-garden",
+   "name": "สวนนงนุช พัทยา",
+   "name_en": "Nong Nooch Tropical Garden",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 12.764685,
+   "lng": 100.936119,
+   "prov": "ชลบุรี",
+   "area": "อ.สัตหีบ",
+   "visit": 180,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "sanctuary-of-truth",
+   "name": "ปราสาทสัจธรรม",
+   "name_en": "Sanctuary of Truth",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 12.972777,
+   "lng": 100.88915,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "pattaya-viewpoint",
+   "name": "จุดชมวิวเขาพระตำหนัก",
+   "name_en": "Pattaya Viewpoint",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.927847,
+   "lng": 100.863214,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "khao-chi-chan",
+   "name": "พระพุทธรูปแกะสลักเขาชีจรรย์",
+   "name_en": "Khao Chi Chan",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 12.76439,
+   "lng": 100.95592,
+   "prov": "ชลบุรี",
+   "area": "อ.สัตหีบ",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "viharn-sien",
+   "name": "วิหารเซียน",
+   "name_en": "Viharn Sien",
+   "cat": [
+    "temple"
+   ],
+   "lat": 12.787863,
+   "lng": 100.955201,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "pattaya-floating-market",
+   "name": "ตลาดน้ำ 4 ภาค พัทยา",
+   "name_en": "Pattaya Floating Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 12.868572,
+   "lng": 100.906516,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "terminal-21-pattaya",
+   "name": "เทอร์มินอล 21 พัทยา",
+   "name_en": "Terminal 21 Pattaya",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 12.949876,
+   "lng": 100.889767,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "central-pattaya",
+   "name": "เซ็นทรัล พัทยา",
+   "name_en": "Central Pattaya",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 12.934694,
+   "lng": 100.883477,
+   "prov": "ชลบุรี",
+   "area": "อ.บางละมุง",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "mae-ramphueng-beach",
+   "name": "หาดแม่รำพึง",
+   "name_en": "Mae Ramphueng Beach",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.610604,
+   "lng": 101.384467,
+   "prov": "ระยอง",
+   "area": "อ.เมืองระยอง",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "ban-phe-pier",
+   "name": "ท่าเรือบ้านเพ",
+   "name_en": "Ban Phe Pier",
+   "cat": [
+    "view",
+    "shop",
+    "food"
+   ],
+   "lat": 12.622371,
+   "lng": 101.434457,
+   "prov": "ระยอง",
+   "area": "อ.เมืองระยอง",
+   "visit": 30,
+   "note": "เรือไปเกาะเสม็ด · ของฝากอาหารทะเลแห้ง",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "central-rayong",
+   "name": "เซ็นทรัล ระยอง",
+   "name_en": "Central Rayong",
+   "cat": [
+    "shop",
+    "food",
+    "kids"
+   ],
+   "lat": 12.696023,
+   "lng": 101.268426,
+   "prov": "ระยอง",
+   "area": "อ.เมืองระยอง",
+   "visit": 60,
+   "note": "ห้าง",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "cathedral-of-the-immaculate-conception-c",
+   "name": "อาสนวิหารพระนางมารีอาปฏิสนธินิรมล",
+   "name_en": "Cathedral of the Immaculate Conception Chanthaburi",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 12.609235,
+   "lng": 102.118649,
+   "prov": "จันทบุรี",
+   "area": "อ.เมืองจันทบุรี",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "chanthaboon-waterfront",
+   "name": "ชุมชนริมน้ำจันทบูร",
+   "name_en": "Chanthaboon Waterfront",
+   "cat": [
+    "food",
+    "shop",
+    "cafe"
+   ],
+   "lat": 12.612713,
+   "lng": 102.11371,
+   "prov": "จันทบุรี",
+   "area": "อ.เมืองจันทบุรี",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "chanthaburi-gem-market",
+   "name": "ตลาดพลอยจันทบุรี",
+   "name_en": "Chanthaburi Gem Market",
+   "cat": [
+    "shop"
+   ],
+   "lat": 12.606795,
+   "lng": 102.115172,
+   "prov": "จันทบุรี",
+   "area": "อ.เมืองจันทบุรี",
+   "visit": 45,
+   "note": "คึกคักวันศุกร์–อาทิตย์",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "namtok-phlio-national-park",
+   "name": "อุทยานแห่งชาติน้ำตกพลิ้ว",
+   "name_en": "Namtok Phlio National Park",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 12.529691,
+   "lng": 102.18406,
+   "prov": "จันทบุรี",
+   "area": "อ.เมืองจันทบุรี",
+   "visit": 90,
+   "note": "เล่นน้ำได้",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "noen-nang-phaya-viewpoint",
+   "name": "เนินนางพญา",
+   "name_en": "Noen Nang Phaya Viewpoint",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.591234,
+   "lng": 101.881081,
+   "prov": "จันทบุรี",
+   "area": "อ.นายายอาม",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "chao-lao-beach",
+   "name": "หาดเจ้าหลาว",
+   "name_en": "Chao Lao Beach",
+   "cat": [
+    "view"
+   ],
+   "lat": 12.53317,
+   "lng": 101.941841,
+   "prov": "จันทบุรี",
+   "area": "อ.ท่าใหม่",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "3"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "phutthamonthon",
+   "name": "พุทธมณฑล",
+   "name_en": "Phutthamonthon",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 13.779134,
+   "lng": 100.318605,
+   "prov": "นครปฐม",
+   "area": "อ.พุทธมณฑล",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "don-wai-floating-market",
+   "name": "ตลาดน้ำดอนหวาย",
+   "name_en": "Don Wai Floating Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 13.770093,
+   "lng": 100.284126,
+   "prov": "นครปฐม",
+   "area": "ท่าตลาด",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "sampran-riverside",
+   "name": "สวนสามพราน",
+   "name_en": "Sampran Riverside",
+   "cat": [
+    "food",
+    "kids",
+    "shop"
+   ],
+   "lat": 13.734878,
+   "lng": 100.240704,
+   "prov": "นครปฐม",
+   "area": "ท่าตลาด",
+   "visit": 90,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "phra-pathom-chedi",
+   "name": "พระปฐมเจดีย์",
+   "name_en": "Phra Pathom Chedi",
+   "cat": [
+    "temple"
+   ],
+   "lat": 13.819028,
+   "lng": 100.060879,
+   "prov": "นครปฐม",
+   "area": "อ.เมืองนครปฐม",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "damnoen-saduak-floating-market",
+   "name": "ตลาดน้ำดำเนินสะดวก",
+   "name_en": "Damnoen Saduak Floating Market",
+   "cat": [
+    "food",
+    "shop"
+   ],
+   "lat": 13.519762,
+   "lng": 99.959352,
+   "prov": "ราชบุรี",
+   "area": "อ.ดำเนินสะดวก",
+   "visit": 90,
+   "note": "ช่วงเช้า",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "river-kwai-bridge",
+   "name": "สะพานข้ามแม่น้ำแคว",
+   "name_en": "River Kwai Bridge",
+   "cat": [
+    "view"
+   ],
+   "lat": 14.040411,
+   "lng": 99.503463,
+   "prov": "กาญจนบุรี",
+   "area": "อ.เมืองกาญจนบุรี",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "kanchanaburi-war-cemetery",
+   "name": "สุสานทหารสัมพันธมิตรดอนรัก",
+   "name_en": "Kanchanaburi War Cemetery",
+   "cat": [
+    "view"
+   ],
+   "lat": 14.031311,
+   "lng": 99.525649,
+   "prov": "กาญจนบุรี",
+   "area": "อ.เมืองกาญจนบุรี",
+   "visit": 30,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "jeath-war-museum",
+   "name": "พิพิธภัณฑ์สงครามโลกครั้งที่ 2 (JEATH)",
+   "name_en": "JEATH War Museum",
+   "cat": [
+    "kids"
+   ],
+   "lat": 14.041443,
+   "lng": 99.505199,
+   "prov": "กาญจนบุรี",
+   "area": "อ.เมืองกาญจนบุรี",
+   "visit": 45,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "prasat-muang-sing",
+   "name": "ปราสาทเมืองสิงห์",
+   "name_en": "Prasat Muang Sing",
+   "cat": [
+    "temple",
+    "view"
+   ],
+   "lat": 14.037536,
+   "lng": 99.241205,
+   "prov": "กาญจนบุรี",
+   "area": "อ.ไทรโยค",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "tham-krasae",
+   "name": "ทางรถไฟสายมรณะ ถ้ำกระแซ",
+   "name_en": "Tham Krasae",
+   "cat": [
+    "view"
+   ],
+   "lat": 14.100122,
+   "lng": 99.169534,
+   "prov": "กาญจนบุรี",
+   "area": "อ.ไทรโยค",
+   "visit": 60,
+   "note": "",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "sai-yok-noi-waterfall",
+   "name": "น้ำตกไทรโยคน้อย",
+   "name_en": "Sai Yok Noi Waterfall",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 14.238438,
+   "lng": 99.058297,
+   "prov": "กาญจนบุรี",
+   "area": "อ.ไทรโยค",
+   "visit": 45,
+   "note": "น้ำเยอะช่วงหน้าฝน",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
+  },
+  {
+   "id": "erawan-national-park",
+   "name": "อุทยานแห่งชาติเอราวัณ",
+   "name_en": "Erawan National Park",
+   "cat": [
+    "view",
+    "kids"
+   ],
+   "lat": 14.368287,
+   "lng": 99.144297,
+   "prov": "กาญจนบุรี",
+   "area": "อ.ศรีสวัสดิ์",
+   "visit": 240,
+   "note": "เล่นน้ำตก ครึ่งวันขึ้นไป",
+   "routes": [
+    "323"
+   ],
+   "checked": true,
+   "partner": false
   }
  ]
 }
