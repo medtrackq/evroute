@@ -167,6 +167,17 @@
                 <p class="gauge__hint"><b id="soc-hint">แบตตอนออกเดินทาง</b><span>แบตตอนออกเดินทาง · ลากบนวงเพื่อปรับ</span></p>
               </div>
             </div>
+            <div class="opt" id="buffer-opt">
+              <span class="opt__label">เผื่อขับเที่ยวที่ปลายทาง</span>
+              <div class="tabs" role="radiogroup" aria-label="เผื่อขับเที่ยวที่ปลายทาง">
+                <label><input type="radio" name="buffer" value="auto" checked><span>อัตโนมัติ</span></label>
+                <label><input type="radio" name="buffer" value="0"><span>ไม่เผื่อ</span></label>
+                <label><input type="radio" name="buffer" value="50"><span>50 กม.</span></label>
+                <label><input type="radio" name="buffer" value="100"><span>100 กม.</span></label>
+                <label><input type="radio" name="buffer" value="150"><span>150 กม.</span></label>
+              </div>
+              <p class="hint" id="buffer-note">จุดชาร์จสุดท้ายชาร์จเพิ่มให้ ถึงแล้วยังขับเที่ยวต่อได้ · อัตโนมัติ: เผื่อ 50 กม. เมื่อแถวปลายทางไม่มีที่ชาร์จเร็ว</p>
+            </div>
           </section>
 
           <section class="card" aria-labelledby="trip-title">

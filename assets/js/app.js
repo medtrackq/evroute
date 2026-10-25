@@ -581,6 +581,7 @@
       var d = x.d;
       fl = x.fl;
       ex = floodExclude(R.excluded);
+      setBuffer(opts, t);
       busyStep('กำลังเลือกจุดชาร์จ…');
       var prof = P.profile(d.trip.legs);
       var cands = P.candidates(prof, R.stations, R.car, { exclude: ex });
@@ -614,6 +615,23 @@
         if (opts.want && res.ok) {
           var plain = P.plan(prof, cands, R.car, Object.assign({}, opts, { want: null }));
           if (plain.ok) res.wantExtra = Math.max(0, res.realMin - plain.realMin);
+        }
+        // Charge kept for the destination and what it costs. When the last station is too far from
+        // the end to charge for all of it: as much as it allows (5% steps), or none at all.
+        if (opts.arriveSoc) {
+          var bare = P.plan(prof, cands, R.car, Object.assign({}, opts, { arriveSoc: null }));
+          if (!res.ok && bare.ok) {
+            var part = null;
+            for (var keep = opts.arriveSoc - 5; keep > opts.minSoc + 2 && !part; keep -= 5) {
+              var r = P.plan(prof, cands, R.car, Object.assign({}, opts, { arriveSoc: keep }));
+              if (r.ok) part = r;
+            }
+            part = part || bare;
+            part.googleAdded = res.googleAdded;
+            part.bufferShort = true;
+            res = part;
+          }
+          if (res.ok && bare.ok) res.bufferExtra = Math.max(0, res.realMin - bare.realMin);
         }
         return { prof: prof, cands: cands, res: res };
       });
@@ -689,6 +707,69 @@
       say(/no path|no suitable/i.test(err.message) ? 'ไม่พบเส้นทางรถยนต์ระหว่าง 2 จุดนี้' : 'บริการหาเส้นทางหรือข้อมูลสถานีไม่ตอบ ลองใหม่อีกครั้ง', 'crit');
     }).then(function () { setBusy(false); });
   }
+
+  // ---------- charge kept for the destination ----------
+  // "เผื่อขับเที่ยวที่ปลายทาง": the trip should end with enough charge to drive around there the
+  // next day. Automatic: 50 km when no fast charger the car can use is within DEST_KM of the end,
+  // nothing otherwise. A round trip ends at home and keeps nothing.
+  var DEST_KM = 10;
+  var AUTO_BUFFER_KM = 50;
+
+  // Fast chargers this car can use near a point: { n, nearest (km) }.
+  function destChargers(p) {
+    var d = R.stations.filter(function (st) { return Math.abs(st.lat - p.lat) < 0.12 && P.usable(st, R.car); })
+      .map(function (st) { return P.km(p, st); }).filter(function (k) { return k <= DEST_KM; }).sort(function (a, b) { return a - b; });
+    return { n: d.length, nearest: d[0] };
+  }
+
+  // Adds to the plan options: dest (chargers near the end), bufferKm, bufferAuto, arriveSoc, capped.
+  function setBuffer(o, t) {
+    if (t.round || !t.end) return;
+    var pick = radio('buffer') || 'auto';
+    o.dest = destChargers(t.end);
+    o.bufferAuto = pick === 'auto';
+    o.bufferKm = o.bufferAuto ? (o.dest.n ? 0 : AUTO_BUFFER_KM) : +pick || 0;
+    if (!o.bufferKm) return;
+    var want = o.minSoc + P.kmToSoc(o.bufferKm, R.car), most = o.targetSoc - 3;
+    o.capped = want > most;
+    o.arriveSoc = Math.min(want, most);
+  }
+
+  // km of driving left at the end before the minimum level, to the nearest 10.
+  function keptKm(res) { return Math.max(0, Math.round(rangeKm(totals(res).arrive - res.opts.minSoc) / 10) * 10); }
+
+  function destNote(res) {
+    var o = res.opts, t = totals(res);
+    if (!res.ok || !o || !o.dest) return '';
+    var lines = [], warn = false, kept = keptKm(res);
+    if (o.bufferKm) {
+      var short = res.bufferShort && kept < o.bufferKm - 5;
+      warn = short;
+      lines.push(short && kept < 10 ? '<b>⚠️ เผื่อขับเที่ยวที่ปลายทางไม่ได้</b>'
+        : short ? '<b>⚠️ เผื่อขับเที่ยวที่ปลายทางได้ราว ' + kept + ' กม. จากที่ตั้งไว้ ' + o.bufferKm + ' กม.</b>'
+        : '<b>🔋 เผื่อขับเที่ยวที่ปลายทาง ~' + o.bufferKm + ' กม.</b>' + (o.bufferAuto ? ' <span class="hint">อัตโนมัติ เพราะแถวปลายทางไม่มีที่ชาร์จเร็ว</span>' : ''));
+      lines.push('<span><span>ถึงแล้วเหลือ ' + pct(t.arrive) + ' ขับต่อได้ราว ' + kept + ' กม. ก่อนถึง ' + o.minSoc + '%</span>' +
+        (res.bufferExtra >= 1 ? ' · <span>ใช้เวลาชาร์จเพิ่ม ~' + dur(res.bufferExtra) + '</span>' : '') + '</span>');
+      if (short) lines.push('<span class="hint">' + (o.targetSoc < 100 ? 'สถานีชาร์จสุดท้ายอยู่ไกลปลายทาง ลองตั้ง "ชาร์จถึง" ให้สูงขึ้น (90–100%)'
+        : 'สถานีชาร์จสุดท้ายอยู่ไกลปลายทาง ช่วงสุดท้ายใช้แบตเกือบหมด ถามที่พักว่ามีที่ชาร์จไหม') + '</span>');
+      else if (o.capped) lines.push('<span class="hint">เผื่อได้เท่านี้ เพราะตั้ง "ชาร์จถึง" ไว้ ' + o.targetSoc + '%</span>');
+    }
+    if (o.dest.n) {
+      lines.push('<span>⚡ ใกล้ปลายทาง (' + DEST_KM + ' กม.) มีที่ชาร์จเร็วที่รถคุณใช้ได้ ' + o.dest.n + ' แห่ง · ใกล้สุด ' + km1(o.dest.nearest) + ' กม.</span>');
+    } else {
+      warn = true;
+      lines.push('<span>⚠️ แถวปลายทาง (' + DEST_KM + ' กม.) ไม่มีที่ชาร์จเร็วที่รถคุณใช้ได้ ถ้าที่พักไม่มีที่ชาร์จ ควรเผื่อแบตไว้</span>');
+      if ((o.bufferKm || 0) < 100 && kept < 100) lines.push('<button type="button" class="btn btn--soft dest-more" data-buffer="100">เผื่อ 100 กม. แล้ววางแผนใหม่</button>');
+    }
+    return '<div class="verdict ' + (warn ? 'verdict--warn' : 'verdict--info') + ' dest-note">' + lines.join('') + '</div>';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-buffer]');
+    if (!b) return;
+    setRadio('buffer', b.dataset.buffer);
+    replan();
+  });
 
   // ---------- flooded roads (from medtrackq/roadflood) ----------
   // Department of Highways and Longdo Traffic reports, and Bangkok's road sensors, through
@@ -1535,7 +1616,8 @@
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
-        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.meal && res.opts && res.opts.want && res.opts.want.food ? '<span class="tag tag--meal">🍜 ' + esc(s.meal) + '</span>' : '') + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') + (R.favs[st.id] ? '<span class="tag tag--fav">★ โปรด</span>' : '') + userTag(st) + '</span>' +
+        '<div class="row__main"><span class="row__name">' + esc(st.name) + (s.meal && res.opts && res.opts.want && res.opts.want.food ? '<span class="tag tag--meal">🍜 ' + esc(s.meal) + '</span>' : '') + (s.pinned ? '<span class="tag">เลือกเอง</span>' : '') +
+          (res.trip && !res.trip.round && i === res.stops.length - 1 ? '<span class="tag tag--last">🏁 ชาร์จสุดท้ายก่อนถึง' + (res.opts.bufferKm && keptKm(res) >= 10 ? ' · เผื่อเที่ยว ' + Math.min(res.opts.bufferKm, keptKm(res)) + ' กม.' : '') + '</span>' : '') + (R.favs[st.id] ? '<span class="tag tag--fav">★ โปรด</span>' : '') + userTag(st) + '</span>' +
         '<span class="row__meta">กม. ' + km1(s.kmReal != null ? s.kmReal : s.along) + ' · ' + off + ' · ' + esc(st.op || 'ไม่ทราบผู้ให้บริการ') + '</span></div>' +
         '<span class="row__kwh"><span class="bolt">' + BOLT + '</span>+' + Math.round(s.kwhAdded) + ' kWh</span></div>' +
       '<div class="row__body">' +
@@ -1593,7 +1675,7 @@
           : tile('sun', 'dc', 'เติมไฟ', Math.round(t.kwh), 'kWh')) +
         tile('mint', 'flag', 'ถึงปลายทาง', res.ok ? Math.round(t.arrive) : '–', res.ok ? '%' : '') +
       '</div>' +
-      floodNote(res) + wantNote(res) + bookNote(res) +
+      destNote(res) + floodNote(res) + wantNote(res) + bookNote(res) +
       (res.googleAdded ? '<p class="hint">เพิ่มสถานีจาก Google Maps ' + res.googleAdded + ' แห่งในช่วงที่ข้อมูลเรายังน้อย</p>' : '') +
       (low ? '<div class="verdict verdict--warn">บางช่วงแบตอาจต่ำกว่า ' + o.minSoc + '% เพราะต้องอ้อมเข้าสถานี เผื่อเวลาชาร์จเพิ่มเล็กน้อย</div>' : '') +
       '<div class="list-head"><h2>' + (res.stops.length ? 'แผนการเดินทาง · ชาร์จ ' + res.stops.length + ' จุด' : 'ไม่ต้องแวะชาร์จ') + '</h2><span class="hint">' + km1(t.km) + ' กม. · ขับ ' + dur(t.drive) + '</span></div>' +
@@ -2179,6 +2261,7 @@
       var ex = Object.keys(R.excluded);
       if (ex.length) q.set('ex', ex.join(','));
       if (!R.floodAvoid) q.set('fl', '0');
+      if (radio('buffer') && radio('buffer') !== 'auto') q.set('buf', radio('buffer'));
       history.replaceState(null, '', '?' + q);
     } catch (e) {}
   }
@@ -2202,6 +2285,7 @@
     if (q.get('min')) setRadio('min', q.get('min'));
     if (q.get('tgt')) setRadio('target', q.get('tgt'));
     if (q.get('fl') === '0') R.floodAvoid = false; // a shared plan made without avoiding floods (not remembered)
+    if (q.get('buf')) setRadio('buffer', q.get('buf'));
     setCar(carId, tune);
     // First visit: open the car picker so people notice they can choose their model.
     if (!q.get('car') && !saved) togglePicker(true);
@@ -2212,6 +2296,7 @@
     var ds = q.getAll('to').map(function (v, i) { return parse(v, names[i]); }).filter(Boolean).slice(0, MAX_DESTS);
     R.round = q.get('rt') === '1';
     $('round').checked = R.round;
+    $('buffer-opt').hidden = R.round;
     R.dests = ds.length ? ds : [null];
     renderDests();
     if (a) setPoint('a', a);
@@ -2328,6 +2413,9 @@
   document.querySelectorAll('input[name="min"], input[name="target"]').forEach(function (el) {
     el.addEventListener('change', function () { syncRange(); if (R.result) replan(); });
   });
+  document.querySelectorAll('input[name="buffer"]').forEach(function (el) {
+    el.addEventListener('change', function () { if (R.result) replan(); });
+  });
 
   suggest($('from'), $('from-sug'), 'a');
   suggest($('to'), $('to-sug'), 0);
@@ -2347,6 +2435,7 @@
   });
   $('round').addEventListener('change', function () {
     R.round = this.checked;
+    $('buffer-opt').hidden = R.round; // back home: charge there
     newTrip();
     if (R.result) replan();
   });

@@ -1005,3 +1005,12 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
   .tp-row { grid-template-columns: minmax(0, 1fr); }
   .tp-row__side { justify-items: start; text-align: left; }
 }
+
+/* Charge kept for the destination */
+#buffer-opt .tabs span { padding-left: 6px; padding-right: 6px; white-space: nowrap; }
+#buffer-opt .hint { margin: 0; }
+#buffer-opt[hidden] { display: none; }
+.dest-note .hint { margin: 0; }
+.dest-more { justify-self: start; margin-top: 4px; }
+.tag--last { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface)); }
+

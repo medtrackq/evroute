@@ -219,7 +219,8 @@
   // far more time (a station the user pinned is still used). o.want: { food, cafe, wc, shop } the
   // driver would like at their stops (station.am, see lib/amenities.mjs), preferred when they cost
   // little extra time; food counts only for a stop at a meal time, from o.departClock (minutes
-  // after midnight when the car leaves).
+  // after midnight when the car leaves). o.arriveSoc: the car should reach the end with at least this
+  // much (charge kept for driving around at the destination); the last stop charges for it.
   function plan(prof, cands, car, o) {
     var cap = car.kwh, minSoc = o.minSoc, target = o.targetSoc;
     var start = { along: 0, kw: 0, detourKm: 0, detourMin: 0, start: true };
@@ -252,7 +253,7 @@
 
     function hop(a, arrive, b, real) {
       if (!b.end && b.along - a.along < SKIP_KM) return null;
-      var need = minSoc + pct(hopKwh(a, b)) + (b.end ? 0 : 2);
+      var need = (b.end ? Math.max(minSoc, o.arriveSoc || 0) : minSoc) + pct(hopKwh(a, b)) + (b.end ? 0 : 2);
       if (a.start) return need <= arrive ? { depart: arrive, min: 0, real: 0 } : null;
       if (need > target) return null;
       if (need <= arrive + 1) return null; // no need to stop here: going straight past is better

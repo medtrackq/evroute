@@ -286,3 +286,17 @@ test('a station on the driver\'s side (left, in Thailand) wins over the same one
   const pinned = P.plan(prof, cands, c, { startSoc: 100, minSoc: 20, targetSoc: 80, pinned: ['R310'] });
   assert.ok(pinned.stops.some((s) => s.st.id === 'R310'));
 });
+
+test('charge kept for the destination: the last stop charges for it, and arriving with it is the rule', () => {
+  const c = car('byd-atto3-std');
+  const cands = P.candidates(prof, stationsEvery(30), c);
+  const o = { startSoc: 100, minSoc: 20, targetSoc: 80 };
+  const base = P.plan(prof, cands, c, o);
+  const kept = P.plan(prof, cands, c, { ...o, arriveSoc: 45 });
+  assert.ok(base.ok && kept.ok);
+  assert.ok(base.arrive < 30, String(base.arrive));
+  assert.ok(kept.arrive >= 45 - 0.01, String(kept.arrive));
+  assert.ok(kept.realMin > base.realMin);
+  // More than the last stop may charge to: no plan reaches the end with it.
+  assert.equal(P.plan(prof, cands, c, { ...o, arriveSoc: 95 }).ok, false);
+});
