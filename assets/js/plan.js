@@ -11,6 +11,12 @@
   var FAV_BONUS = 12;      // minutes a favourite station is "worth", so it wins close calls
   var AVOID_PENALTY = 60;  // minutes a station with a recent problem report "costs": used only when nothing near is better
   var WANT_PENALTY = 15;   // minutes a stop "costs" for each thing the driver wants to stop for but it lacks
+  // Thailand drives on the left: a station on the right of a main road is usually across a median,
+  // a U-turn there and another one back. Within ACROSS_KM of the route it "costs" ACROSS_PENALTY, so
+  // a station on the driver's own side wins unless the other is clearly better. Further off, the
+  // station is reached by a side road and a normal turn.
+  var ACROSS_KM = 0.5;
+  var ACROSS_PENALTY = 15;
   // Meal times (minutes after midnight, Bangkok): a stop then is where "กินข้าว" counts.
   var MEALS = [[6 * 60 + 30, 9 * 60, 'มื้อเช้า'], [11 * 60, 13 * 60 + 30, 'มื้อกลางวัน'], [17 * 60 + 30, 20 * 60 + 30, 'มื้อเย็น']];
   var MAX_STOPS = 12;
@@ -87,10 +93,10 @@
     return arr[lo] + (span ? (arr[hi] - arr[lo]) * (along - c[lo]) / span : 0);
   }
 
-  // Distance from p to the route (or to shape points from..to of it), and how far along the
-  // route that closest point is (km).
+  // Distance from p to the route (or to shape points from..to of it), how far along the route that
+  // closest point is (km), and which side of the road p is on going that way (left: true).
   function nearest(pts, cum, p, from, to) {
-    var best = { d: Infinity, along: 0 };
+    var best = { d: Infinity, along: 0, left: true };
     var kx = Math.cos(p.lat * Math.PI / 180) * 111.32, ky = 110.57;
     for (var i = (from || 0) + 1; i <= (to == null ? pts.length - 1 : to); i++) {
       var ax = (pts[i - 1][1] - p.lng) * kx, ay = (pts[i - 1][0] - p.lat) * ky;
@@ -98,7 +104,7 @@
       var dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
       var t = len2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len2)) : 0;
       var cx = ax + t * dx, cy = ay + t * dy, d = Math.sqrt(cx * cx + cy * cy);
-      if (d < best.d) best = { d: d, along: cum[i - 1] + t * (cum[i] - cum[i - 1]) };
+      if (d < best.d) best = { d: d, along: cum[i - 1] + t * (cum[i] - cum[i - 1]), left: dx * (-ay) - dy * (-ax) >= 0 };
     }
     return best;
   }
@@ -174,7 +180,7 @@
         from = end;
         if (n.d > maxOff) return;
         var dt = detour(n.d);
-        out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: dt.km, detourMin: dt.min });
+        out.push({ st: st, plug: plug, kw: Math.min(plug.kw || 50, car.dc), along: n.along, off: n.d, detourKm: dt.km, detourMin: dt.min, across: !n.left && n.d < ACROSS_KM });
       });
     });
     return out.sort(function (a, b) { return a.along - b.along; });
@@ -255,7 +261,9 @@
       var avoid = o.avoid && a.st && o.avoid[a.st.id] && (o.pinned || []).indexOf(a.st.id) < 0 ? AVOID_PENALTY : 0;
       var charge = chargeMinutes(arrive, depart, a.kw, cap) + PLUG_MIN;
       var want = lacks(a.st, clockAt(real)) * WANT_PENALTY;
-      return { depart: depart, min: charge + STOP_PENALTY - fav + avoid + want, real: charge };
+      // Across the road: unless pinned; a U-turn confirmed on the routed trip (o.uturn) counts twice.
+      var across = (a.across || (o.uturn && o.uturn[a.st.id])) && (o.pinned || []).indexOf(a.st.id) < 0 ? ACROSS_PENALTY * (o.uturn && o.uturn[a.st.id] ? 2 : 1) : 0;
+      return { depart: depart, min: charge + STOP_PENALTY - fav + avoid + want + across, real: charge };
     }
 
     var best = nodes.map(function () { return null; }); // { time, arrive, prev, depart }

@@ -618,41 +618,62 @@
         return { prof: prof, cands: cands, res: res };
       });
     }).then(function (x) {
-      var prof = x.prof, cands = x.cands, res = x.res;
-      res.prof = prof;
-      res.cands = cands;
-      res.opts = opts;
-      res.trip = t;
-      // Everything the car stops at on the way, in order: charging stops and the user's own destinations.
-      var items = res.stops.map(function (s) { return { kind: 'stop', s: s, p: s.st, along: s.along }; })
-        .concat(t.targets.slice(0, -1).map(function (p, i) { return { kind: 'dest', p: p, along: prof.cum[prof.legEnds[i]] }; }))
-        .sort(function (x, y) { return x.along - y.along; });
-      res.items = items;
-      var departs = items.map(function (it) { return it.kind === 'stop' ? it.s.depart : null; });
-      var settle = function (pr) {
-        res.flood = floodResult(fl, pr, ex);
-        var legs = P.replay(pr, R.car, soc, departs);
-        res.final = pr;
-        res.legs = legs;
-        items.forEach(function (it, i) {
-          it.km = legs[i].km;
-          it.arrive = legs[i].arrive;
-          if (it.s) { it.s.arriveReal = legs[i].arrive; it.s.kmReal = legs[i].km; }
+      // The plan, routed through its stations for real distances, times and battery levels.
+      var finish = function (res) {
+        var prof = x.prof, cands = x.cands;
+        res.prof = prof;
+        res.cands = cands;
+        res.opts = opts;
+        res.trip = t;
+        // Everything the car stops at on the way, in order: charging stops and the user's own destinations.
+        var items = res.stops.map(function (s) { return { kind: 'stop', s: s, p: s.st, along: s.along }; })
+          .concat(t.targets.slice(0, -1).map(function (p, i) { return { kind: 'dest', p: p, along: prof.cum[prof.legEnds[i]] }; }))
+          .sort(function (x, y) { return x.along - y.along; });
+        res.items = items;
+        var departs = items.map(function (it) { return it.kind === 'stop' ? it.s.depart : null; });
+        var settle = function (pr) {
+          res.flood = floodResult(fl, pr, ex);
+          var legs = P.replay(pr, R.car, soc, departs);
+          res.final = pr;
+          res.legs = legs;
+          items.forEach(function (it, i) {
+            it.km = legs[i].km;
+            it.arrive = legs[i].arrive;
+            if (it.s) { it.s.arriveReal = legs[i].arrive; it.s.kmReal = legs[i].km; }
+          });
+          res.arriveReal = legs[legs.length - 1].arrive;
+          return res;
+        };
+        res.flood = floodResult(fl, prof, ex);
+        if (!res.ok) return res;
+        if (!res.stops.length) return settle(prof);
+        if (items.length + 2 > MAX_ROUTE_POINTS) return res;
+        // Route again through the chosen stations for real distances, times and battery levels.
+        busyStep('กำลังคำนวณเวลาและค่าไฟ…');
+        return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end]), fl.avoid).then(function (d2) {
+          markUturns(items, d2.trip.legs);
+          return settle(P.profile(d2.trip.legs));
+        }, function (err) {
+          console.warn('route via stops failed', err);
+          return res;
         });
-        res.arriveReal = legs[legs.length - 1].arrive;
-        return res;
       };
-      res.flood = floodResult(fl, prof, ex);
-      if (!res.ok) return res;
-      if (!res.stops.length) return settle(prof);
-      if (items.length + 2 > MAX_ROUTE_POINTS) return res;
-      // Route again through the chosen stations for real distances, times and battery levels.
-      busyStep('กำลังคำนวณเวลาและค่าไฟ…');
-      return route([R.a].concat(items.map(function (it) { return it.p; }), [t.end]), fl.avoid).then(function (d2) {
-        return settle(P.profile(d2.trip.legs));
-      }, function (err) {
-        console.warn('route via stops failed', err);
-        return res;
+      return Promise.resolve(finish(x.res)).then(function (res) {
+        // A station the routed trip reaches with a U-turn is across a divided road: plan once more
+        // counting that, and keep the new plan if it has fewer U-turns.
+        var u = res.ok ? res.stops.filter(function (s) { return s.uturn; }) : [];
+        if (!u.length) return res;
+        var uturn = {};
+        u.forEach(function (s) { uturn[s.st.id] = true; });
+        var again = P.plan(x.prof, x.cands, R.car, Object.assign({}, opts, { uturn: uturn }));
+        var ids = function (r) { return r.stops.map(function (s) { return s.st.id; }).join(); };
+        if (!again.ok || ids(again) === ids(res)) return res;
+        again.googleAdded = res.googleAdded;
+        again.wantExtra = res.wantExtra;
+        return Promise.resolve(finish(again)).then(function (r2) {
+          var n = function (r) { return r.stops.filter(function (s) { return s.uturn; }).length; };
+          return r2.final && n(r2) < n(res) ? r2 : res;
+        }, function () { return res; });
       });
     }).then(function (res) {
       R.result = res;
@@ -1510,7 +1531,7 @@
     var alts = s.alts.length ? '<details class="alts"><summary>เปลี่ยนสถานี (' + s.alts.length + ')</summary><ul>' +
       s.alts.map(function (x) {
         return '<li><button type="button" class="alt" data-swap="' + i + '" data-id="' + esc(x.c.st.id) + '">' +
-          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (doubtful(x.c.st, x.c.plug) ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + (x.c.st.rep && x.c.st.rep.prob ? ' · ⚠ มีรายงานปัญหา' : '') + '</span></button></li>';
+          '<b>' + esc(x.c.st.name) + '</b><span>' + esc(x.c.st.op || '') + ' · ' + x.c.kw + ' kW · กม. ' + km1(x.c.along) + ' · ถึงแล้วเหลือ ~' + pct(x.arrive) + (doubtful(x.c.st, x.c.plug) ? ' · ยังไม่ยืนยันหัวชาร์จ' : '') + (x.c.st.rep && x.c.st.rep.prob ? ' · ⚠ มีรายงานปัญหา' : '') + (x.c.across ? ' · ↩️ ฝั่งตรงข้ามถนน' : '') + '</span></button></li>';
       }).join('') + '</ul></details>' : '';
     return '<li class="row" data-lat="' + st.lat + '" data-lng="' + st.lng + '">' +
       '<div class="row__top"><span class="row__n">' + (i + 1) + '</span>' +
@@ -1521,6 +1542,7 @@
         '<div class="socbar" role="img" aria-label="แบตถึง ' + pct(arrive) + ' ชาร์จถึง ' + pct(s.depart) + '">' +
           '<span class="socbar__a" style="width:' + a + '%"></span><span class="socbar__c" style="left:' + a + '%;width:' + Math.max(0, s.depart - a) + '%"></span></div>' +
         '<span>ถึง <b>' + pct(arrive) + '</b> → ชาร์จถึง <b>' + pct(s.depart) + '</b> · ~' + dur(s.chargeMin + P.PLUG_MIN) + ' (' + Math.round(s.c.kw) + ' kW)' + costText(s.cost) + '</span>' +
+        (s.uturn ? '<span class="row__warn">↩️ ต้องกลับรถเพื่อเข้าหรือออกจากสถานีนี้ · ช่วงนี้ไม่มีสถานีฝั่งขาไปที่เหมาะกว่า</span>' : '') +
         repLines(st) +
         bookLine(st) +
         amenityLine(st, !!(res.opts && res.opts.want && res.opts.want.food)) +
@@ -1981,6 +2003,24 @@
       if (p) map.dot(p[0], p[1], { radius: 9, fill: css('crit'), tooltip: 'แบตถึงระดับต่ำสุดราวตรงนี้', layer: stopLayer });
     }
     map.fit(pts, 30);
+  }
+
+  // Charging stops the routed trip reaches or leaves with a U-turn (Valhalla maneuver 12/13) within
+  // UTURN_KM: the station is across a divided road. legs: one per gap between A, items and the end.
+  var UTURN_KM = 3;
+  function markUturns(items, legs) {
+    var near = function (ms) {
+      var km = 0;
+      for (var k = 0; k < ms.length && km <= UTURN_KM; k++) {
+        if (ms[k].type === 12 || ms[k].type === 13) return true;
+        km += ms[k].length || 0;
+      }
+      return false;
+    };
+    items.forEach(function (it, i) {
+      if (it.kind !== 'stop' || !legs[i] || !legs[i + 1]) return;
+      it.s.uturn = near((legs[i].maneuvers || []).slice().reverse()) || near(legs[i + 1].maneuvers || []);
+    });
   }
 
   function pointAt(prof, along) {

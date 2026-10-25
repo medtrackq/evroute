@@ -10,13 +10,21 @@ const car = (id, extra) => ({ ...globalThis.EVCars.find((c) => c.id === id), mar
 const trip = JSON.parse(readFileSync(new URL('./fixtures/bkk-cnx.json', import.meta.url))).trip;
 const prof = P.profile(trip.legs);
 
-// Fake DC stations every 60 km along the route, 1 km off the road.
+// A point sideKm to the left of the road (right if negative) at km d of the route.
+function beside(d, sideKm) {
+  const i = Math.max(1, prof.cum.findIndex((c) => c >= d));
+  const [y1, x1] = prof.pts[i - 1], [y2, x2] = prof.pts[i];
+  const kx = 111.32 * Math.cos(y1 * Math.PI / 180), ky = 110.57;
+  const ex = (x2 - x1) * kx, ny = (y2 - y1) * ky, len = Math.hypot(ex, ny) || 1;
+  return { lat: y2 + (ex / len) * sideKm / ky, lng: x2 + (-ny / len) * sideKm / kx }; // left of travel: (-ny, ex)
+}
+
+// Fake DC stations every stepKm along the route, 1 km off the road on the driver's side.
 function stationsEvery(stepKm, kw = 120) {
   const out = [];
   for (let d = stepKm; d < prof.km; d += stepKm) {
-    let i = prof.cum.findIndex((c) => c >= d);
-    const [lat, lng] = prof.pts[i];
-    out.push({ id: 's' + d, name: 'S' + d, op: 'Test', lat: lat + 0.009, lng, plugs: [{ type: 'CCS2', kw, n: 2, dc: true }] });
+    const { lat, lng } = beside(d, 1);
+    out.push({ id: 's' + d, name: 'S' + d, op: 'Test', lat, lng, plugs: [{ type: 'CCS2', kw, n: 2, dc: true }] });
   }
   return out;
 }
@@ -256,4 +264,25 @@ test('alternatives list one entry per site when a site has two pins', () => {
     assert.equal(new Set(ids).size, ids.length, JSON.stringify(ids));
     assert.ok(!ids.includes(s.st.id.replace('-twin', '')), 'the stop itself is not offered again');
   }
+});
+
+test('a station on the driver\'s side (left, in Thailand) wins over the same one across the road', () => {
+  // Two identical stations 100 m either side of the road at each of a few points along the route.
+  const out = [];
+  for (const d of [150, 230, 310, 390, 470, 550, 630]) {
+    for (const [name, sideKm] of [['L', 0.1], ['R', -0.1]]) {
+      const p = beside(d, sideKm);
+      out.push({ id: name + d, name: name + d, op: 'Test', lat: p.lat, lng: p.lng, plugs: [{ type: 'CCS2', kw: 120, n: 2, dc: true }] });
+    }
+  }
+  const c = car('byd-atto3-std');
+  const cands = P.candidates(prof, out, c);
+  assert.ok(cands.filter((x) => x.st.id[0] === 'R').every((x) => x.across));
+  assert.ok(cands.filter((x) => x.st.id[0] === 'L').every((x) => !x.across));
+  const res = P.plan(prof, cands, c, { startSoc: 100, minSoc: 20, targetSoc: 80 });
+  assert.ok(res.ok && res.stops.length);
+  assert.deepEqual(res.stops.filter((s) => s.st.id[0] === 'R'), []);
+  // Pinned across the road: used anyway.
+  const pinned = P.plan(prof, cands, c, { startSoc: 100, minSoc: 20, targetSoc: 80, pinned: ['R310'] });
+  assert.ok(pinned.stops.some((s) => s.st.id === 'R310'));
 });

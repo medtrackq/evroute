@@ -2,6 +2,7 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "↩️ ต้องกลับรถเพื่อเข้าหรือออกจากสถานีนี้ · ช่วงนี้ไม่มีสถานีฝั่งขาไปที่เหมาะกว่า": "↩️ You'll need a U-turn to get in or out of this station · no better one on your side here",
     "เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · กำลังเพิ่มทีละเส้นทาง เริ่มจากกรุงเทพฯ → หนองคาย": "No places for this route yet · we're adding routes one by one, starting with Bangkok → Nong Khai",
     "โปรสมาชิก:": "Member offer:",
     "ดูร้าน ↗": "Visit their page ↗",
@@ -119,6 +120,7 @@ I18N.load({
     "ชาร์จหลัง # ถูกกว่า ถ้ารอได้": "Charging after # is cheaper, if you can wait",
   },
   runs: {
+    "ฝั่งตรงข้ามถนน": "across the road",
     "ถนนน้ำท่วม": "Flooded roads",
     "จากรายงานของกรมทางหลวงและผู้ใช้": "from Department of Highways and user reports",
     "เซ็นเซอร์น้ำบนถนน กทม": "Bangkok road water sensors",
