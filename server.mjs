@@ -17,6 +17,7 @@ import { record, supabase, summarize, cleanFeedback } from './lib/stats.mjs';
 import { adminEmails, summarize as adminSummary } from './lib/admin.mjs';
 import { shareMeta } from './lib/share.mjs';
 import { cleanCar, carsScript } from './lib/cars.mjs';
+import { cleanPlace, mergePlaces, parseLatLng, followShort } from './lib/places.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
@@ -389,6 +390,21 @@ async function reloadCars() {
   }
 }
 
+// ---------- places to see on the way, added on the admin page ----------
+// data/trip-places.json plus the trip_places table (lib/places.mjs), served as /api/trip-places.
+const TRIP_PLACES_TTL = 10 * 60 * 1000;
+let bundledPlaces = [], placeRows = [], tripPlacesBody = '{"places":[]}', tripPlacesAt = 0;
+async function reloadTripPlaces() {
+  tripPlacesAt = Date.now();
+  try {
+    if (!bundledPlaces.length) bundledPlaces = (await readJSON('data/trip-places.json')).places || [];
+    if (stats) placeRows = await stats.select('trip_places', 'select=*&order=updated_at.desc&limit=2000');
+  } catch (err) {
+    report('trip places', err.message); // no trip_places table yet (db/schema.sql not re-run): the bundled list only
+  }
+  tripPlacesBody = JSON.stringify({ places: mergePlaces(bundledPlaces, placeRows) });
+}
+
 // ---------- monthly sweep for PTT EV Station PluZ (lib/sweep.mjs) ----------
 // Needs Google Places (the key) and Supabase (so a restart neither loses the result nor pays for a
 // new sweep). Runs again after 27 days, before the 30 days Google lets us keep positions run out;
@@ -526,6 +542,29 @@ async function admin(req, res, url) {
       floodsOn = on;
       adminCache = null;
       json(res, 200, { ok: true, on });
+      return;
+    }
+    if (url.pathname === '/api/admin/places/locate' && req.method === 'POST') {
+      // A pasted Google Maps link or "lat, lng" -> coordinates (short links are followed first).
+      const t = String((await bodyJSON(req))?.text || '').slice(0, 2000);
+      const found = parseLatLng(t) || parseLatLng(await followShort(t.match(/https:\/\/\S+/)?.[0] || '').catch(() => ''));
+      if (!found) { json(res, 400, { error: 'หาพิกัดในลิงก์นี้ไม่เจอ ลองเปิดลิงก์ใน Google Maps บนคอม แล้วคัดลอกลิงก์จากแถบที่อยู่ หรือคลิกขวาที่หมุดแล้วคัดลอกพิกัด' }); return; }
+      json(res, 200, found);
+      return;
+    }
+    if (url.pathname === '/api/admin/places') {
+      if (req.method === 'GET') { await reloadTripPlaces(); json(res, 200, { places: placeRows }, { 'Cache-Control': 'no-store' }); return; }
+      if (req.method === 'POST') {
+        const row = cleanPlace(await bodyJSON(req));
+        if (row.error) { json(res, 400, row); return; }
+        await stats.upsert('trip_places', { ...row, updated_at: new Date().toISOString() });
+      } else if (req.method === 'DELETE') {
+        const id = url.searchParams.get('id') || '';
+        if (!/^[a-z0-9][a-z0-9-]{1,39}$/.test(id)) { json(res, 400, { error: 'bad id' }); return; }
+        await stats.remove('trip_places', 'id=eq.' + encodeURIComponent(id));
+      } else { res.writeHead(405).end(); return; }
+      await reloadTripPlaces();
+      json(res, 200, { ok: true, places: placeRows });
       return;
     }
     if (url.pathname === '/api/admin/sweep' && req.method === 'POST') {
@@ -840,6 +879,11 @@ createServer(async (req, res) => {
     json(res, 200, swept.body, { 'Cache-Control': 'public, max-age=3600' });
     return;
   }
+  if (url.pathname === '/api/trip-places') {
+    if (Date.now() - tripPlacesAt > TRIP_PLACES_TTL) reloadTripPlaces(); // stale-while-revalidate
+    json(res, 200, tripPlacesBody, { 'Cache-Control': 'no-cache' });
+    return;
+  }
   if (url.pathname === '/api/cars.js') {
     if (Date.now() - carsAt > CARS_TTL) reloadCars(); // stale-while-revalidate
     res.writeHead(200, { 'Content-Type': TYPES['.js'], 'Cache-Control': 'no-cache' }).end(carsJs);
@@ -912,6 +956,7 @@ createServer(async (req, res) => {
 // Serve the bundled snapshot at once; the live refresh replaces it when Overpass answers.
 reloadReports();
 reloadCars();
+reloadTripPlaces();
 const settingsLoaded = loadSettings();
 if (places && stats) {
   loadSwept();

@@ -874,7 +874,8 @@
 
   function loadTripPlaces() {
     if (!R.tpLoad) {
-      R.tpLoad = getJSON('data/trip-places.json').then(function (d) {
+      // The bundled list plus places added on the admin page; the bundled file alone if the server can't.
+      R.tpLoad = getJSON('/api/trip-places').catch(function () { return getJSON('data/trip-places.json'); }).then(function (d) {
         R.tp = (d.places || []).filter(function (p) { return p.checked; });
       }, function () { R.tp = []; });
     }
@@ -931,6 +932,8 @@
       '<span class="hint">' + p.cat.map(function (c) { return TP_CATS[c].split(' ')[0]; }).join(' ') +
         (I18N.lang === 'th' && p.area ? ' · ' + esc(p.area) : '') + ' · <span>กม. ' + Math.round(it.along) + '</span> · <span>ผ่านราว ' + clock(tpPassMin(res, it.along)) + '</span></span>' +
       (p.note ? '<span class="hint">' + esc(p.note) + '</span>' : '') +
+      (p.promo && (signedIn() || !accountsOn()) ? '<span class="tp-row__promo">🎁 <span>โปรสมาชิก:</span> ' + esc(p.promo) + '</span>' : '') +
+      (p.link ? '<a class="tp-row__link" href="' + esc(p.link) + '" target="_blank" rel="noopener">ดูร้าน ↗</a>' : '') +
       (late ? '<span class="hint tp-row__late">🌙 ผ่านช่วงค่ำ ตรวจเวลาเปิดก่อน</span>' : '') +
       '</div><div class="tp-row__side">' + side + '</div></li>';
   }
@@ -944,7 +947,7 @@
     var onRoute = R.tp.some(function (p) { return P.nearest(prof.pts, prof.cum, p).d <= TP_MAX_OFF_KM; });
     var head = '<div class="tp__head"><h3>✨ แวะเที่ยวระหว่างทาง</h3>' + (accountsOn() ? '<span class="tp__badge">สมาชิก</span>' : '') + '</div>';
     if (!onRoute) {
-      box.innerHTML = head + '<p class="hint">เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · ตอนนี้มีสายกรุงเทพฯ → หนองคาย กำลังเพิ่มสายอื่น</p>';
+      box.innerHTML = head + '<p class="hint">เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · กำลังเพิ่มทีละเส้นทาง เริ่มจากกรุงเทพฯ → หนองคาย</p>';
       return;
     }
     var all = tripPlaces(res), locked = accountsOn() && !signedIn();

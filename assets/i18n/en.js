@@ -2,6 +2,9 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · กำลังเพิ่มทีละเส้นทาง เริ่มจากกรุงเทพฯ → หนองคาย": "No places for this route yet · we're adding routes one by one, starting with Bangkok → Nong Khai",
+    "โปรสมาชิก:": "Member offer:",
+    "ดูร้าน ↗": "Visit their page ↗",
     "🌙 ผ่านช่วงค่ำ ตรวจเวลาเปิดก่อน": "🌙 Passing in the evening · check opening hours",
     "✨ แวะเที่ยวระหว่างทาง": "✨ Places to see on the way",
     "สมาชิก": "Members",
@@ -29,7 +32,6 @@ I18N.load({
     "พันธมิตร": "Partner",
     "กม. #": "km #",
     "ผ่านราว *": "passing ~*",
-    "เส้นทางนี้ยังไม่มีข้อมูลที่เที่ยว · ตอนนี้มีสายกรุงเทพฯ → หนองคาย กำลังเพิ่มสายอื่น": "No places for this route yet · Bangkok → Nong Khai is ready, more routes are coming",
     "ไม่มีที่ตรงกับที่เลือก ลองเพิ่มเวลา หรือเลือกประเภทอื่น": "Nothing matches · allow more time or pick other kinds",
     "อีก # ที่ระหว่างทาง สำหรับสมาชิก": "# more places on the way for members",
     "สมัครฟรีด้วยอีเมล": "Sign up free with email",

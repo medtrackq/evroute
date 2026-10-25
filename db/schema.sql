@@ -186,6 +186,24 @@ create table if not exists swept_places (
 alter table sweeps enable row level security;
 alter table swept_places enable row level security;
 
+-- Places to see on the way added or changed on the admin page, on top of data/trip-places.json
+-- (the same id replaces a bundled place; hidden takes it off the list). lib/places.mjs checks rows.
+create table if not exists trip_places (
+  id text primary key,
+  name text not null, name_en text,
+  cat jsonb not null default '[]',
+  lat numeric, lng numeric,
+  prov text, area text,
+  visit int,
+  note text, promo text, link text,
+  months jsonb,
+  partner boolean not null default false,
+  checked boolean not null default true,
+  hidden boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+alter table trip_places enable row level security;
+
 -- Switches set on the admin page, e.g. key 'floods' = {"on": false} turns route-around-floods off.
 create table if not exists settings (
   key text primary key,
@@ -194,4 +212,4 @@ create table if not exists settings (
 );
 alter table settings enable row level security;
 
-revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars, sweeps, swept_places, settings from anon, authenticated;
+revoke all on plans, events, charges, trips, car_usage, app_opens, station_reports, car_consumption, car_returns, signup_funnel, errors, feedback, cars, sweeps, swept_places, settings, trip_places from anon, authenticated;

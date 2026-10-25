@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import '../assets/js/plan.js';
+import { parseLatLng, followShort, cleanPlace, mergePlaces, placeId } from '../lib/places.mjs';
 
 const P = globalThis.EVPlan;
 
@@ -55,3 +56,54 @@ test('the bundled places are well formed', () => {
     assert.ok(p.visit > 0, p.id);
   }
 });
+
+test('coordinates from a pasted Google Maps link or "lat, lng"', () => {
+  // The place pin (!3d!4d) wins over the map centre (@).
+  assert.deepEqual(parseLatLng('https://www.google.com/maps/place/Farm+Chokchai/@14.6301,101.3402,15z/data=!4m6!3m5!1s0x0:0x0!8m2!3d14.6339188!4d101.3461978'), { lat: 14.633919, lng: 101.346198 });
+  assert.deepEqual(parseLatLng('https://www.google.com/maps/@17.8783,102.7413,14z'), { lat: 17.8783, lng: 102.7413 });
+  assert.deepEqual(parseLatLng('https://maps.google.com/?q=16.4322,102.8236'), { lat: 16.4322, lng: 102.8236 });
+  assert.deepEqual(parseLatLng(' 14.6339, 101.3462 '), { lat: 14.6339, lng: 101.3462 });
+  assert.equal(parseLatLng('https://www.google.com/maps/@48.85,2.35,12z'), null); // not in Thailand
+  assert.equal(parseLatLng('ฟาร์มโชคชัย'), null);
+});
+
+test('short links are followed on Google hosts only', async () => {
+  const hops = { 'https://maps.app.goo.gl/abc': 'https://www.google.com/maps/place/X/@14.63,101.34,15z/data=!3d14.6339!4d101.3462' };
+  const fetchFn = async (u) => ({ headers: { get: () => hops[u] || null } });
+  assert.deepEqual(parseLatLng(await followShort('https://maps.app.goo.gl/abc', fetchFn)), { lat: 14.6339, lng: 101.3462 });
+  let asked = 0;
+  await followShort('https://evil.example/abc', async () => { asked++; return { headers: { get: () => null } }; });
+  assert.equal(asked, 0);
+});
+
+test('a place from the admin form is checked before it is saved', () => {
+  const ok = cleanPlace({ name: ' ฟาร์ม  โชคชัย ', name_en: 'Farm Chokchai', cat: ['kids', 'nope'], lat: '14.6339', lng: '101.3462', visit: '90', months: [12, '1', 1, 13], partner: true, link: 'https://example.com/x' });
+  assert.equal(ok.id, 'farm-chokchai');
+  assert.equal(ok.name, 'ฟาร์ม โชคชัย');
+  assert.deepEqual(ok.cat, ['kids']);
+  assert.deepEqual(ok.months, [1, 12]);
+  assert.equal(ok.partner, true);
+  assert.equal(ok.checked, true);
+  assert.match(cleanPlace({ ...ok, cat: [] }).error, /ประเภท/);
+  assert.match(cleanPlace({ ...ok, lat: 48.8, lng: 2.3 }).error, /ตำแหน่ง/);
+  assert.match(cleanPlace({ ...ok, visit: 2 }).error, /เวลาเที่ยว/);
+  assert.match(cleanPlace({ ...ok, link: 'javascript:alert(1)' }).error, /https/);
+  assert.match(cleanPlace({ ...ok, id: 'Bad Id!' }).error, /id/);
+  assert.equal(cleanPlace({ id: 'farm-chokchai', hidden: true }).hidden, true);
+  assert.match(placeId('', 0), /^place-/);
+});
+
+test('admin rows replace, add to and hide the bundled places', () => {
+  const bundled = [{ id: 'a', name: 'A', cat: ['view'], lat: 14, lng: 101, visit: 30 }, { id: 'b', name: 'B', cat: ['food'], lat: 15, lng: 101, visit: 30 }];
+  const rows = [
+    { id: 'a', name: 'A ใหม่', cat: ['view'], lat: '14.1', lng: '101.1', visit: 45, partner: true, checked: true, hidden: false, promo: null },
+    { id: 'b', name: 'B', hidden: true },
+    { id: 'c', name: 'C', cat: ['cafe'], lat: 16, lng: 102, visit: 20, partner: false, checked: true, hidden: false },
+  ];
+  const list = mergePlaces(bundled, rows);
+  assert.deepEqual(list.map((p) => p.id), ['a', 'c']);
+  assert.equal(list[0].name, 'A ใหม่');
+  assert.equal(list[0].lat, 14.1);
+  assert.ok(!('promo' in list[0]));
+});
+

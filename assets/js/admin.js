@@ -368,8 +368,145 @@
     if (r) carForm(null, fromRequest(r.dataset.msg));
   });
 
+  // ---------- places to see on the way ----------
+  // data/trip-places.json plus the trip_places table: a row with a bundled id replaces that place,
+  // a new id adds one, "hidden" takes one off the list (lib/places.mjs).
+  var PF = { bundled: [], rows: [], editing: null };
+  var PCAT = { temple: '🙏', cafe: '☕', food: '🍜', view: '🌄', shop: '🛍', kids: '👨‍👩‍👧' };
+  var MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  $('pf-months').insertAdjacentHTML('beforeend', MONTHS.map(function (m, i) { return '<label><input type="checkbox" value="' + (i + 1) + '"> ' + m + '</label>'; }).join(''));
+
+  function placeList() {
+    var byId = {};
+    PF.bundled.forEach(function (p) { byId[p.id] = { place: p, src: 'code' }; });
+    PF.rows.forEach(function (r) {
+      var was = byId[r.id];
+      byId[r.id] = { place: r.hidden && was ? was.place : r, row: r, src: r.hidden ? 'hidden' : was ? 'edited' : 'added' };
+    });
+    return Object.keys(byId).map(function (k) { return byId[k]; }).sort(function (a, b) {
+      return (a.place.prov || '').localeCompare(b.place.prov || '', 'th') || a.place.name.localeCompare(b.place.name, 'th');
+    });
+  }
+
+  function renderPlaceList() {
+    var all = placeList(), q = $('place-q').value.trim().toLowerCase();
+    var list = q ? all.filter(function (x) { var p = x.place; return [p.name, p.name_en, p.prov, p.area, p.id].join(' ').toLowerCase().indexOf(q) >= 0; }) : all;
+    var shown = all.filter(function (x) { return x.src !== 'hidden' && x.place.checked !== false; });
+    $('place-count').textContent = shown.length + ' ที่ที่ผู้ใช้เห็น · พันธมิตร ' + shown.filter(function (x) { return x.place.partner; }).length +
+      ' · เพิ่มหรือแก้ที่นี่ ผู้ใช้เห็นทันที ไม่ต้อง deploy';
+    $('place-list').innerHTML = table(['ชื่อ', 'ประเภท', 'จังหวัด', 'เที่ยว', '', ''], list.map(function (x) {
+      var p = x.place;
+      var tags = SRC[x.src] + (p.partner && x.src !== 'hidden' ? ' <span class="adm-tag is-partner">พันธมิตร</span>' : '') +
+        (p.checked === false && x.src !== 'hidden' ? ' <span class="adm-tag is-server">ไม่แสดงในแอป</span>' : '') + (p.months ? ' <span class="adm-tag">ตามฤดู</span>' : '');
+      return [esc(p.name) + (p.name_en ? '<br><span class="hint">' + esc(p.name_en) + '</span>' : ''), (p.cat || []).map(function (c) { return PCAT[c] || ''; }).join(' '),
+        esc(p.prov || '') + (p.area ? '<br><span class="hint">' + esc(p.area) + '</span>' : ''), p.visit ? esc(p.visit) + ' นาที' : '', tags,
+        '<button type="button" class="btn adm-editplace" data-id="' + esc(p.id) + '">แก้ไข</button>'];
+    }));
+  }
+
+  function loadPlaces() {
+    return Promise.all([
+      fetch('data/trip-places.json').then(function (r) { return r.json(); }).catch(function () { return { places: [] }; }),
+      api('/api/admin/places'),
+    ]).then(function (x) {
+      PF.bundled = x[0].places || [];
+      PF.rows = x[1].places || [];
+      placeList().forEach(function (it) { PLACE_NAMES[it.place.id] = it.place.name; });
+      $('adm-places').hidden = false;
+      renderPlaceList();
+    }, function () {});
+  }
+
+  function mapLink() {
+    var lat = $('pf-lat').value, lng = $('pf-lng').value;
+    $('pf-map').href = lat && lng ? 'https://www.google.com/maps?q=' + lat + ',' + lng : '#';
+  }
+
+  function placeForm(item) {
+    var p = (item && item.place) || {};
+    PF.editing = item || null;
+    $('place-form-title').textContent = item ? 'แก้ไข ' + p.name : 'เพิ่มที่แวะ';
+    $('pf-name').value = p.name || '';
+    $('pf-name-en').value = p.name_en || '';
+    $('pf-id').value = item ? p.id : '';
+    $('pf-id').readOnly = !!item;
+    $('pf-where').value = '';
+    $('pf-lat').value = p.lat != null ? p.lat : '';
+    $('pf-lng').value = p.lng != null ? p.lng : '';
+    $('pf-prov').value = p.prov || '';
+    $('pf-area').value = p.area || '';
+    $('pf-visit').value = p.visit || '';
+    $('pf-note').value = p.note || '';
+    $('pf-promo').value = p.promo || '';
+    $('pf-link').value = p.link || '';
+    $('pf-partner').checked = !!p.partner;
+    $('pf-checked').checked = p.checked !== false;
+    $('pf-cats').querySelectorAll('input').forEach(function (b) { b.checked = (p.cat || []).indexOf(b.value) >= 0; });
+    $('pf-months').querySelectorAll('input').forEach(function (b) { b.checked = (p.months || []).indexOf(+b.value) >= 0; });
+    $('pf-hide').hidden = !item || item.src === 'hidden';
+    $('pf-hide').textContent = item && item.src === 'added' ? 'ลบที่นี่' : 'ซ่อนที่นี่';
+    $('pf-revert').hidden = !item || !(item.src === 'edited' || item.src === 'hidden');
+    $('pf-revert').textContent = item && item.src === 'hidden' ? 'แสดงที่นี่อีกครั้ง' : 'ลบการแก้ไข (กลับไปใช้ค่าเดิม)';
+    $('pf-err').textContent = '';
+    mapLink();
+    $('place-form').hidden = false;
+    $('place-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('pf-name').focus();
+  }
+
+  function placeSaved(d) {
+    PF.rows = d.places || [];
+    $('place-form').hidden = true;
+    renderPlaceList();
+  }
+
+  $('place-q').addEventListener('input', renderPlaceList);
+  $('place-new').addEventListener('click', function () { placeForm(null); });
+  $('pf-cancel').addEventListener('click', function () { $('place-form').hidden = true; });
+  $('pf-lat').addEventListener('input', mapLink);
+  $('pf-lng').addEventListener('input', mapLink);
+  $('pf-locate').addEventListener('click', function () {
+    var b = this;
+    $('pf-err').textContent = '';
+    b.disabled = true;
+    api('/api/admin/places/locate', { method: 'POST', body: JSON.stringify({ text: $('pf-where').value }) }).then(function (d) {
+      $('pf-lat').value = d.lat;
+      $('pf-lng').value = d.lng;
+      mapLink();
+    }, function (err) { $('pf-err').textContent = err.message; }).then(function () { b.disabled = false; });
+  });
+  $('place-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var checked = function (box) { return [].map.call($(box).querySelectorAll('input:checked'), function (b) { return b.value; }); };
+    $('pf-err').textContent = '';
+    api('/api/admin/places', { method: 'POST', body: JSON.stringify({
+      id: $('pf-id').value.trim(), name: $('pf-name').value, name_en: $('pf-name-en').value,
+      cat: checked('pf-cats'), lat: $('pf-lat').value, lng: $('pf-lng').value, prov: $('pf-prov').value, area: $('pf-area').value,
+      visit: $('pf-visit').value, note: $('pf-note').value, promo: $('pf-promo').value, link: $('pf-link').value.trim(),
+      months: checked('pf-months').map(Number), partner: $('pf-partner').checked, checked: $('pf-checked').checked,
+    }) }).then(placeSaved, function (err) { $('pf-err').textContent = err.message; });
+  });
+  $('pf-hide').addEventListener('click', function () {
+    var it = PF.editing;
+    if (!it) return;
+    var p = it.place, del = it.src === 'added';
+    if (!confirm((del ? 'ลบ ' : 'ซ่อน ') + p.name + ' ออกจากแอป?')) return;
+    var done = function (err) { $('pf-err').textContent = err.message; };
+    if (del) api('/api/admin/places?id=' + encodeURIComponent(p.id), { method: 'DELETE' }).then(placeSaved, done);
+    else api('/api/admin/places', { method: 'POST', body: JSON.stringify({ id: p.id, name: p.name, hidden: true }) }).then(placeSaved, done);
+  });
+  $('pf-revert').addEventListener('click', function () {
+    if (!PF.editing) return;
+    api('/api/admin/places?id=' + encodeURIComponent(PF.editing.place.id), { method: 'DELETE' }).then(placeSaved, function (err) { $('pf-err').textContent = err.message; });
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.adm-editplace');
+    if (b) placeForm(placeList().filter(function (x) { return x.place.id === b.dataset.id; })[0]);
+  });
+
   $('adm-reload').addEventListener('click', loadAll);
   loadAll();
   loadCars();
+  loadPlaces();
   setInterval(function () { if (!document.hidden) loadAll(); }, 60000);
 })();
