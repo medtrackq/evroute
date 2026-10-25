@@ -575,7 +575,8 @@
 
     var fl = null, ex = R.excluded;
     R.ready.then(function () { return Promise.all([route([R.a].concat(t.targets)), loadFloods()]); }).then(function (x) {
-      return avoidFloods([R.a].concat(t.targets), x[0]);
+      // Switched off by the driver: no way around, but the plan still warns about what's on the route.
+      return R.floodAvoid ? avoidFloods([R.a].concat(t.targets), x[0]) : { d: x[0], fl: { avoid: [], before: null, extraMin: 0, tried: false, off: true } };
     }).then(function (x) {
       var d = x.d;
       fl = x.fl;
@@ -659,6 +660,7 @@
       render();
       setView('result');
       logPlan(res);
+      if (res.flood && res.flood.avoided.length) logEvent('flood_avoid');
     }).catch(function (err) {
       console.error(err);
       reportError('plan: ' + err.message, 'plan');
@@ -684,10 +686,16 @@
       R.floods = d.floods || [];
       R.floodsAt = Date.now();
       R.floodsOff = !!d.off; // switched off on the admin page
+      R.floodsErr = false;
       if ($('flood-credit')) $('flood-credit').hidden = R.floodsOff;
       floodHome();
       return R.floods;
-    }, function () { R.floods = R.floods || []; return R.floods; });
+    }, function () {
+      R.floods = R.floods || [];
+      R.floodsErr = !R.floodsAt; // nothing to plan with yet; an older list still counts
+      floodHome();
+      return R.floods;
+    });
   }
 
   // A hexagon around a point, as Valhalla wants it: [lon, lat] pairs, closed.
@@ -744,9 +752,10 @@
     return step(d, 0);
   }
 
-  // The user's own exclusions plus stations next to a blocked point.
+  // The user's own exclusions plus stations next to a blocked point (unless the driver switched
+  // avoiding floods off).
   function floodExclude(own) {
-    var block = (R.floods || []).filter(function (f) { return f.block; });
+    var block = R.floodAvoid ? (R.floods || []).filter(function (f) { return f.block; }) : [];
     R.flooded = {};
     if (!block.length) return own;
     var ex = Object.assign({}, own);
@@ -782,7 +791,7 @@
       });
     }
     return {
-      hits: hits, avoided: avoided, skipped: skipped, failed: fl.tried && !fl.avoid.length, via: via,
+      hits: hits, avoided: avoided, skipped: skipped, failed: fl.tried && !fl.avoid.length, off: !!fl.off, via: via,
       extraMin: fl.extraMin || 0,
     };
   }
@@ -807,8 +816,9 @@
     }
     if (block.length) {
       html += '<div class="verdict verdict--crit"><b>⛔ เส้นทางผ่านจุดน้ำท่วม ' + block.length + ' จุด</b>' +
-        '<span>' + (f.failed || f.avoided.length ? 'หาเส้นเลี่ยงไม่ได้' : 'จุดนี้อยู่ใกล้ต้นทาง ปลายทาง หรือจุดแวะของคุณ') + '</span>' +
-        '<span>ตรวจสอบก่อนออกเดินทาง สายด่วนกรมทางหลวง 1586 · ทางหลวงชนบท 1146</span></div>';
+        '<span>' + (f.off ? 'คุณปิดการเลี่ยงถนนน้ำท่วมไว้' : f.failed || f.avoided.length ? 'หาเส้นเลี่ยงไม่ได้' : 'จุดนี้อยู่ใกล้ต้นทาง ปลายทาง หรือจุดแวะของคุณ') + '</span>' +
+        '<span>ตรวจสอบก่อนออกเดินทาง สายด่วนกรมทางหลวง 1586 · ทางหลวงชนบท 1146</span>' +
+        (f.off ? '<button type="button" class="btn btn--primary flood-on" data-flood-on>เปิดการเลี่ยงน้ำท่วม แล้ววางแผนใหม่</button>' : '') + '</div>';
     }
     if (wet.length) {
       html += '<div class="verdict verdict--warn"><span>⚠️ มีน้ำบนถนน ' + wet.length + ' จุด (ผ่านได้)</span><span>ขับช้า เว้นระยะ รถ EV ไม่ควรลุยน้ำลึกเกินที่คู่มือรถกำหนด</span></div>';
@@ -819,14 +829,35 @@
     return html;
   }
 
-  // Home: say when there are roads to steer around today.
+  // The driver's switch on the plan form, with today's count under it. Hidden while the reports
+  // haven't come or when the feature is switched off on the admin page. On by default.
+  R.floodAvoid = load('floodAvoid') !== false;
   function floodHome() {
-    var el = $('flood-home');
-    if (!el) return;
+    var box = $('flood-opt');
+    if (!box) return;
+    box.hidden = (!R.floodsAt && !R.floodsErr) || R.floodsOff;
+    $('flood-avoid').checked = R.floodAvoid;
     var n = (R.floods || []).filter(function (f) { return f.block; }).length;
-    el.hidden = !n;
-    if (n) el.innerHTML = '<span>🌊 วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ ' + n + ' จุด</span> <span>EVROUTE จะพาเลี่ยงให้อัตโนมัติ</span>';
+    $('flood-home').innerHTML = R.floodsErr ? '<span>อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้</span>'
+      : !R.floodAvoid ? (n ? '<span>วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ ' + n + ' จุด</span> · ' : '') + '<span>ปิดอยู่: ไม่อ้อมเส้นทาง แต่ยังเตือนถ้าผ่านจุดน้ำท่วม</span>'
+      : n ? '<span>วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ ' + n + ' จุด</span> · <span>ระบบจะพาเลี่ยงให้</span>'
+      : '<span>วันนี้ยังไม่มีรายงานถนนที่ผ่านไม่ได้</span> · <span>ข้อมูลจากกรมทางหลวงผ่าน Longdo Traffic</span>';
   }
+  function setFloodAvoid(on) {
+    R.floodAvoid = on;
+    store('floodAvoid', on);
+    floodHome();
+    logEvent(on ? 'flood_on' : 'flood_off');
+  }
+  $('flood-avoid').addEventListener('change', function () {
+    setFloodAvoid(this.checked);
+    markStale('ตั้งค่าเลี่ยงน้ำท่วมเปลี่ยนแล้ว แผนด้านล่างเป็นของค่าเดิม');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-flood-on]')) return;
+    setFloodAvoid(true);
+    $('go').click();
+  });
 
   // ---------- Google gap filling ----------
   var GOOGLE_RADIUS_KM = 25;
@@ -1862,11 +1893,11 @@
 
   // The trip was changed after planning: the plan on screen is for the old one, so it fades and
   // says so until "วางแผนการเดินทาง" makes the new one.
-  function markStale() {
+  function markStale(why) {
     if (!R.result || R.busy) return;
     ['result', 'summary', 'chart-card', 'nav'].forEach(function (id) { $(id).classList.add('is-stale'); });
     if (!$('result').querySelector('.stale-note')) {
-      $('result').insertAdjacentHTML('afterbegin', '<div class="stale-note"><span>' + esc(I18N.t('เส้นทางเปลี่ยนแล้ว แผนด้านล่างเป็นของเส้นทางเดิม')) + '</span>' +
+      $('result').insertAdjacentHTML('afterbegin', '<div class="stale-note"><span>' + esc(I18N.t(why || 'เส้นทางเปลี่ยนแล้ว แผนด้านล่างเป็นของเส้นทางเดิม')) + '</span>' +
         '<button type="button" class="btn btn--primary" data-replan>' + esc(I18N.t('วางแผนใหม่')) + '</button></div>');
     }
   }
@@ -1948,6 +1979,7 @@
       if (R.pinned.length) q.set('pin', R.pinned.join(','));
       var ex = Object.keys(R.excluded);
       if (ex.length) q.set('ex', ex.join(','));
+      if (!R.floodAvoid) q.set('fl', '0');
       history.replaceState(null, '', '?' + q);
     } catch (e) {}
   }
@@ -1970,6 +2002,7 @@
     else if (load('soc') && q.get('u') !== 'km') $('soc').value = load('soc'); // the battery last set here
     if (q.get('min')) setRadio('min', q.get('min'));
     if (q.get('tgt')) setRadio('target', q.get('tgt'));
+    if (q.get('fl') === '0') R.floodAvoid = false; // a shared plan made without avoiding floods (not remembered)
     setCar(carId, tune);
     // First visit: open the car picker so people notice they can choose their model.
     if (!q.get('car') && !saved) togglePicker(true);

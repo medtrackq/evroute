@@ -225,7 +225,10 @@
               <p class="hint" id="want-note">ระบบจะเลือกจุดชาร์จที่มีให้ ถ้าไม่ต้องอ้อมไกล</p>
             </div>
             <p class="hint">หรือแตะบนแผนที่ (ครั้งแรก = ต้นทาง, ครั้งต่อไป = ปลายทาง) · จุดชาร์จจะถูกแทรกให้อัตโนมัติ</p>
-            <p class="flood-home" id="flood-home" hidden></p>
+            <div class="flood-opt" id="flood-opt" hidden>
+              <label class="toggle"><input type="checkbox" id="flood-avoid" checked><span class="toggle__ui" aria-hidden="true"></span><span>🌊 เลี่ยงถนนน้ำท่วม</span></label>
+              <p class="hint" id="flood-home"></p>
+            </div>
             <button type="submit" class="btn btn--primary btn--block" id="go" aria-live="polite">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
               <span>วางแผนการเดินทาง</span>

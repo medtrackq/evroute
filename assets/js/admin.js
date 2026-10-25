@@ -17,6 +17,7 @@
     app: 'เปิดแอปผู้ให้บริการ', nav: 'นำทางทั้งเส้น', nav_leg: 'นำทางทีละช่วง', nav_stop: 'นำทางไปจุดชาร์จ', skip: 'ไม่แวะสถานี',
     swap: 'เปลี่ยนสถานี', fav: 'กดสถานีโปรด', save: 'บันทึกแผน', share: 'แชร์ลิงก์', pin: 'เลือกสถานีเอง', nudge: 'เห็นชวนสมัคร',
     nudge_go: 'กดชวนสมัคร', signin: 'เข้าสู่ระบบ', premium: 'สนใจสมาชิก', install: 'ติดตั้งบนหน้าจอ', install_no: 'ไม่ติดตั้ง',
+    flood_avoid: 'แผนที่พาเลี่ยงน้ำท่วม', flood_off: 'ผู้ใช้ปิดเลี่ยงน้ำท่วม', flood_on: 'ผู้ใช้เปิดเลี่ยงน้ำท่วม',
   };
   var PROBLEMS = { broken: 'เครื่องเสีย', no_plug: 'ไม่มีหัวที่ใช้ได้', queue: 'คิวยาว', slow: 'ชาร์จช้า', closed: 'ปิด', blocked: 'รถอื่นจอดขวาง', app: 'แอปมีปัญหา', other: 'อื่น ๆ' };
   var LANGS = { th: 'ไทย', en: 'English', zh: '中文' };
@@ -151,7 +152,7 @@
         ['เซิร์ฟเวอร์ทำงานมาแล้ว', num(h.up) + ' นาที' + (h.commit ? ' · เวอร์ชัน ' + esc(h.commit) : '') + ' · หน่วยความจำ ' + num(h.memoryMb) + ' MB'],
         ['โควต้า Google วันนี้', h.google ? 'ใช้ ' + num(h.google.used) + ' · เหลือ ' + num(h.google.left) : 'ไม่ได้เปิด Google'],
         ['กวาดหา PTT PluZ ทั่วประเทศ', sweepText(h.sweep)],
-        ['เลี่ยงถนนน้ำท่วม (Longdo Traffic)', floodText(h.floods)],
+        ['เลี่ยงถนนน้ำท่วม (Longdo Traffic) · สวิตช์หลัก', floodText(h.floods)],
       ].concat(Object.keys(h.stations || {}).map(function (k) {
         var s = h.stations[k];
         return [esc(SOURCES[k] || k), num(s.count) + ' แห่ง · ' + (s.at ? 'อัปเดต ' + esc(when(s.at)) : '–') + (s.note ? ' · ' + esc(s.note) : '')];
@@ -175,8 +176,8 @@
   function floodText(f) {
     if (!f) return '–';
     if (f.forcedOff) return '⛔ ปิดอยู่ ด้วย FLOODS=off ใน Render → Environment (ลบค่านั้นแล้วรอ deploy เพื่อเปิดจากหน้านี้)';
-    return (f.on ? '✅ เปิดอยู่' + (f.count != null ? ' · ตอนนี้มีจุดน้ำท่วม ' + num(f.count) + ' จุด (ผ่านไม่ได้ ' + num(f.block) + ')' : ' · อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้')
-      : '⏸ ปิดอยู่ · แอปไม่ดึงข้อมูลจาก Longdo และไม่เลี่ยงน้ำท่วม') +
+    return (f.on ? '✅ เปิดอยู่ (ผู้ใช้เปิด/ปิดเองได้ที่ฟอร์มวางแผน)' + (f.count != null ? ' · ตอนนี้มีจุดน้ำท่วม ' + num(f.count) + ' จุด (ผ่านไม่ได้ ' + num(f.block) + ')' : ' · อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้')
+      : '⏸ ปิดทั้งระบบ · แอปไม่ดึงข้อมูลจาก Longdo ไม่เลี่ยง/ไม่เตือนน้ำท่วม และซ่อนสวิตช์ของผู้ใช้') +
       ' <button type="button" class="btn adm-floods" data-on="' + (f.on ? '0' : '1') + '">' + (f.on ? 'ปิด' : 'เปิด') + '</button>';
   }
 
@@ -221,7 +222,7 @@
     if (fl) {
       var on = fl.dataset.on === '1';
       if (!confirm(on ? 'เปิดการเลี่ยงถนนน้ำท่วม? แอปจะดึงข้อมูลจาก Longdo Traffic และพาเลี่ยงถนนที่ผ่านไม่ได้'
-        : 'ปิดการเลี่ยงถนนน้ำท่วม? แอปจะหยุดดึงข้อมูลจาก Longdo Traffic ทันที และไม่เตือนเรื่องน้ำท่วมในแผนการเดินทาง')) return;
+        : 'ปิดการเลี่ยงถนนน้ำท่วมทั้งระบบ? แอปจะหยุดดึงข้อมูลจาก Longdo Traffic ทันที ไม่เลี่ยงและไม่เตือนเรื่องน้ำท่วม และสวิตช์ของผู้ใช้ในฟอร์มวางแผนจะซ่อนไป (ใช้เมื่อ Longdo ขอให้หยุด หรือข้อมูลมีปัญหา)')) return;
       fl.disabled = true;
       api('/api/admin/floods', { method: 'POST', body: JSON.stringify({ on: on }) }).then(loadAll, function (err) { fl.disabled = false; alert(err.message); });
       return;

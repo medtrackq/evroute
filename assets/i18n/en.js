@@ -2,8 +2,16 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
-    "🌊 วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ # จุด": "🌊 # flooded roads are closed today",
-    "EVROUTE จะพาเลี่ยงให้อัตโนมัติ": "EVROUTE routes around them automatically",
+    "🌊 เลี่ยงถนนน้ำท่วม": "🌊 Avoid flooded roads",
+    "วันนี้มีถนนน้ำท่วมที่ผ่านไม่ได้ # จุด": "# flooded roads are closed today",
+    "ระบบจะพาเลี่ยงให้": "your route will go around them",
+    "วันนี้ยังไม่มีรายงานถนนที่ผ่านไม่ได้": "No closed flooded roads reported today",
+    "ข้อมูลจากกรมทางหลวงผ่าน Longdo Traffic": "data from the Department of Highways via Longdo Traffic",
+    "ปิดอยู่: ไม่อ้อมเส้นทาง แต่ยังเตือนถ้าผ่านจุดน้ำท่วม": "Off: no detours, but you'll still be warned about flooded points on your route",
+    "อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้": "Flood reports can't be loaded right now",
+    "คุณปิดการเลี่ยงถนนน้ำท่วมไว้": "You've turned off avoiding flooded roads",
+    "เปิดการเลี่ยงน้ำท่วม แล้ววางแผนใหม่": "Turn it on and plan again",
+    "ตั้งค่าเลี่ยงน้ำท่วมเปลี่ยนแล้ว แผนด้านล่างเป็นของค่าเดิม": "The flood setting changed; the plan below uses the old setting",
     "🌊 เลี่ยงถนนน้ำท่วมให้แล้ว": "🌊 Flooded roads avoided",
     "เส้นทางนี้อ้อมจุดที่ผ่านไม่ได้ # จุด": "This route goes around # closed point(s)",
     "⛔ เส้นทางผ่านจุดน้ำท่วม # จุด": "⛔ The route passes # flooded point(s)",

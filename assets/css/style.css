@@ -973,5 +973,7 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .pin--flood { width: 26px; height: 26px; font-size: 13px; background: var(--crit); }
 .pin--flood.is-wet { background: var(--warn); }
 .pin--flood.is-avoided { opacity: 0.6; }
-.flood-home { margin: 0; padding: 10px 12px; border-radius: 14px; font-size: 13px; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
-.flood-home[hidden] { display: none; }
+.flood-opt { display: grid; gap: 6px; margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.flood-opt .toggle { font-weight: 600; }
+.flood-opt .hint { margin: 0; }
+.flood-on { justify-self: start; margin-top: 6px; }
