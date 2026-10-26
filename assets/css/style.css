@@ -683,7 +683,6 @@ body.no-scroll { overflow: hidden; }
   color: var(--muted); background: var(--surface-2); cursor: pointer; }
 .sheet__title { margin: 0; padding-right: 36px; font-size: 20px; }
 .sheet__h { margin: 6px 0 0; font-size: 15px; }
-.sheet__perks { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }
 .sheet__form { display: grid; gap: 8px; }
 .sheet__code { font-size: 24px; letter-spacing: 0.3em; text-align: center; }
 .sheet__code:placeholder-shown { font-size: 16px; letter-spacing: normal; }
@@ -699,8 +698,6 @@ body.no-scroll { overflow: hidden; }
 .sheet__hist li span:first-child { grid-row: span 2; color: var(--muted); font-size: 12px; }
 .sheet__hist li b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sheet__hist li span:last-child { font-size: 12px; color: var(--muted); }
-.sheet__premium { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--tile-sun); font-size: 13.5px; }
-.sheet__premium .btn { margin-left: auto; padding: 6px 14px; font-size: 13px; }
 .sheet__danger { color: var(--crit); }
 .nudge { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; padding: 12px 14px; border-radius: 16px;
   background: var(--accent-soft); font-size: 13.5px; line-height: 1.45; }
@@ -1014,3 +1011,41 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .dest-more { justify-self: start; margin-top: 4px; }
 .tag--last { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface)); }
 
+
+/* After arriving: chargers near the end, the way back or on, saving for the check */
+.next { display: grid; gap: 10px; margin-top: 4px; padding: 14px; border-radius: 18px; background: var(--surface-2); }
+.next__title { margin: 0; font-size: 16px; }
+.next .hint { margin: 0; }
+.next__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.next__acts .btn:not(.btn--soft) { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.next__acts .hint { flex-basis: 100%; }
+.next__done { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ok); }
+.next__chargers summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.next__chargers ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.next__chargers li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface); }
+.next__chargers li div { display: grid; min-width: 0; }
+.next__chargers li b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.next__chargers li span { font-size: 12.5px; color: var(--muted); }
+.next__chargers .btn { flex: none; padding: 6px 12px; font-size: 13px; }
+
+/* The check before leaving (home) */
+.w-check { gap: 4px; }
+.w-check__trip { font-size: 17px; font-weight: 700; }
+.w-check__list { list-style: none; margin: 6px 0 8px; padding: 0; display: grid; gap: 6px; font-size: 13.5px; line-height: 1.45; }
+.w-check__list li { padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
+.w-check__warn { background: color-mix(in srgb, var(--warn) 14%, var(--surface)) !important; }
+.w-check__wait { color: var(--muted); }
+.w-check .btn { justify-self: start; }
+
+/* Member levels (account sheet) */
+.tiers { display: grid; gap: 8px; }
+.tier { padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); font-size: 13px; }
+.tier.is-mine { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+.tier--paid { background: var(--tile-sun); border-color: transparent; }
+.tier__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 0 4px; }
+.tier__name b { font-size: 14.5px; }
+.tier__name span { font-size: 12px; color: var(--muted); }
+.tier__name .tier__mine { margin-left: auto; font-weight: 700; color: var(--accent); }
+.tier ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
+.tier .btn { margin-top: 8px; padding: 6px 14px; font-size: 13px; }
+.tier__note { margin: 6px 0 0; font-weight: 600; }

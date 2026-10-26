@@ -18,6 +18,13 @@ test('saved trips keep only their own fields, deduplicated and capped', () => {
   assert.equal(out.length, 50);
   assert.deepEqual(out[0], { q: t.q, title: 'หนองคาย', from: 'BKK', car: 'BYD Atto 3', km: 632, stops: 4, at: t.at, dep: t.dep, cost: null, mins: 0 });
   assert.equal(cleanTrips('x'), null);
+  // The route and the stops, for the check before leaving: kept when well formed.
+  const withRoute = cleanTrips([{ ...t, line: '_p~iF~ps|U_ulLnnqC', sids: ['osm:1', 'cur:17.4,102.8'], snames: ['A', 'B'] }])[0];
+  assert.equal(withRoute.line, '_p~iF~ps|U_ulLnnqC');
+  assert.deepEqual(withRoute.sids, ['osm:1', 'cur:17.4,102.8']);
+  assert.deepEqual(withRoute.snames, ['A', 'B']);
+  const bad = cleanTrips([{ ...t, line: '<script>', sids: ['ok', '<x>'] }])[0];
+  assert.ok(!('line' in bad) && !('sids' in bad));
 });
 
 test('auth calls Supabase with the right shape and caches users', async () => {

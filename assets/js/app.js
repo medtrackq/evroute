@@ -503,7 +503,7 @@
       $('notice').textContent = 'โหลดข้อมูลสถานีชาร์จไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้ง';
       throw err;
     });
-    var reps = getJSON('/api/reports').then(function (d) { R.reports = (d && d.reports) || {}; }, function () {});
+    var reps = getJSON('/api/reports').then(function (d) { R.reports = (d && d.reports) || {}; R.reportsAt = Date.now(); }, function () {});
     return Promise.all([ops, st, reps]).then(function () { R.stations.forEach(applyReport); });
   }
 
@@ -715,11 +715,12 @@
   var DEST_KM = 10;
   var AUTO_BUFFER_KM = 50;
 
-  // Fast chargers this car can use near a point: { n, nearest (km) }.
+  // Fast chargers this car can use near a point: { n, nearest (km), list: [{ st, km }] nearest first }.
   function destChargers(p) {
-    var d = R.stations.filter(function (st) { return Math.abs(st.lat - p.lat) < 0.12 && P.usable(st, R.car); })
-      .map(function (st) { return P.km(p, st); }).filter(function (k) { return k <= DEST_KM; }).sort(function (a, b) { return a - b; });
-    return { n: d.length, nearest: d[0] };
+    var list = R.stations.filter(function (st) { return Math.abs(st.lat - p.lat) < 0.12 && P.usable(st, R.car); })
+      .map(function (st) { return { st: st, km: P.km(p, st) }; }).filter(function (x) { return x.km <= DEST_KM; })
+      .sort(function (a, b) { return a.km - b.km; });
+    return { n: list.length, nearest: list.length ? list[0].km : undefined, list: list };
   }
 
   // Adds to the plan options: dest (chargers near the end), bufferKm, bufferAuto, arriveSoc, capped.
@@ -791,11 +792,13 @@
       R.floodsErr = false;
       if ($('flood-credit')) $('flood-credit').hidden = R.floodsOff;
       floodHome();
+      refreshCheck();
       return R.floods;
     }, function () {
       R.floods = R.floods || [];
       R.floodsErr = !R.floodsAt; // nothing to plan with yet; an older list still counts
       floodHome();
+      refreshCheck();
       return R.floods;
     });
   }
@@ -810,8 +813,8 @@
     return ring;
   }
 
-  // Reports on this route, in driving order: [{ f, along }].
-  function floodHits(prof) {
+  // Reports on this route (within nearKm, FLOOD_NEAR_KM if not given), in driving order: [{ f, along }].
+  function floodHits(prof, nearKm) {
     if (!R.floods || !R.floods.length) return [];
     var lats = prof.pts.map(function (p) { return p[0]; }), lngs = prof.pts.map(function (p) { return p[1]; });
     var s = Math.min.apply(null, lats) - 0.01, n = Math.max.apply(null, lats) + 0.01, w = Math.min.apply(null, lngs) - 0.01, e = Math.max.apply(null, lngs) + 0.01;
@@ -819,7 +822,7 @@
     R.floods.forEach(function (f) {
       if (f.lat < s || f.lat > n || f.lng < w || f.lng > e) return;
       var near = P.nearest(prof.pts, prof.cum, f);
-      if (near.d <= FLOOD_NEAR_KM) out.push({ f: f, along: near.along });
+      if (near.d <= (nearKm || FLOOD_NEAR_KM)) out.push({ f: f, along: near.along });
     });
     return out.sort(function (a, b) { return a.along - b.along; });
   }
@@ -1237,18 +1240,143 @@
     var q = location.search, t = totals(res), route = routeKey(q), dep = $('depart').value;
     // The same trip saved again for a new date replaces its old, past copy; future dates stay separate.
     var list = savedPlans().filter(function (p) { return p.q !== q && !(routeKey(p.q) === route && !upcoming(p)); });
-    list.unshift({
+    var item = {
       q: q, title: tripTitle(res.trip), from: R.a.label, car: R.car.brand + ' ' + R.car.model,
       km: Math.round(t.km), stops: res.stops.length, at: new Date().toISOString(), dep: dep || '',
       cost: res.cost != null ? Math.round(res.cost) : null, mins: Math.round(t.total),
-    });
+    };
+    if (upcoming(item)) keepForCheck(item, res);
+    list.unshift(item);
+    list.forEach(function (p) { if (!upcoming(p)) { delete p.line; delete p.sids; delete p.snames; } }); // only trips ahead are checked
     store('plans', list.slice(0, MAX_SAVED));
     renderSaved();
     pushTrips();
+    var next = $('next');
+    if (next) next.outerHTML = nextSteps(res);
     var b = $('save-plan');
     if (b) b.textContent = '★ บันทึกแล้ว';
     var card = b && b.closest('.nav-card');
     if (card && !card.querySelector('.nudge')) card.insertAdjacentHTML('beforeend', nudge('save'));
+  }
+
+  // ---------- the check before leaving ----------
+  // A trip saved with a date ahead keeps its route (simplified to within LINE_TOL_KM, as an
+  // encoded polyline) and its charging stops. In the CHECK_HOURS before it leaves, the home page
+  // looks again for flooded roads on that route and problems drivers reported at those stops.
+  var LINE_TOL_KM = 0.05;
+  var LINE_MAX = 20000;     // characters, as lib/account.mjs keeps
+  var CHECK_HOURS = 72;
+  var MAX_CHECK_STOPS = 12;
+
+  function keepForCheck(item, res) {
+    var prof = res.final || res.prof, line = prof && prof.pts.length > 1 ? encodeLine(simplify(prof.pts, LINE_TOL_KM)) : '';
+    if (line && line.length <= LINE_MAX) item.line = line;
+    // Stations from Google's listing aren't kept (its terms): those stops go unchecked.
+    var stops = res.stops.filter(function (s) { return s.st.id.indexOf('g:') !== 0; }).slice(0, MAX_CHECK_STOPS);
+    item.sids = stops.map(function (s) { return s.st.id; });
+    item.snames = stops.map(function (s) { return s.st.name || ''; });
+  }
+
+  // Douglas–Peucker, without recursion: the points of pts that keep the line within tol km.
+  function simplify(pts, tol) {
+    if (pts.length < 3) return pts.slice();
+    var keep = new Uint8Array(pts.length), stack = [[0, pts.length - 1]];
+    keep[0] = keep[pts.length - 1] = 1;
+    while (stack.length) {
+      var r = stack.pop(), seg = [pts[r[0]], pts[r[1]]], far = -1, max = tol;
+      for (var i = r[0] + 1; i < r[1]; i++) {
+        var d = P.nearest(seg, [0, 1], { lat: pts[i][0], lng: pts[i][1] }).d;
+        if (d > max) { max = d; far = i; }
+      }
+      if (far > 0) { keep[far] = 1; stack.push([r[0], far], [far, r[1]]); }
+    }
+    return pts.filter(function (p, i) { return keep[i]; });
+  }
+
+  // Google's encoded polyline format, 5 decimals: [[lat, lng], ...] <-> text.
+  function encodeLine(pts) {
+    var out = '', la = 0, ln = 0;
+    var put = function (v) {
+      v = v < 0 ? ~(v << 1) : v << 1;
+      while (v >= 32) { out += String.fromCharCode((32 | (v & 31)) + 63); v >>= 5; }
+      out += String.fromCharCode(v + 63);
+    };
+    pts.forEach(function (p) {
+      var a = Math.round(p[0] * 1e5), b = Math.round(p[1] * 1e5);
+      put(a - la); put(b - ln);
+      la = a; ln = b;
+    });
+    return out;
+  }
+
+  function decodeLine(s) {
+    var pts = [], i = 0, la = 0, ln = 0;
+    var get = function () {
+      var r = 0, sh = 0, b;
+      do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32 && sh < 35);
+      return r & 1 ? ~(r >> 1) : r >> 1;
+    };
+    while (i < s.length) { la += get(); ln += get(); pts.push([la / 1e5, ln / 1e5]); }
+    return pts;
+  }
+
+  // The saved trip leaving soonest within CHECK_HOURS (or that left within the last hour).
+  function checkTrip() {
+    var now = Date.now();
+    return savedPlans().filter(function (p) {
+      var t = p.dep ? new Date(p.dep).getTime() : NaN;
+      return t > now - 36e5 && t - now < CHECK_HOURS * 36e5;
+    }).sort(function (a, b) { return new Date(a.dep) - new Date(b.dep); })[0] || null;
+  }
+
+  // What the trip meets now: { floods: { block, wet } | null (not known), probs: [{ name, problem, at }] | null }.
+  function tripCheck(n) {
+    var out = { floods: null, probs: null };
+    if (n.line && R.floodsAt && !R.floodsOff) {
+      var pts = decodeLine(n.line), cum = [0];
+      for (var i = 1; i < pts.length; i++) cum.push(cum[i - 1] + P.km({ lat: pts[i - 1][0], lng: pts[i - 1][1] }, { lat: pts[i][0], lng: pts[i][1] }));
+      var hits = pts.length > 1 ? floodHits({ pts: pts, cum: cum }, FLOOD_NEAR_KM + LINE_TOL_KM) : [];
+      out.floods = { block: hits.filter(function (h) { return h.f.block; }).length, wet: hits.filter(function (h) { return !h.f.block; }).length };
+    }
+    if (n.sids && R.reportsAt) {
+      out.probs = n.sids.map(function (id, i) {
+        var r = R.reports[id];
+        return r && r.prob ? { name: (n.snames && n.snames[i]) || 'สถานี', problem: r.prob.problem, at: r.prob.at } : null;
+      }).filter(Boolean);
+    }
+    return out;
+  }
+
+  function checkWidget() {
+    var n = checkTrip();
+    if (!n) return '';
+    var now = Date.now(), t = new Date(n.dep).getTime(), c = tripCheck(n), q = new URLSearchParams(n.q), lines = [];
+    var line = function (kind, html) { return '<li class="w-check__' + kind + '">' + html + '</li>'; };
+    if (c.floods) {
+      lines.push(c.floods.block ? line('warn', '⚠️ <b>ถนนน้ำท่วมที่รถไฟฟ้าไม่ควรผ่าน ' + c.floods.block + ' จุดบนเส้นทาง</b> เปิดแผนใหม่ แอปจะหาทางเลี่ยงให้')
+        : c.floods.wet ? line('info', '🌊 มีรายงานน้ำท่วมขังบนเส้นทาง ' + c.floods.wet + ' จุด ยังผ่านได้ ขับช้า ๆ')
+        : line('ok', '✅ ไม่มีรายงานถนนน้ำท่วมบนเส้นทาง'));
+    } else if (n.line && !R.floodsOff && !R.floodsErr) lines.push(line('wait', 'กำลังตรวจถนนน้ำท่วม…'));
+    if (c.probs) {
+      if (c.probs.length) {
+        c.probs.forEach(function (p) {
+          lines.push(line('warn', '⚠️ <b>' + esc(p.name) + '</b> ผู้ใช้แจ้ง (' + daysAgo(p.at) + '): ' + esc(problemText(p.problem)) + ' · เปิดแผนเพื่อเลือกสถานีอื่น'));
+        });
+      } else if (n.sids.length) lines.push(line('ok', '✅ จุดชาร์จที่จะแวะ ' + n.sids.length + ' จุด ยังไม่มีใครแจ้งปัญหา'));
+    } else if (n.sids && n.sids.length) lines.push(line('wait', 'กำลังตรวจจุดชาร์จ…'));
+    var soc = q.get('soc');
+    if (soc && t > now) lines.push(line('todo', '🔌 ก่อนออก ชาร์จให้ได้ ' + esc(soc) + (q.get('u') === 'km' ? ' กม.' : '%') + ' ตามที่วางแผนไว้'));
+    if (!n.line && !n.sids) lines.push(line('info', 'ทริปนี้บันทึกไว้ก่อนมีการตรวจ เปิดแผนเพื่อดูข้อมูลล่าสุด'));
+    return '<section class="w w--wide w-check" id="w-check"><span class="w__top"><span class="w__title">🔔 ตรวจก่อนออกเดินทาง</span></span>' +
+      '<b class="w-check__trip">' + esc(n.title) + '</b><span class="w__sub">' + (t > now ? 'ออก ' + thaiDate(t, true) + ' · อีก ' + aheadText(t - now) : 'ถึงเวลาออกเดินทางแล้ว') + '</span>' +
+      '<ul class="w-check__list">' + lines.join('') + '</ul>' +
+      '<a class="btn btn--soft" href="' + esc(n.q) + '" data-check-open>เปิดแผนด้วยข้อมูลล่าสุด</a></section>';
+  }
+
+  // Floods and reports load after the home page draws: the card fills in when they come.
+  function refreshCheck() {
+    var el = $('w-check');
+    if (el) el.outerHTML = checkWidget();
   }
 
   function routeKey(q) {
@@ -1683,12 +1811,73 @@
         '<li class="row row--end"><span class="pin pin--a">A</span><div><b>' + esc(R.a.label) + '</b><span>ออกเดินทาง แบต ' + pct(o.startSoc) + '</span></div></li>' +
         itemRows(res) +
         (res.ok ? '<li class="row row--end"><span class="pin pin--' + (res.trip.end.home ? 'a' : 'b') + '">' + res.trip.end.letter + '</span><div><b>' + esc(res.trip.end.label) + '</b><span>' + (res.trip.end.home ? 'กลับถึงต้นทาง' : 'ถึงปลายทาง') + ' แบตเหลือราว ' + pct(t.arrive) + '</span></div></li>' : '') +
-      '</ol>';
+      '</ol>' + nextSteps(res);
     if (R.pinned.length || Object.keys(R.excluded).length) {
       html += '<button type="button" class="link-btn" id="reset">ล้างการเลือกสถานีเอง แล้วให้ระบบเลือกใหม่</button>';
     }
     if (res.ok) html += '<section class="tp" id="tp-box" aria-live="polite"></section>';
     return html;
+  }
+
+  // ---------- after arriving ----------
+  // Under the plan, at the end of the trip: chargers near the end for the days there, the way back
+  // or on from there (starting with the charge the trip arrives with), and saving the trip with
+  // its date so the home page checks it again before leaving. A round trip only gets the last.
+  var NEXT_CHARGERS = 5;
+
+  function nextSteps(res) {
+    if (!res.ok) return '';
+    var end = res.trip.end, arrive = Math.round(totals(res).arrive), dated = upcoming({ dep: $('depart').value });
+    var save = !dated
+      ? '<button type="button" class="btn btn--soft" data-go="plan" data-focus="depart">📅 ตั้งวันเดินทาง ให้แอปตรวจก่อนออก</button>' +
+        '<span class="hint">ตั้งวันแล้วกดบันทึก ช่วง 3 วันก่อนออก หน้าแรกจะตรวจถนนน้ำท่วมและจุดชาร์จที่จะแวะให้อีกครั้ง</span>'
+      : isSaved() ? '<p class="next__done">★ บันทึกแล้ว · ช่วง 3 วันก่อนออก หน้าแรกจะตรวจถนนน้ำท่วมและจุดชาร์จที่จะแวะให้อีกครั้ง</p>'
+      : '<button type="button" class="btn btn--soft" data-next="save">🔔 บันทึกทริป ให้แอปตรวจก่อนออกเดินทาง</button>';
+    if (end.home) return '<section class="next" id="next"><h3 class="next__title">ก่อนออกเดินทาง</h3><div class="next__acts">' + save + '</div></section>';
+    var near = destChargers(end).list.filter(function (x) { return x.st.id.indexOf('g:') !== 0; }); // Google's places only on its map
+    var chargers = near.length
+      ? '<details class="next__chargers"><summary>⚡ ที่ชาร์จเร็วใกล้ปลายทาง ' + near.length + ' แห่ง (' + DEST_KM + ' กม.)</summary><ul>' +
+        near.slice(0, NEXT_CHARGERS).map(function (x) {
+          var plug = P.usable(x.st, R.car);
+          return '<li><div><b>' + esc(x.st.name) + '</b><span>' + [esc(x.st.op || ''), plug ? plug.kw + ' kW' : '', km1(x.km) + ' กม.'].filter(Boolean).join(' · ') + '</span></div>' +
+            '<a class="btn" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + (+x.st.lat).toFixed(6) + ',' + (+x.st.lng).toFixed(6) +
+            '" target="_blank" rel="noopener"' + evAttr('nav_stop', x.st) + '>นำทาง</a></li>';
+        }).join('') + '</ul></details>'
+      : '<p class="hint">⚠️ ใกล้ปลายทาง (' + DEST_KM + ' กม.) ไม่มีที่ชาร์จเร็วที่รถคุณใช้ได้ ถามที่พักว่ามีที่ชาร์จไหม</p>';
+    return '<section class="next" id="next"><h3 class="next__title">ถึงปลายทางแล้ว ทำอะไรต่อ</h3>' + chargers +
+      '<div class="next__acts"><button type="button" class="btn" data-next="back">↩️ วางแผนขากลับ</button>' +
+      '<button type="button" class="btn" data-next="on">🧭 เที่ยวต่อจากที่นี่</button></div>' +
+      '<p class="hint">ขากลับและเที่ยวต่อ เริ่มด้วยแบต ' + arrive + '% ที่ถึงปลายทาง ถ้าชาร์จที่ที่พักก่อน แก้แบตตอนออกได้</p>' +
+      '<div class="next__acts">' + save + '</div></section>';
+  }
+
+  // The way back (end -> start) or on from the end, with the charge the trip arrives with.
+  function nextStep(kind) {
+    var res = R.result;
+    if (!res || !res.ok) return;
+    if (kind === 'save') { logEvent('save', null, 'next'); savePlan(); return; }
+    var end = res.trip.end, start = R.a, arrive = Math.max(5, Math.round(totals(res).arrive));
+    logEvent(kind === 'back' ? 'next_back' : 'next_on');
+    setRadio('unit', 'pct');
+    $('soc').max = 100;
+    $('soc').value = arrive;
+    syncRange();
+    $('depart').value = '';
+    showDepart();
+    R.round = false;
+    $('round').checked = false;
+    $('buffer-opt').hidden = false;
+    R.dests = [kind === 'back' ? start : null];
+    renderDests();
+    setPoint('a', { lat: end.lat, lng: end.lng, label: end.label });
+    newTrip();
+    if (kind === 'back') { plan(); return; }
+    clearResult();
+    $('result').hidden = true;
+    $('result').innerHTML = '';
+    setView('plan');
+    toast('เริ่มจาก <b>' + esc(end.label) + '</b> แบต ' + arrive + '% · ใส่จุดหมายถัดไป');
+    setTimeout(function () { $('to').focus(); }, 50);
   }
 
   // How the "อยากแวะ" choices worked out for this plan.
@@ -2532,6 +2721,7 @@
     }
     if ((t = e.target.closest('[data-fav]'))) { if (!R.favs[t.dataset.fav]) logEvent('fav', stationById(t.dataset.fav)); toggleFav(t.dataset.fav); return; }
     if (e.target.closest('#save-plan')) { logEvent('save'); savePlan(); return; }
+    if ((t = e.target.closest('[data-next]'))) { nextStep(t.dataset.next); return; }
     if ((t = e.target.closest('[data-report]'))) { openReport(t); return; }
     if ((t = e.target.closest('[data-report-close]'))) { t.closest('.report-slot').innerHTML = ''; return; }
     if ((t = e.target.closest('[data-ev]'))) {
@@ -3217,7 +3407,7 @@
   function renderHome() {
     if (R.view !== 'home' || !R.car) return;
     var list = upcomingFirst(savedPlans()), tr = homeTrip(), wx = tr && isFinite(tr.lat) && isFinite(tr.lng);
-    $('widgets').innerHTML = headWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
+    $('widgets').innerHTML = headWidget() + checkWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
       myWidget() + nearWidget() + quickWidget() + installWidget() + (wx ? priceWidget() : '') + tipWidget() + savedWidget(list) +
       (list.length ? '' : '<div class="w--wide">' + nudge('device') + '</div>');
     if (wx) loadWeather(tr);
@@ -3240,6 +3430,7 @@
       else if (f) setTimeout(function () { var el = $(f); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50);
       return;
     }
+    if (e.target.closest('[data-check-open]')) { logEvent('check_open'); return; }
     if (e.target.closest('[data-near]')) { locateMe(false); return; }
     if (e.target.closest('[data-install]') && R.installEvt) {
       R.installEvt.prompt();
@@ -3410,8 +3601,8 @@
     }
     if (!signedIn()) {
       b.innerHTML = A.step === 'email'
-        ? '<h2 class="sheet__title" id="acct-title">เก็บทริปของคุณไว้ทุกเครื่อง</h2>' +
-          '<ul class="sheet__perks"><li>ทริปที่บันทึกไว้ เปิดได้ทุกเครื่อง ไม่หายเมื่อล้างเบราว์เซอร์</li><li>ประวัติการชาร์จ และอัตรากินไฟจริงของรถคุณ</li></ul>' +
+        ? '<h2 class="sheet__title" id="acct-title">สมัครสมาชิกฟรี ใช้แค่อีเมล</h2>' +
+          tiers(false) +
           '<form class="sheet__form" id="acct-email"><label class="opt__label" for="acct-email-in">อีเมล</label>' +
           '<input id="acct-email-in" class="field" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" value="' + esc(A.email) + '">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
@@ -3447,9 +3638,24 @@
         return '<li><span>' + esc(new Date(c.created_at).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: '2-digit' })) + '</span><b>' + esc(c.station_name || c.op || 'สถานี') + '</b>' +
           '<span>' + (c.ok ? [c.kwh != null ? c.kwh + ' kWh' : '', c.baht != null ? '฿' + c.baht : '', c.max_kw ? c.max_kw + ' kW' : ''].filter(Boolean).join(' · ') || 'ชาร์จได้' : '⚠ ' + esc(problemText(c.problem))) + '</span></li>';
       }).join('') + '</ul>' : '<p class="hint">ยังไม่มี กด "บันทึกการชาร์จจริง" ที่จุดชาร์จในแผน หลังชาร์จเสร็จ</p>') +
-      '<div class="sheet__premium">' + (load('premium') ? '<b>ขอบคุณที่สนใจ!</b> เราจะแจ้งทางอีเมลเมื่อเปิดสมาชิกรุ่นแรก'
-        : '<b>สมาชิกรุ่นแรก ฿49/ปี</b> · เปิดเร็ว ๆ นี้ ราคานี้ตลอดไปสำหรับคนที่ลงชื่อไว้ <button type="button" class="btn btn--soft" data-premium>สนใจ</button>') + '</div>' +
+      '<h3 class="sheet__h">สิทธิของคุณ</h3>' + tiers(true) +
       '<div class="row__acts"><button type="button" class="btn" data-signout>ออกจากระบบ</button><button type="button" class="btn sheet__danger" data-delete-acct>ลบบัญชีและข้อมูล</button></div>';
+  }
+
+  // The three levels (docs/features-membership.md): anyone, a free account, and the paid first
+  // members' year that isn't open yet. Safety is never locked: it all sits with "ทุกคน".
+  function tiers(member) {
+    var tier = function (cls, name, sub, items, mine, extra) {
+      return '<div class="tier tier--' + cls + (mine ? ' is-mine' : '') + '"><p class="tier__name"><b>' + name + '</b> <span>' + sub + '</span>' +
+        (mine ? '<span class="tier__mine">✓ ของคุณ</span>' : '') + '</p><ul>' + items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' + (extra || '') + '</div>';
+    };
+    var premium = !member ? '' : load('premium') ? '<p class="tier__note">ขอบคุณที่สนใจ! เราจะแจ้งทางอีเมลเมื่อเปิด ราคานี้ตลอดไปสำหรับคนที่ลงชื่อไว้</p>'
+      : '<button type="button" class="btn btn--soft" data-premium>สนใจ แจ้งฉันเมื่อเปิด</button>';
+    return '<div class="tiers">' +
+      tier('all', 'ทุกคน', 'ไม่ต้องสมัคร', ['วางแผนชาร์จครบ พร้อมค่าไฟ', 'เลี่ยงถนนน้ำท่วม', 'เลือกจุดชาร์จฝั่งขาไป', 'เผื่อแบตเที่ยวที่ปลายทาง', 'ตรวจทริปก่อนออกเดินทาง'], !member) +
+      tier('free', 'สมาชิกฟรี', 'สมัครด้วยอีเมล', ['✨ ที่เที่ยวระหว่างทางครบ และโปรร้านพันธมิตร', 'ทริปที่บันทึกไว้ เปิดได้ทุกเครื่อง', 'ประวัติการชาร์จ และอัตรากินไฟจริงของรถคุณ'], member) +
+      tier('paid', 'สมาชิกรุ่นแรก ฿49/ปี', 'ยังไม่เปิด', ['แจ้งเตือนทางอีเมลก่อนวันเดินทาง', 'ผู้ช่วย AI วางทริป', 'ทริปหลายวัน พร้อมที่พักที่มีที่ชาร์จ'], false, premium) +
+      '</div>';
   }
 
   function acctMsg(text) { var m = $('acct-msg'); if (m) m.textContent = text || ''; }
@@ -3823,6 +4029,7 @@
   // Start: stations load in the background; the map is Google Maps when the server has Google
   // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.
   R.ready = loadStations();
+  R.ready.then(refreshCheck, function () {});
   loadFloods();
   getJSON('/api/config').catch(function () { return {}; }).then(function (cfg) {
     R.cfg = cfg || {};

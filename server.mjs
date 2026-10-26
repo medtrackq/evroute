@@ -80,6 +80,7 @@ const PLACES_TTL = 7 * 24 * 60 * 60 * 1000; // restaurants and shops near statio
 const PLACES_CHUNK = 300; // stations per Overpass request
 const RETRY_MS = 30 * 60 * 1000; // after a failed refresh, keep serving what we have and try again later
 const MAX_BODY = 64 * 1024;
+const MAX_TRIPS_BODY = 512 * 1024;
 const MAX_POINTS = 20; // public Valhalla accepts up to 20 locations
 
 const TYPES = {
@@ -628,8 +629,8 @@ async function reloadReports() {
 }
 
 // ---------- accounts ----------
-async function bodyJSON(req) {
-  try { return JSON.parse(await readBody(req)); } catch { return null; }
+async function bodyJSON(req, max) {
+  try { return JSON.parse(await readBody(req, max)); } catch { return null; }
 }
 
 function bearerUser(req) {
@@ -719,7 +720,7 @@ async function me(req, res, url) {
       ]);
       json(res, 200, { user, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'PUT' && url.pathname === '/api/me/trips') {
-      const trips = cleanTrips((await bodyJSON(req))?.trips);
+      const trips = cleanTrips((await bodyJSON(req, MAX_TRIPS_BODY))?.trips); // trips ahead carry their route
       if (!trips) { res.writeHead(400).end(); return; }
       // The page sends its whole list (newest first); keep that order through updated_at.
       const t0 = Date.now();
@@ -740,13 +741,13 @@ async function me(req, res, url) {
 }
 
 // ---------- route ----------
-function readBody(req) {
+function readBody(req, max = MAX_BODY) {
   return new Promise((ok, fail) => {
     let size = 0;
     const parts = [];
     req.on('data', (c) => {
       size += c.length;
-      if (size > MAX_BODY) { fail(new Error('too large')); req.destroy(); return; }
+      if (size > max) { fail(new Error('too large')); req.destroy(); return; }
       parts.push(c);
     });
     req.on('end', () => ok(Buffer.concat(parts).toString('utf8')));
