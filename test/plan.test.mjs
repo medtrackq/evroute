@@ -300,3 +300,24 @@ test('charge kept for the destination: the last stop charges for it, and arrivin
   // More than the last stop may charge to: no plan reaches the end with it.
   assert.equal(P.plan(prof, cands, c, { ...o, arriveSoc: 95 }).ok, false);
 });
+
+test('no stop just to top up a kWh or two: reaching the next station at the minimum will do', () => {
+  const c = car('byd-atto3-std');
+  const at = (d) => { const { lat, lng } = beside(d, 1); return { id: 's' + d, name: 'S' + d, op: 'Test', lat, lng, plugs: [{ type: 'CCS2', kw: 120, n: 2, dc: true }] }; };
+  // Two stations 30 km apart, then a gap only the second one can bridge (it charges a lot there).
+  const cands = P.candidates(prof, [100, 130, 280, 400, 520, 640].map(at), c);
+  const second = cands.find((x) => x.st.id === 's130');
+  const toSecond = P.energy(prof, c, 0, second.along, second.detourKm / 2) / c.kwh * 100;
+  // The car can reach the second station, but with less than the usual 2% to spare.
+  for (const spare of [0.2, 1, 1.8]) {
+    const r = P.plan(prof, cands, c, { startSoc: 20 + toSecond + spare, minSoc: 20, targetSoc: 80 });
+    assert.ok(r.ok, JSON.stringify(r.fail));
+    assert.equal(r.stops[0].st.id, 's130', r.stops.map((s) => s.st.id + ' +' + (s.depart - s.arrive).toFixed(1) + '%').join(', '));
+    assert.ok(r.stops[0].arrive >= 20 - 0.01 && r.stops[0].arrive < 22, String(r.stops[0].arrive));
+    r.stops.forEach((s) => assert.ok(s.arrive >= 20 - 0.01, s.st.id + ' ' + s.arrive));
+  }
+  // Short of the minimum itself, a stop before it is still needed.
+  const under = P.plan(prof, cands, c, { startSoc: 20 + toSecond - 1, minSoc: 20, targetSoc: 80 });
+  assert.ok(under.ok);
+  assert.equal(under.stops[0].st.id, 's100');
+});

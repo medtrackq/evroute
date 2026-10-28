@@ -17,6 +17,11 @@
   // station is reached by a side road and a normal turn.
   var ACROSS_KM = 0.5;
   var ACROSS_PENALTY = 15;
+  // A station is reached with MARGIN % to spare above the minimum when that costs nothing. When it
+  // would take one more stop (or charging past "ชาร์จถึง"), less will do, down to the minimum itself,
+  // at MARGIN_PENALTY minutes per % given up: a stop just to add a kWh or two is worse.
+  var MARGIN = 2;
+  var MARGIN_PENALTY = 3;
   // Meal times (minutes after midnight, Bangkok): a stop then is where "กินข้าว" counts.
   var MEALS = [[6 * 60 + 30, 9 * 60, 'มื้อเช้า'], [11 * 60, 13 * 60 + 30, 'มื้อกลางวัน'], [17 * 60 + 30, 20 * 60 + 30, 'มื้อเย็น']];
   var MAX_STOPS = 12;
@@ -211,7 +216,7 @@
   }
 
   // Fastest set of stops from start to end (dynamic programming over stations in route order).
-  // At each stop the car charges only as much as the next hop needs (plus a small buffer), never
+  // At each stop the car charges only as much as the next hop needs (plus MARGIN when it can), never
   // past targetSoc; each stop also costs PLUG_MIN plus STOP_PENALTY so fewer stops win close calls.
   // o.pinned: station ids the plan must use (kept in route order). o.favs: { id: true } of the
   // user's favourite stations, preferred when they cost little extra time. o.avoid: { id: true } of
@@ -253,9 +258,12 @@
 
     function hop(a, arrive, b, real) {
       if (!b.end && b.along - a.along < SKIP_KM) return null;
-      var need = (b.end ? Math.max(minSoc, o.arriveSoc || 0) : minSoc) + pct(hopKwh(a, b)) + (b.end ? 0 : 2);
-      if (a.start) return need <= arrive ? { depart: arrive, min: 0, real: 0 } : null;
-      if (need > target) return null;
+      var floor = (b.end ? Math.max(minSoc, o.arriveSoc || 0) : minSoc) + pct(hopKwh(a, b));
+      var most = a.start ? arrive : target; // the most the car can leave a with
+      if (floor > most) return null;
+      var need = Math.min(floor + (b.end ? 0 : MARGIN), most);
+      var spare = (floor + (b.end ? 0 : MARGIN) - need) * MARGIN_PENALTY; // margin given up, in minutes
+      if (a.start) return { depart: arrive, min: spare, real: 0 };
       if (need <= arrive + 1) return null; // no need to stop here: going straight past is better
       var depart = Math.max(need, arrive);
       var fav = o.favs && a.st && o.favs[a.st.id] ? FAV_BONUS : 0;
@@ -264,7 +272,7 @@
       var want = lacks(a.st, clockAt(real)) * WANT_PENALTY;
       // Across the road: unless pinned; a U-turn confirmed on the routed trip (o.uturn) counts twice.
       var across = (a.across || (o.uturn && o.uturn[a.st.id])) && (o.pinned || []).indexOf(a.st.id) < 0 ? ACROSS_PENALTY * (o.uturn && o.uturn[a.st.id] ? 2 : 1) : 0;
-      return { depart: depart, min: charge + STOP_PENALTY - fav + avoid + want + across, real: charge };
+      return { depart: depart, min: charge + STOP_PENALTY - fav + avoid + want + across + spare, real: charge };
     }
 
     var best = nodes.map(function () { return null; }); // { time, arrive, prev, depart }
