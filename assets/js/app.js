@@ -3473,6 +3473,11 @@
     if (e.target.closest('[data-dock-save]')) { logEvent('save'); savePlan(); showDock(); }
   });
   document.querySelector('.brand').addEventListener('click', function (e) { e.preventDefault(); setView('home'); });
+  // The header's height, for the trip bar that sticks below it (it grows under an iPhone status bar).
+  var topBar = document.querySelector('.top');
+  var topHeight = function () { document.documentElement.style.setProperty('--top-h', topBar.offsetHeight + 'px'); };
+  topHeight();
+  if (window.ResizeObserver) new ResizeObserver(topHeight).observe(topBar, { box: 'border-box' }); else window.addEventListener('resize', topHeight);
 
   // ---------- optional account ----------
   // Everything works without one. Signing in (email + a one-time code, no password) keeps saved

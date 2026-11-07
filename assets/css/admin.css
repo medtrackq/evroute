@@ -1,6 +1,6 @@
 /* admin.html: built on the app's tokens (style.css). */
 body { background: var(--bg); }
-.adm { max-width: 1080px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 14px; }
+.adm { max-width: 1080px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 48px; display: grid; gap: 14px; }
 .adm__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .adm__head h1 { margin: 6px 0 2px; font-size: 26px; }
 .adm__head .hint { margin: 0; }
