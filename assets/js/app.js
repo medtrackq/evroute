@@ -2981,6 +2981,7 @@
     if (v === 'home') renderHome();
     if (v === 'result') renderTripbar();
     document.querySelectorAll('[data-tab]').forEach(function (b) { b.classList.toggle('is-on', b.dataset.tab === (v === 'home' ? 'home' : 'plan')); });
+    moveInk();
     showDock();
     if (was && was !== v) window.scrollTo(0, 0);
   }
@@ -3478,6 +3479,19 @@
   var topHeight = function () { document.documentElement.style.setProperty('--top-h', topBar.offsetHeight + 'px'); };
   topHeight();
   if (window.ResizeObserver) new ResizeObserver(topHeight).observe(topBar, { box: 'border-box' }); else window.addEventListener('resize', topHeight);
+
+  // The line and glow over the selected tab (.tabbar__ink) slide to it. Measured, because the tabs'
+  // widths follow their labels (and the language); measured again when the bar changes size.
+  function moveInk() {
+    var bar = $('tabbar'), on = bar.querySelector('[data-tab].is-on:not([hidden])');
+    bar.classList.toggle('has-ink', !!(on && on.offsetWidth));
+    if (!on || !on.offsetWidth) return;
+    bar.style.setProperty('--ink-x', on.offsetLeft + 'px');
+    bar.style.setProperty('--ink-w', on.offsetWidth + 'px');
+    if (!bar.classList.contains('ink-ready')) requestAnimationFrame(function () { bar.classList.add('ink-ready'); }); // no slide in on first show
+  }
+  moveInk();
+  if (window.ResizeObserver) new ResizeObserver(moveInk).observe($('tabbar'), { box: 'border-box' }); else window.addEventListener('resize', moveInk);
 
   // ---------- optional account ----------
   // Everything works without one. Signing in (email + a one-time code, no password) keeps saved

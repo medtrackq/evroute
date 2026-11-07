@@ -882,7 +882,18 @@ button.w:active, a.w:active { transform: scale(0.98); }
     font: inherit; font-size: 10.5px; cursor: pointer; }
   .tabbar button[hidden] { display: none; }
   .tabbar svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tabbar button.is-on { color: #fff; background: rgb(255 255 255 / 12%); }
+  .tabbar button.is-on { color: #fff; }
+  .tabbar button.is-on svg { color: #8fb0ff; }
+  /* The selected tab: a bright line on the bar's top edge with a soft glow below it. It slides to
+     the tab with transform only (the phone's graphics chip does it), and only when a tab changes. */
+  .tabbar { overflow: hidden; }
+  .tabbar button { position: relative; z-index: 1; }
+  .tabbar__ink { position: absolute; top: 0; bottom: 0; left: 0; width: var(--ink-w, 66px); transform: translateX(var(--ink-x, 6px));
+    background: radial-gradient(50% 100% at 50% 0%, rgb(92 140 255 / 40%), rgb(92 140 255 / 0) 100%); pointer-events: none; opacity: 0; }
+  .tabbar__ink::before { content: ""; position: absolute; top: 0; left: 50%; width: 30px; height: 3px; margin-left: -15px;
+    border-radius: 0 0 3px 3px; background: #5c8cff; box-shadow: 0 0 10px 1px rgb(92 140 255 / 70%); }
+  .tabbar.has-ink .tabbar__ink { opacity: 1; }
+  .tabbar.ink-ready .tabbar__ink { transition: transform 0.28s cubic-bezier(0.3, 0.7, 0.4, 1), opacity 0.2s; }
   .foot { padding-bottom: 100px; }
   .dock:not([hidden]) { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 66px); }
   body.has-dock .foot { padding-bottom: 170px; }
