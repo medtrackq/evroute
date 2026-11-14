@@ -645,7 +645,7 @@ async function sendCode(req, res) {
   if (!email) { json(res, 400, { error: 'อีเมลไม่ถูกต้อง' }); return; }
   if (!allowCode(clientIp(req)) || !allowCodeTo(email)) { json(res, 429, { error: 'ขอรหัสบ่อยเกินไป รอสักครู่แล้วลองใหม่' }); return; }
   try {
-    await accounts.sendCode(email);
+    await accounts.sendCode(email, publicOrigin(req) + '/'); // the link comes back to the site the code was asked from
     json(res, 200, pending.open(email), { 'Cache-Control': 'no-store' }); // { id, pair } for signing in from the email's link elsewhere
 
   } catch (err) {
@@ -786,15 +786,19 @@ async function proxyRoute(req, res) {
 }
 
 // ---------- static ----------
+// The address people reach the site at (behind Cloudflare and Railway), e.g. https://evroute.info.
+function publicOrigin(req) {
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
+  const proto = String(req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
+  return (proto === 'https' ? 'https' : 'http') + '://' + (/^[\w.:-]+$/.test(host) ? host : 'localhost');
+}
+
 async function serveStatic(pathname, res, req, url) {
   if (pathname.endsWith('/')) pathname += 'index.html';
   if (pathname === '/index.html') {
     // Link previews need full URLs and the shared trip's name (lib/share.mjs).
     try {
-      const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
-      const proto = String(req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
-      const base = (proto === 'https' ? 'https' : 'http') + '://' + (/^[\w.:-]+$/.test(host) ? host : 'localhost');
-      const body = shareMeta(await readFile(join(ROOT, 'index.html'), 'utf8'), base, url);
+      const body = shareMeta(await readFile(join(ROOT, 'index.html'), 'utf8'), publicOrigin(req), url);
       res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' }).end(body);
     } catch (err) {
       report('index', err.message);

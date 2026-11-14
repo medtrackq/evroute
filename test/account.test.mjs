@@ -41,6 +41,9 @@ test('auth calls Supabase with the right shape and caches users', async () => {
   assert.deepEqual(JSON.parse(calls[0].o.body), { email: 'x@y.co', create_user: true });
   assert.equal(calls[0].o.headers.apikey, 'sb_secret_S');
   assert.equal(calls[0].o.headers.Authorization, undefined); // a new secret key isn't a JWT
+  // Where the email's link lands, as supabase-js sends it.
+  await a.sendCode('x@y.co', 'https://evroute.info/');
+  assert.equal(calls.pop().url, 'https://p.supabase.co/auth/v1/otp?redirect_to=https%3A%2F%2Fevroute.info%2F');
   const s = await a.verify('x@y.co', '123456');
   assert.deepEqual(JSON.parse(calls[1].o.body), { type: 'email', email: 'x@y.co', token: '123456' });
   assert.deepEqual(s.user, { id: 'u1', email: 'x@y.co' });
