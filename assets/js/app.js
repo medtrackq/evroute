@@ -3629,7 +3629,7 @@
           '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
         : '<h2 class="sheet__title" id="acct-title">เปิดอีเมลแล้วกดลิงก์</h2>' +
           '<p class="hint">ส่งไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม)</p>' +
-          (A.handoff ? '<div class="pair"><span>เลขจับคู่</span><b>' + esc(A.handoff.pair) + '</b>' +
+          (A.handoff ? '<div class="pair"><span>เลขจับคู่ · ไม่ต้องพิมพ์</span><b>' + esc(A.handoff.pair) + '</b>' +
             '<p>กดลิงก์ในอีเมล ถ้าเว็บเปิดในเบราว์เซอร์หรือเครื่องอื่น ให้กดยืนยันเลขนี้ที่นั่น หน้านี้จะเข้าสู่ระบบเอง</p><i class="pair__wait" aria-hidden="true"></i></div>' : '') +
           '<p class="hint">หรือถ้าอีเมลมีรหัส ใส่ที่นี่</p>' +
           '<form class="sheet__form" id="acct-code"><label class="sr-only" for="acct-code-in">รหัส</label>' +
@@ -3705,6 +3705,8 @@
 
   function checkCode(form) {
     var code = $('acct-code-in').value.replace(/\s+/g, '');
+    // The pairing number on screen is easy to take for the code: say so instead of "wrong code".
+    if (A.handoff && code === String(A.handoff.pair)) { acctMsg('เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัส 6 หลักจากอีเมล'); return; }
     if (!/^\d{6,10}$/.test(code)) { acctMsg('ใส่รหัสตัวเลขจากอีเมล'); return; }
     busyBtn(form, true, 'กำลังตรวจ…');
     postJSON('/api/auth/verify', { email: A.email, code: code }).then(function (s) {

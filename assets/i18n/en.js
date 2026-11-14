@@ -2,6 +2,8 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "เลขจับคู่ · ไม่ต้องพิมพ์": "Pairing number · don't type it",
+    "เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัส # หลักจากอีเมล": "That's the pairing number, not the code · open the email and tap the link, or enter the #-digit code from the email",
     "กาแฟ นาขั้นบันได": "Coffee and rice terraces",
     "ของฝากชลบุรี": "Chonburi souvenirs",
     "ของฝากมะพร้าวแก้ว": "Candied coconut to take home",
@@ -807,7 +809,7 @@ I18N.load({
     "เติมไฟรวม": "Total energy added",
     "เปลี่ยนรถ": "Change car",
     "เมนูบัญชี": "Account menu",
-    "เลขจับคู่": "Pairing code",
+    "เลขจับคู่": "Pairing number",
     "แบตเตอรี่": "Battery",
     "แล้วเลือก": "then choose",
     "ไม่บังคับ": "optional",
