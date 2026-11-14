@@ -148,16 +148,23 @@ secret key อยู่บน server เท่านั้น ตารางเ
 1. **SQL Editor**: รัน `db/schema.sql` อีกครั้ง
 2. **Authentication → URL Configuration → Site URL** = `https://evroute.info` และ Redirect URLs เพิ่ม `https://evroute.info/**` (ค่าเริ่มต้นคือ localhost; เปลี่ยนที่อยู่เว็บเมื่อไรต้องแก้ที่นี่ด้วย) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
    - **Authentication → Emails → Templates**: Supabase ให้แก้แม่แบบได้หลังตั้ง SMTP เองแล้ว (ข้อ 3) จากนั้นแก้ทั้ง **Magic Link** และ **Confirm signup** ให้มีรหัส `{{ .Token }}` (ตัวอย่างด้านล่าง) ผู้ใช้จะพิมพ์รหัสได้ ซึ่งดีกว่าลิงก์บนมือถือ (ลิงก์มักเปิดในเบราว์เซอร์อื่น)
-3. **Authentication → Emails → SMTP Settings**: ใส่ SMTP ของผู้ให้บริการส่งอีเมล เช่น Resend (ฟรี 3,000 ฉบับ/เดือน) ระบบส่งอีเมลในตัวของ Supabase ส่งได้เฉพาะอีเมลของสมาชิกทีมโปรเจกต์ และจำนวนน้อยมาก ใช้ทดสอบเท่านั้น
+3. **Authentication → Emails → SMTP Settings** (ตั้งแล้ว 14 พ.ย. 2569): ระบบส่งอีเมลในตัวของ Supabase ส่งได้เฉพาะอีเมลของสมาชิกทีมโปรเจกต์ ชั่วโมงละ 2 ฉบับ ผู้ใช้ทั่วไปจะไม่ได้รับอีเมลเลย จึงส่งผ่าน **Resend** ในชื่อ `noreply@evroute.info`
+   - Resend → Domains: `evroute.info` (Region Tokyo) ระเบียน DNS ใน Cloudflare ทั้งหมด DNS only: TXT `resend._domainkey` (DKIM), CNAME `rsend` และ `send` (ส่ง/SPF), TXT `_dmarc` = `v=DMARC1; p=none;`
+   - Resend → API Keys: สิทธิ์ Sending access เฉพาะโดเมน evroute.info
+   - Supabase: Sender `noreply@evroute.info` · ชื่อ `EVROUTE` · Host `smtp.resend.com` · Port `465` · Username `resend` · Password = API key ของ Resend
+   - เปิด Custom SMTP แล้ว Supabase จำกัด 30 ฉบับ/ชั่วโมง เพิ่มได้ที่ Authentication → Rate Limits
+   - Supabase ส่งรหัส 8 หลัก (ตั้งได้ที่ Sign In / Providers → Email → Email OTP Length) หน้าเว็บรับ 6–10 หลัก
 4. (ไม่บังคับ) Railway → Variables: `CONTACT_EMAIL` = อีเมลติดต่อเรื่องข้อมูลส่วนบุคคล แสดงในหน้านโยบาย
 
-ตัวอย่างอีเมล (Subject: `รหัสเข้าสู่ระบบ EVROUTE: {{ .Token }}`):
+แม่แบบที่ใช้อยู่ ทั้ง **Magic link or OTP** และ **Confirm sign up** (Subject: `รหัสเข้าสู่ระบบ EVROUTE: {{ .Token }}` รหัสอยู่ในหัวข้อด้วย ให้ iPhone เติมรหัสจากอีเมลได้):
 
 ```html
 <h2>รหัสเข้าสู่ระบบ EVROUTE</h2>
-<p>ใส่รหัสนี้ในหน้าเว็บ:</p>
-<p style="font-size:28px;font-weight:700;letter-spacing:4px">{{ .Token }}</p>
-<p>รหัสใช้ได้ครั้งเดียวและหมดอายุใน 1 ชั่วโมง ถ้าคุณไม่ได้ขอรหัสนี้ ไม่ต้องทำอะไร</p>
+<p>พิมพ์รหัสนี้ในแอป:</p>
+<p style="font-size:32px;font-weight:700;letter-spacing:6px">{{ .Token }}</p>
+<p>หรือกดลิงก์นี้บนเครื่องที่ขอเข้าสู่ระบบ: <a href="{{ .ConfirmationURL }}">เข้าสู่ระบบ EVROUTE</a></p>
+<p style="color:#666">รหัสใช้ได้ครั้งเดียว หมดอายุใน 1 ชั่วโมง ถ้าคุณไม่ได้ขอ ไม่ต้องทำอะไร<br>
+Your EVROUTE sign-in code is above. If you didn't ask for it, ignore this email.</p>
 ```
 
 ### หลังบ้าน (admin.html)

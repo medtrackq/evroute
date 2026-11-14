@@ -2,6 +2,8 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "(ส่งอีเมลรหัสเข้าสู่ระบบ ในชื่อ noreply@evroute.info): ได้รับอีเมลของคุณเพื่อส่งรหัสเท่านั้น": "(sends the sign-in code email, as noreply@evroute.info): receives your email address only to send the code",
+    "รหัสตัวเลขจากอีเมล": "Code from the email",
     "ค่าที่ตั้งไว้": "Your settings",
     "รุ่นรถและค่าที่ปรับเอง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา และธีม เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase · รูปรถของคุณยังอยู่ในเครื่องเท่านั้น)": "your car model and your own adjustments, nickname, favourite stations, choices for places on the way and avoiding floods, language and theme, so they follow you to every device you sign in on (kept with your account in Supabase · your own car photo stays on the device only)",
     "แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari เปิดครั้งแรกให้เข้าสู่ระบบด้วยอีเมลนี้อีกครั้ง ทริป รถ และสถานีโปรดจะกลับมาครบ": "On iPhone the home-screen app keeps its data apart from Safari: the first time you open it, sign in again with this email and your trips, car and favourite stations come back",
@@ -13,7 +15,7 @@ I18N.load({
     "ใช้รถ ชื่อเล่น สถานีโปรด และค่าที่ตั้งไว้จากบัญชีของคุณแล้ว": "Your car, nickname, favourite stations and settings are back from your account",
     "ย้ายแผน # แผนเข้าบัญชีแล้ว": "# plan(s) moved into your account",
     "เลขจับคู่ · ไม่ต้องพิมพ์": "Pairing number · don't type it",
-    "เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัส # หลักจากอีเมล": "That's the pairing number, not the code · open the email and tap the link, or enter the #-digit code from the email",
+    "เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัสตัวเลขจากอีเมล": "That's the pairing number, not the code · open the email and tap the link, or enter the code from the email",
     "กาแฟ นาขั้นบันได": "Coffee and rice terraces",
     "ของฝากชลบุรี": "Chonburi souvenirs",
     "ของฝากมะพร้าวแก้ว": "Candied coconut to take home",

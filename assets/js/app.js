@@ -3722,7 +3722,7 @@
             '<p>กดลิงก์ในอีเมล ถ้าเว็บเปิดในเบราว์เซอร์หรือเครื่องอื่น ให้กดยืนยันเลขนี้ที่นั่น หน้านี้จะเข้าสู่ระบบเอง</p><i class="pair__wait" aria-hidden="true"></i></div>' : '') +
           '<p class="hint">หรือถ้าอีเมลมีรหัส ใส่ที่นี่</p>' +
           '<form class="sheet__form" id="acct-code"><label class="sr-only" for="acct-code-in">รหัส</label>' +
-          '<input id="acct-code-in" class="field sheet__code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="รหัส 6 หลัก">' +
+          '<input id="acct-code-in" class="field sheet__code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="รหัสตัวเลขจากอีเมล">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
           '<button type="submit" class="btn btn--primary btn--block">ยืนยัน</button></form>' +
           '<p class="hint"><button type="button" class="link-btn" data-acct-step="email">เปลี่ยนอีเมล</button> · <button type="button" class="link-btn" data-acct-resend>ส่งอีเมลอีกครั้ง</button></p>';
@@ -3795,7 +3795,7 @@
   function checkCode(form) {
     var code = $('acct-code-in').value.replace(/\s+/g, '');
     // The pairing number on screen is easy to take for the code: say so instead of "wrong code".
-    if (A.handoff && code === String(A.handoff.pair)) { acctMsg('เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัส 6 หลักจากอีเมล'); return; }
+    if (A.handoff && code === String(A.handoff.pair)) { acctMsg('เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัสตัวเลขจากอีเมล'); return; }
     if (!/^\d{6,10}$/.test(code)) { acctMsg('ใส่รหัสตัวเลขจากอีเมล'); return; }
     busyBtn(form, true, 'กำลังตรวจ…');
     postJSON('/api/auth/verify', { email: A.email, code: code }).then(function (s) {
