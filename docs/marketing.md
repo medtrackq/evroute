@@ -19,9 +19,9 @@
 ## กติกาก่อนโพสต์ (อ่านก่อนทุกครั้ง)
 
 1. **ใช้ลิงก์ที่มี `?ref=`** ทุกครั้ง จะรู้ในหลังบ้านว่าช่องทางไหนได้ผล
-   - TikTok: `https://evroute.onrender.com/?ref=tiktok`
-   - Facebook เพจ: `https://evroute.onrender.com/?ref=facebook`
-   - กลุ่ม Facebook: `https://evroute.onrender.com/?ref=fb-group-ชื่อกลุ่ม` (เช่น `?ref=fb-group-byd`)
+   - TikTok: `https://evroute.info/?ref=tiktok`
+   - Facebook เพจ: `https://evroute.info/?ref=facebook`
+   - กลุ่ม Facebook: `https://evroute.info/?ref=fb-group-ชื่อกลุ่ม` (เช่น `?ref=fb-group-byd`)
    - LINE OpenChat: `?ref=line` · Pantip: `?ref=pantip` · YouTube: `?ref=youtube`
 2. **ในกลุ่ม Facebook อย่าโพสต์โฆษณาตรง ๆ** ให้ "ตอบคำถาม" คนที่ถามว่าไป ___ ชาร์จที่ไหน แล้วแนบลิงก์แผนนั้น (เปิดแผนในแอป → กด "คัดลอกลิงก์แผนนี้") อ่านกฎกลุ่มก่อนทุกครั้ง
 3. **ตัวเลขในโพสต์มาจากแผนจริงของแอป** ด้านล่างนี้: BYD Atto 3 Standard (แบต 49.9 kWh) ออกบ้านแบต 100% ออกเดินทางเสาร์ 7 พ.ย. 2569 08:00 น. เปิด "อยากแวะ: กินข้าว + กาแฟ" (วางแผนเมื่อ 24 ต.ค. 2569) ใส่ประโยค "ตัวเลขจากแผนใน EVROUTE ใช้ประกอบการวางแผน ของจริงขึ้นกับการขับและสภาพถนน" ทุกครั้ง กันดราม่า
@@ -138,11 +138,11 @@
 
 **English**
 > Renting an EV in Thailand? Plan your charging stops, times and costs in English, free, no sign-up.
-> Bangkok → Chiang Mai: 4 stops, ~2 h charging. 👉 https://evroute.onrender.com/?lang=en&ref=…
+> Bangkok → Chiang Mai: 4 stops, ~2 h charging. 👉 https://evroute.info/?lang=en&ref=…
 
 **中文**
 > 在泰国开电动车自驾？免费规划充电站、时间和电费，支持中文，无需注册。
-> 曼谷 → 清迈：充电 4 次，约 2 小时。👉 https://evroute.onrender.com/?lang=zh&ref=…
+> 曼谷 → 清迈：充电 4 次，约 2 小时。👉 https://evroute.info/?lang=zh&ref=…
 
 ---
 
@@ -197,11 +197,11 @@
 ## โพสต์ 13 · English / 中文 (นักท่องเที่ยวขับรถเช่าช่วงฝน)
 
 **English**
-> Driving an EV in Thailand in the rainy season? EVROUTE checks flood reports from the Department of Highways when you plan, routes you around closed roads and picks charging stops on the way around. Free, no sign-up. 👉 https://evroute.onrender.com/?lang=en&ref=flood-…
+> Driving an EV in Thailand in the rainy season? EVROUTE checks flood reports from the Department of Highways when you plan, routes you around closed roads and picks charging stops on the way around. Free, no sign-up. 👉 https://evroute.info/?lang=en&ref=flood-…
 > (Flood data: Department of Highways / Longdo Traffic. Only reported points can be avoided.)
 
 **中文**
-> 雨季在泰国开电动车？EVROUTE 规划路线时会查看公路局的水浸报告，自动绕开无法通行的道路，并在绕行路线上安排充电站。免费，无需注册。👉 https://evroute.onrender.com/?lang=zh&ref=flood-…
+> 雨季在泰国开电动车？EVROUTE 规划路线时会查看公路局的水浸报告，自动绕开无法通行的道路，并在绕行路线上安排充电站。免费，无需注册。👉 https://evroute.info/?lang=zh&ref=flood-…
 > （水浸数据：泰国公路局 / Longdo Traffic，仅能绕开已有报告的地点）
 
 ## ข้อความสำเร็จรูป: ตอบคำถาม "ถนนเส้นนี้ท่วมไหม / ไป ___ ผ่านได้ไหม"
@@ -252,7 +252,7 @@
 | # | ทำอะไร | ทำไม |
 |---|---|---|
 | 1 | **Render → เปลี่ยน Instance จาก Free เป็น Starter** (ราว $7/เดือน) | แบบ Free หลับเมื่อไม่มีคนใช้ คนที่กดโฆษณาเข้ามาคนแรกต้องรอ ~30–60 วินาที ส่วนใหญ่ปิดหนีก่อน = เสียค่าคลิกฟรี และงานเบื้องหลัง (กวาดหา PluZ) ทำงานไม่ต่อเนื่องตอนหลับ |
-| 2 | **ตัดสินใจเรื่องชื่อโดเมน** (เช่น evroute.app หรือ .in.th ถ้ายังว่าง) ถ้าจะเปลี่ยน **เปลี่ยนก่อนยิงโฆษณา** | ลิงก์ .onrender.com ดูไม่น่าเชื่อถือในโฆษณา · แผนที่บันทึก/สถานีโปรดของผู้ใช้เก็บแยกตามโดเมน ยิ่งเปลี่ยนช้า คนยิ่งเสียของที่บันทึกไว้ · เปลี่ยนแล้วต้องเพิ่มโดเมนใหม่ใน Supabase → Authentication → URL Configuration ด้วย (ไม่อย่างนั้นลิงก์เข้าสู่ระบบทางอีเมลใช้ไม่ได้) |
+| 2 | ✅ **โดเมน evroute.info** (จด 14 พ.ย. 2569 ที่ Cloudflare หมดอายุ 14 พ.ย. 2570 ต่ออายุอัตโนมัติ) ใช้ลิงก์นี้ในโฆษณาและทุกโพสต์ | ลิงก์ .onrender.com ดูไม่น่าเชื่อถือในโฆษณา (เลิกใช้แล้ว) · แผนที่บันทึก/สถานีโปรดของผู้ใช้เก็บแยกตามโดเมน ยิ่งเปลี่ยนช้า คนยิ่งเสียของที่บันทึกไว้ · เปลี่ยนแล้วต้องเพิ่มโดเมนใหม่ใน Supabase → Authentication → URL Configuration ด้วย (ไม่อย่างนั้นลิงก์เข้าสู่ระบบทางอีเมลใช้ไม่ได้) |
 | 3 | เปิด **Facebook Page "EVROUTE"**, **TikTok**, **LINE OA** (ฟรี) ใช้ไอคอนแอปเป็นรูปโปรไฟล์ ใส่สโลแกน + ลิงก์ | โฆษณา Facebook/IG ต้องมีเพจ · ก่อนยิงควรมีโพสต์ในเพจแล้ว 4–6 โพสต์ คนกดเข้าเพจจะได้เห็นว่ามีตัวตน |
 | 4 | Meta Business Suite → สร้างบัญชีโฆษณา ผูกบัตร · TikTok Ads Manager (หรือใช้ "Promote" ในแอป TikTok) | |
 | 5 | ส่งจดหมายถึง OR และ Longdo ให้เรียบร้อย | โฆษณาเรื่องน้ำท่วมรอ Longdo ตอบก่อน · ห้ามอ้างว่ามีสถานี PluZ ครบ |

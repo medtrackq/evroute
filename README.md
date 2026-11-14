@@ -95,7 +95,7 @@
 ตั้งค่า:
 1. [Google Cloud Console](https://console.cloud.google.com) → สร้างโปรเจกต์ → ผูก Billing
 2. เปิด **Places API (New)** และ **Maps JavaScript API**
-3. สร้าง key 2 ตัว: (ก) สำหรับ server จำกัด API = Places API (New) (ข) สำหรับแผนที่ จำกัด Website = โดเมนของเว็บ (เช่น `https://evroute.up.railway.app/*`), API = Maps JavaScript API
+3. สร้าง key 2 ตัว: (ก) สำหรับ server จำกัด API = Places API (New) (ข) สำหรับแผนที่ จำกัด Website = `https://evroute.info/*` และ `https://evroute-app.up.railway.app/*`, API = Maps JavaScript API
 4. **ตั้งเพดานจริง**: APIs & Services → Places API (New) → Quotas → จำกัด requests per day (เช่น 30) งบประมาณ (Budget) แค่แจ้งเตือน ไม่ได้หยุดการเรียก
 5. (แนะนำ) สร้าง Map ID ที่ Google Maps Platform → Map management แล้วใส่ใน `GOOGLE_MAP_ID` (ไม่ใส่จะใช้ `DEMO_MAP_ID` ซึ่งใช้ทดสอบได้)
 6. Railway → Variables: `GOOGLE_PLACES_KEY` = key (ก), `GOOGLE_MAPS_KEY` = key (ข), (ไม่บังคับ) `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`
@@ -146,7 +146,7 @@ secret key อยู่บน server เท่านั้น ตารางเ
 
 ตั้งค่าใน Supabase:
 1. **SQL Editor**: รัน `db/schema.sql` อีกครั้ง
-2. **Authentication → URL Configuration → Site URL** = ที่อยู่เว็บ เช่น `https://evroute.up.railway.app` (ค่าเริ่มต้นคือ localhost; เปลี่ยนที่อยู่เว็บเมื่อไรต้องแก้ที่นี่ด้วย) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
+2. **Authentication → URL Configuration → Site URL** = `https://evroute.info` และ Redirect URLs เพิ่ม `https://evroute.info/**` (ค่าเริ่มต้นคือ localhost; เปลี่ยนที่อยู่เว็บเมื่อไรต้องแก้ที่นี่ด้วย) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
    - **Authentication → Emails → Templates**: Supabase ให้แก้แม่แบบได้หลังตั้ง SMTP เองแล้ว (ข้อ 3) จากนั้นแก้ทั้ง **Magic Link** และ **Confirm signup** ให้มีรหัส `{{ .Token }}` (ตัวอย่างด้านล่าง) ผู้ใช้จะพิมพ์รหัสได้ ซึ่งดีกว่าลิงก์บนมือถือ (ลิงก์มักเปิดในเบราว์เซอร์อื่น)
 3. **Authentication → Emails → SMTP Settings**: ใส่ SMTP ของผู้ให้บริการส่งอีเมล เช่น Resend (ฟรี 3,000 ฉบับ/เดือน) ระบบส่งอีเมลในตัวของ Supabase ส่งได้เฉพาะอีเมลของสมาชิกทีมโปรเจกต์ และจำนวนน้อยมาก ใช้ทดสอบเท่านั้น
 4. (ไม่บังคับ) Railway → Variables: `CONTACT_EMAIL` = อีเมลติดต่อเรื่องข้อมูลส่วนบุคคล แสดงในหน้านโยบาย
@@ -239,10 +239,24 @@ OCM_KEY=xxxx npm start   # เปิดใช้ข้อมูล Open Charge M
    - Source → Branch: `claude/ev-charging-route-planner-22ihr3` (branch ที่ใช้ขึ้นเว็บจริง)
    - Deploy → Region: **Southeast Asia (Singapore)** (ใกล้ผู้ใช้ในไทย และอยู่ภูมิภาคเดียวกับ Supabase)
    - Deploy → Healthcheck Path: `/api/config`
-   - Networking → **Generate Domain** แล้วแก้ชื่อเป็น `evroute` (ได้ `evroute.up.railway.app` ถ้ายังว่าง) หรือ Custom Domain ถ้ามีโดเมนของตัวเอง
+   - Networking → **Generate Domain** (ตอนนี้ใช้ `evroute-app.up.railway.app` เป็นทางสำรอง) และ **+ Custom Domain** `evroute.info` (ดูหัวข้อถัดไป)
 5. Service → **Variables** → Raw Editor วางทีละบรรทัด `ชื่อ=ค่า`: `SUPABASE_URL`, `SUPABASE_KEY`, `ADMIN_EMAILS`, `CONTACT_EMAIL`, `GITHUB_TOKEN`, `GITHUB_REPO`, และ (ไม่บังคับ) `GOOGLE_PLACES_KEY`, `GOOGLE_MAPS_KEY`, `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`, `OCM_KEY`, `FLOODS`
 6. รอ Deploy ขึ้น **Active** แล้วเปิดโดเมน
 7. **ที่อยู่เว็บใหม่ ต้องแก้ 2 ที่:** Supabase → Authentication → URL Configuration → Site URL และ Google Cloud → key แผนที่ → Website restrictions
+
+### โดเมน evroute.info (Cloudflare)
+
+จดที่ Cloudflare Registrar (14 พ.ย. 2569 ต่ออายุอัตโนมัติ) DNS อยู่ที่ Cloudflare ตามคู่มือ Railway สำหรับ Cloudflare:
+
+| Type | Name | Target / Content | Proxy |
+|---|---|---|---|
+| CNAME | `@` | ค่าที่ Railway ให้ตอนเพิ่ม Custom Domain (`xxxx.up.railway.app`) | เปิด (ส้ม) |
+| TXT | `_railway-verify` | `railway-verify=…` ตามที่ Railway ให้ | – |
+| CNAME | `www` | `evroute.info` | เปิด (ส้ม) |
+
+- SSL/TLS → **Full** (ไม่ใช่ Full (strict) ซึ่ง Railway บอกว่าใช้ไม่ได้)
+- Rules → Redirect Rule: Hostname = `www.evroute.info` → Dynamic `concat("https://evroute.info", http.request.uri.path)` · 301 · Preserve query string (ลิงก์ `?ref=` ยังนับได้)
+- ทางสำรองตอนตรวจปัญหา: `https://evroute-app.up.railway.app` (ไม่ผ่าน Cloudflare)
 
 Railway ไม่หลับ ไม่มีรอตื่นเหมือนแผนฟรีของ Render ค่าใช้งานคิดตามจริง (RAM/CPU ต่อนาที) ดูได้ที่ Workspace → Usage
 
