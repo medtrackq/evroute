@@ -22,7 +22,7 @@ test('people are counted per Bangkok day, once each', () => {
     events: [{ kind: 'app', op: 'PEA VOLTA' }, { kind: 'app', op: 'PEA VOLTA' }, { kind: 'app', op: 'EleXA' }, { kind: 'save' },
       { kind: 'arrive', ref: 'tiktok', dev: 'd-a', created_at: '2026-10-24T01:00:00Z' }, { kind: 'arrive', ref: 'tiktok', dev: 'd-a', created_at: '2026-10-23T01:00:00Z' },
       { kind: 'arrive', ref: 'tiktok', dev: 'd-b', created_at: '2026-10-24T01:00:00Z' }, { kind: 'arrive', ref: 'line', dev: 'd-c', created_at: '2026-10-24T01:00:00Z' }],
-    users: [{ created_at: '2026-10-24T00:00:00Z' }, { created_at: '2025-01-01T00:00:00Z' }],
+    users: [{ created_at: '2026-10-24T00:00:00Z', email: 'old@x.co', premium: 1 }, { created_at: '2025-01-01T00:00:00Z', email: 'new@x.co', premium: '2026-10-24T02:00:00.000Z' }],
     errors: [
       { created_at: '2026-10-24T04:00:00Z', src: 'web', msg: 'x is undefined', at: 'app.js:1:2', dev: 'd-a', ua: 'Chrome 126 · Android' },
       { created_at: '2026-10-24T03:00:00Z', src: 'web', msg: 'x is undefined', at: 'app.js:1:2', dev: 'd-b' },
@@ -37,6 +37,7 @@ test('people are counted per Bangkok day, once each', () => {
   assert.deepEqual(s.daily.at(-1), { day: '2026-10-24', people: 2, opens: 3, plans: 1, signups: 1 });
   assert.deepEqual(s.plans, { today: 1, month: 2, failed: 1 });
   assert.deepEqual(s.accounts, { total: 2, month: 1 });
+  assert.deepEqual(s.interested, [{ email: 'new@x.co', at: '2026-10-24T02:00:00.000Z' }, { email: 'old@x.co', at: null }]);
   assert.deepEqual(s.langs, { th: 1, en: 1 }); // each browser's latest language
   assert.deepEqual(s.sources, [{ key: 'tiktok', count: 2, visits: 3 }, { key: 'line', count: 1, visits: 1 }]);
   assert.ok(!s.actions.some((x) => x.key === 'arrive'));

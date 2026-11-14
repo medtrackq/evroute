@@ -96,6 +96,23 @@
     return src;
   })();
 
+  // "กำลังใช้อยู่ตอนนี้" on the admin page: while the app is open and on screen it says so every two
+  // minutes with the same random id (the server only counts them, nothing is stored). Not when
+  // statistics are off.
+  function startPing() {
+    var last = 0;
+    var ping = function () {
+      if (document.hidden || !R.cfg || !R.cfg.stats || load('nostats') || Date.now() - last < 60e3) return;
+      last = Date.now();
+      try {
+        fetch('/api/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dev: devId() }), keepalive: true }).catch(function () {});
+      } catch (e) {}
+    };
+    ping();
+    setInterval(ping, 120e3);
+    document.addEventListener('visibilitychange', ping);
+  }
+
   // A random id per browser, to count how many people use the app ("เริ่มรหัสใหม่" makes a new one).
   function devId() {
     var d = load('dev');
@@ -3998,7 +4015,7 @@
     if ((t = e.target.closest('[data-approve]'))) { answerApproval(t.dataset.approve === '1'); return; }
     if (e.target.closest('[data-signout]')) { signOut(); return; }
     if (e.target.closest('[data-delete-acct]')) { deleteAccount(); return; }
-    if (e.target.closest('[data-premium]')) { store('premium', 1); logEvent('premium', null, 'menu'); renderAcct(); return; }
+    if (e.target.closest('[data-premium]')) { store('premium', new Date().toISOString()); logEvent('premium', null, 'menu'); renderAcct(); return; }
     if ((t = e.target.closest('[data-use-real]'))) {
       R.car.use = +t.dataset.useReal;
       saveCar();
@@ -4175,6 +4192,7 @@
       store('opened', day);
       send('event', { kind: 'open', dev: devId(), lang: I18N.lang });
     }
+    startPing();
     if (ARRIVE) send('event', { kind: 'arrive', ref: ARRIVE, dev: devId(), lang: I18N.lang });
     if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
     routeLayer = map.layer();

@@ -20,6 +20,7 @@ import { cleanCar, carsScript } from './lib/cars.mjs';
 import { cleanPlace, mergePlaces, parseLatLng, followShort } from './lib/places.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
+import { liveCounter } from './lib/live.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -50,6 +51,7 @@ const allowFeedback = rateLimiter(10, 60 * 60 * 1000);
 const STARTED = Date.now();
 const HOUR = 60 * 60 * 1000;
 const pending = handoffs(), allowPoll = rateLimiter(1500, HOUR);
+const live = liveCounter(), allowPing = rateLimiter(1200, HOUR); // "กำลังใช้อยู่ตอนนี้" on the admin page
 const allowCode = rateLimiter(6, HOUR), allowCodeTo = rateLimiter(3, HOUR), allowVerify = rateLimiter(30, HOUR), allowMe = rateLimiter(600, HOUR);
 const UA = 'evroute (EV trip planner for Thailand)';
 
@@ -606,6 +608,7 @@ async function admin(req, res, url) {
     const out = JSON.parse(adminCache.body);
     if (floodsOn) await floodsNow().catch(() => null);
     out.health.floods = { on: floodsOn, forcedOff: FLOODS_FORCED_OFF, count: floodsOn ? floodsMemo.count ?? null : null, block: floodsOn ? floodsMemo.block ?? null : null };
+    out.live = live.count();
     json(res, 200, out, { 'Cache-Control': 'no-store' });
   } catch (err) {
     report('admin', err.message);
@@ -857,6 +860,13 @@ createServer(async (req, res) => {
   }
   if (url.pathname.startsWith('/api/admin/')) {
     await admin(req, res, url);
+    return;
+  }
+  // An open page saying it's still open (lib/live.mjs): nothing is stored.
+  if (url.pathname === '/api/ping' && req.method === 'POST') {
+    if (!allowPing(clientIp(req))) { res.writeHead(429).end(); return; }
+    const b = await bodyJSON(req, 200);
+    res.writeHead(live.ping(b?.dev) ? 204 : 400).end();
     return;
   }
   if (url.pathname === '/api/log' && req.method === 'POST') {

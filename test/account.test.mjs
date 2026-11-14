@@ -76,6 +76,28 @@ test('settings that follow the user keep only what the page uses, within range',
   const many = Object.fromEntries(Array.from({ length: 80 }, (_, i) => ['osm:n' + i, true]));
   assert.equal(Object.keys(cleanPrefs({ favs: many }).favs).length, 50); // kept small: it rides in the access token
   assert.deepEqual(Object.keys(cleanPrefs({ car: { id: '../../etc' }, lang: 'fr' })), ['at']);
+  // "สนใจ ฿49" keeps when it was pressed; 1 from before that is still kept.
+  assert.equal(cleanPrefs({ premium: '2026-11-14T09:30:00+07:00' }).premium, '2026-11-14T02:30:00.000Z');
+  assert.equal(cleanPrefs({ premium: 'yes' }).premium, undefined);
+});
+
+test('the account list has emails only of those who asked to hear about ฿49', async () => {
+  const fetchFn = async (url) => {
+    assert.match(url, /\/auth\/v1\/admin\/users\?page=1&per_page=1000$/);
+    return { ok: true, json: async () => ({ users: [
+      { id: 'u1', email: 'a@x.co', created_at: '2026-11-01', last_sign_in_at: '2026-11-14', user_metadata: { evroute: { premium: '2026-11-14T02:30:00Z', nick: 'A' } } },
+      { id: 'u2', email: 'b@x.co', created_at: '2026-11-02', user_metadata: { evroute: { premium: 1 } } },
+      { id: 'u3', email: 'c@x.co', created_at: '2026-11-03', user_metadata: { evroute: { nick: 'C' } } },
+      { id: 'u4', email: 'd@x.co', created_at: '2026-11-04' },
+    ] }) };
+  };
+  const users = await supabaseAuth({ url: 'https://p.supabase.co', key: 'k', fetchFn }).listUsers();
+  assert.deepEqual(users, [
+    { id: 'u1', created_at: '2026-11-01', last_sign_in_at: '2026-11-14', email: 'a@x.co', premium: '2026-11-14T02:30:00.000Z' },
+    { id: 'u2', created_at: '2026-11-02', last_sign_in_at: undefined, email: 'b@x.co', premium: 1 },
+    { id: 'u3', created_at: '2026-11-03', last_sign_in_at: undefined },
+    { id: 'u4', created_at: '2026-11-04', last_sign_in_at: undefined },
+  ]);
 });
 
 test('settings are saved with the account by the user\'s own token, and the cached user sees them', async () => {

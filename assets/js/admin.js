@@ -114,8 +114,12 @@
 
   function render(d) {
     var langs = Object.keys(d.langs).map(function (k) { return { key: k, count: d.langs[k] }; }).sort(function (a, b) { return b.count - a.count; });
-    var h = d.health || {};
+    var h = d.health || {}, live = d.live || {}, fans = d.interested || [];
     var html =
+      // Open pages that pinged in the last 5 minutes (lib/live.mjs); counted from when the server started.
+      '<section class="adm-live"><span class="adm-live__dot' + (live.n ? ' is-on' : '') + '"></span><b>กำลังใช้อยู่ตอนนี้ ' + num(live.n) + ' คน</b>' +
+        '<span>สูงสุดวันนี้ ' + num(live.peak) + ' คน' + (live.peakAt ? ' (' + esc(new Date(live.peakAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' })) + ' น.)' : '') +
+        ' · นับคนที่เปิดแอปค้างไว้ใน 5 นาทีล่าสุด · ไม่นับคนที่ปิดการส่งสถิติ</span></section>' +
       '<section class="adm-stats">' +
         stat('คนใช้วันนี้', num(d.people.today)) +
         stat('คนใช้ 7 วัน', num(d.people.week)) +
@@ -139,6 +143,14 @@
             (f.kind === 'car' && f.status !== 'done' ? '<button type="button" class="btn btn--soft adm-addcar" data-msg="' + esc(f.message) + '">🚗 เพิ่มรุ่นนี้ในรายชื่อ</button>' : '') +
             '<span class="hint">' + [f.email ? '<a href="mailto:' + esc(f.email) + '">' + esc(f.email) + '</a>' : 'ไม่ได้ใส่อีเมล', f.page && 'หน้า ' + esc(f.page), f.lang && esc(LANGS[f.lang] || f.lang), f.car_id && esc(f.car_id), f.ua && esc(f.ua)].filter(Boolean).join(' · ') + '</span></li>';
         }).join('') + '</ul>' : '<p class="hint">ยังไม่มีข้อความ ผู้ใช้ส่งได้จากปุ่ม "ติดต่อเรา / แจ้งปัญหา" ท้ายหน้าแอปและในเมนูบัญชี</p>') + '</section>' +
+      // Members who pressed "สนใจ แจ้งฉันเมื่อเปิด" (฿49): email them when it opens.
+      '<section class="card adm-card" id="fans"><h2>คนสนใจสมาชิกรุ่นแรก ฿49 <small>' + num(fans.length) + ' คน · กด "สนใจ แจ้งฉันเมื่อเปิด" ในเมนูบัญชี</small></h2>' +
+        (fans.length ? table(['อีเมล', 'กดเมื่อ'], fans.map(function (f) {
+          return ['<a href="mailto:' + esc(f.email) + '">' + esc(f.email) + '</a>', f.at ? esc(when(f.at)) : 'ก่อน 14 พ.ย. 69'];
+        })) + '<p class="adm-fans"><button type="button" class="btn adm-copy" data-copy="' + esc(fans.map(function (f) { return f.email; }).join(', ')) + '" data-label="คัดลอกอีเมลทั้งหมด">คัดลอกอีเมลทั้งหมด</button>' +
+          '<span class="hint">วางในช่อง BCC ตอนส่งอีเมลแจ้งเปิด จะไม่เห็นอีเมลกันเอง</span></p>'
+          : '<p class="hint">ยังไม่มีคนกดสนใจ</p>') +
+        '<p class="hint">คนที่กดไว้ก่อน 14 พ.ย. 69 จะขึ้นที่นี่เมื่อเขาเปิดแอปขณะเข้าสู่ระบบอยู่</p></section>' +
       '<section class="card adm-card"><h2>ข้อผิดพลาดของโปรแกรม <small>14 วันล่าสุด รวมข้อความเดียวกันเป็นแถวเดียว</small></h2>' +
         (d.errors.length ? table(['ล่าสุด', 'ที่', 'ข้อความ', 'ครั้ง', 'คน', 'เครื่องล่าสุด'], d.errors.map(function (e) {
           return [esc(when(e.last)), '<span class="adm-tag' + (e.src === 'server' ? ' is-server' : '') + '">' + (e.src === 'server' ? 'เซิร์ฟเวอร์' : 'หน้าเว็บ') + '</span>',
@@ -230,7 +242,7 @@
   document.addEventListener('click', function (e) {
     var c = e.target.closest('.adm-copy');
     if (c) {
-      navigator.clipboard.writeText(c.dataset.copy).then(function () { c.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { c.textContent = 'คัดลอก'; }, 1500); });
+      navigator.clipboard.writeText(c.dataset.copy).then(function () { c.textContent = 'คัดลอกแล้ว ✓'; setTimeout(function () { c.textContent = c.dataset.label || 'คัดลอก'; }, 1500); });
       return;
     }
     var fl = e.target.closest('.adm-floods');
