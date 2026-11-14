@@ -31,7 +31,17 @@
   function getJSON(url) {
     return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
   }
-  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  // Settings that follow a signed-in user to every device (see "settings that follow the account").
+  var PREF_KEYS = ['car', 'mycar', 'nick', 'favs', 'floodAvoid', 'tpPrefs', 'want', 'premium'];
+  var RAW_PREFS = ['lang', 'theme']; // kept as plain strings by i18n.js and the theme button
+  var prefsTimer = null;
+  function store(k, v) {
+    try {
+      var s = JSON.stringify(v);
+      if (PREF_KEYS.indexOf(k) >= 0 && localStorage.getItem(k) !== s) prefsChanged();
+      localStorage.setItem(k, s);
+    } catch (e) {}
+  }
   function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   // ---------- what broke ----------
   // Errors in this page go to the admin page (the message and where, nothing the user typed), at most
@@ -2782,13 +2792,18 @@
   $('nav').addEventListener('click', onResultClick);
 
   $('lang').value = I18N.lang;
-  $('lang').addEventListener('change', function () { I18N.use && I18N.use($('lang').value); });
+  $('lang').addEventListener('change', function () {
+    try { localStorage.setItem('lang', $('lang').value); } catch (e) {}
+    prefsChanged(); // sent once the page has reloaded in the new language
+    if (I18N.use) I18N.use($('lang').value);
+  });
 
   $('theme').addEventListener('click', function () {
     var t = document.documentElement.dataset.theme;
     var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
     document.documentElement.dataset.theme = dark ? 'light' : 'dark';
     try { localStorage.setItem('theme', dark ? 'light' : 'dark'); } catch (e) {}
+    prefsChanged();
     if (R.result) { draw(); chart(); }
   });
 
@@ -3400,15 +3415,30 @@
   function installWidget() {
     if (standalone() || load('noinstall') || !(R.installEvt || isIOS())) return '';
     return '<div class="w w--wide w-install"><img src="assets/icons/icon-192.png" alt="" width="52" height="52"><div class="w-install__text"><b>เพิ่ม EVROUTE ไปที่หน้าจอโฮม</b>' +
-      '<span class="w__sub">' + (R.installEvt ? 'เปิดได้ในแตะเดียวเหมือนแอป เต็มจอ ไม่มีแถบเบราว์เซอร์' : 'ใน Safari แตะปุ่มแชร์ <b>⬆︎</b> แล้วเลือก <b>“เพิ่มไปยังหน้าจอโฮม”</b>') + '</span></div>' +
+      '<span class="w__sub">' + (R.installEvt ? 'เปิดได้ในแตะเดียวเหมือนแอป เต็มจอ ไม่มีแถบเบราว์เซอร์' : 'ใน Safari แตะปุ่มแชร์ <b>⬆︎</b> แล้วเลือก <b>“เพิ่มไปยังหน้าจอโฮม”</b>') + '</span>' +
+      // iPhone keeps the home-screen app's data apart from Safari's: it opens empty.
+      (isIOS() && accountsOn() ? '<span class="w__sub w-install__note">' + (signedIn()
+        ? 'แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari เปิดครั้งแรกให้เข้าสู่ระบบด้วยอีเมลนี้อีกครั้ง ทริป รถ และสถานีโปรดจะกลับมาครบ'
+        : 'แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari ทริปและรถที่ตั้งไว้ที่นี่จะไม่ตามไป ถ้าสมัครด้วยอีเมลก่อน เข้าสู่ระบบในแอปแล้วจะกลับมาครบ') + '</span>' : '') +
+      '</div>' +
       '<div class="w-install__acts">' + (R.installEvt ? '<button type="button" class="btn btn--primary" data-install>ติดตั้ง</button>' : '') +
       '<button type="button" class="link-btn" data-noinstall>ไม่ใช่ตอนนี้</button></div></div>';
+  }
+
+  // The iPhone home-screen app opens with nothing of what was set in Safari: say why, and how to
+  // get it back, until the user signs in or closes this.
+  function welcomeWidget() {
+    if (!standalone() || !isIOS() || !accountsOn() || signedIn() || load('welcomed')) return '';
+    return '<div class="w w--wide w-welcome"><b class="w-welcome__title">👋 ยินดีต้อนรับสู่แอป EVROUTE</b>' +
+      '<span class="w__sub">ถ้าเคยใช้ใน Safari หรือเครื่องอื่นด้วยอีเมล เข้าสู่ระบบด้วยอีเมลเดิมอีกครั้ง ทริป รถ สถานีโปรด และค่าที่ตั้งไว้จะกลับมาครบ (iPhone แยกข้อมูลของแอปบนหน้าจอโฮมจาก Safari)</span>' +
+      '<div class="w-welcome__acts"><button type="button" class="btn btn--primary" data-welcome-signin>เข้าสู่ระบบ</button>' +
+      '<button type="button" class="link-btn" data-welcome-close>ใช้ครั้งแรก ไม่ต้องเข้าสู่ระบบ</button></div></div>';
   }
 
   function renderHome() {
     if (R.view !== 'home' || !R.car) return;
     var list = upcomingFirst(savedPlans()), tr = homeTrip(), wx = tr && isFinite(tr.lat) && isFinite(tr.lng);
-    $('widgets').innerHTML = headWidget() + checkWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
+    $('widgets').innerHTML = headWidget() + welcomeWidget() + checkWidget() + battWidget() + tripWidget(tr) + (wx ? weatherWidget(tr) : priceWidget()) +
       myWidget() + nearWidget() + quickWidget() + installWidget() + (wx ? priceWidget() : '') + tipWidget() + savedWidget(list) +
       (list.length ? '' : '<div class="w--wide">' + nudge('device') + '</div>');
     if (wx) loadWeather(tr);
@@ -3439,6 +3469,8 @@
       return;
     }
     if (e.target.closest('[data-noinstall]')) { store('noinstall', 1); renderHome(); return; }
+    if (e.target.closest('[data-welcome-signin]')) { openAcct('welcome'); return; }
+    if (e.target.closest('[data-welcome-close]')) { store('welcomed', 1); renderHome(); return; }
     var useReal = e.target.closest('[data-use-real-home]');
     if (useReal) {
       R.car.use = +useReal.dataset.useRealHome;
@@ -3565,10 +3597,66 @@
       }
       store('plans', server.slice(0, 50));
       renderSaved();
-      if (merge && moved) pushTrips();
       if (!$('acct').hidden) renderAcct();
-      return moved;
+      return (merge && moved ? pushTrips() : Promise.resolve()).then(function () { syncPrefs(d.prefs, merge, moved); return moved; });
     }).catch(function (err) { console.warn('account', err); });
+  }
+
+  // ---------- settings that follow the account ----------
+  // Signed in, the car, nickname, favourite stations, a few preferences, language and theme are
+  // kept with the account (lib/account.mjs cleanPrefs), so another device, or the iPhone home-screen
+  // app (which doesn't share Safari's storage), gets them back by signing in. prefsAt: when they
+  // last changed on this device; prefsPush: changed here and not yet saved to the account.
+  function rawGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function rawSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+
+  function prefsChanged() {
+    rawSet('prefsAt', JSON.stringify(new Date().toISOString()));
+    rawSet('prefsPush', '1');
+    clearTimeout(prefsTimer);
+    prefsTimer = setTimeout(pushPrefs, 1500); // runs once the page has started, when A exists
+  }
+
+  function collectPrefs() {
+    var p = { at: load('prefsAt') || new Date().toISOString() };
+    PREF_KEYS.forEach(function (k) { var v = load(k); if (v != null) p[k] = v; });
+    RAW_PREFS.forEach(function (k) { var v = rawGet(k); if (v) p[k] = v; });
+    return p;
+  }
+
+  function pushPrefs() {
+    if (!signedIn() || !rawGet('prefsPush')) return Promise.resolve();
+    return authFetch('/api/me/prefs', { method: 'PUT', body: JSON.stringify({ prefs: collectPrefs() }) }).then(function (r) {
+      if (r.ok) rawSet('prefsPush', null);
+    }).catch(function (err) { console.warn('saving settings', err); });
+  }
+
+  // Signing in (merge), the account's settings win: a new device has only its defaults. Later,
+  // whichever side changed last. Settings taken from the account reload the page, so the car,
+  // language and everything else start from them; a note says what happened.
+  function syncPrefs(server, merge, moved) {
+    var localAt = load('prefsAt');
+    if (!server) { if (localAt) { rawSet('prefsPush', '1'); pushPrefs(); } return; } // the account has none yet: this device's
+    if (!merge && localAt && localAt >= server.at) { if (localAt > server.at || rawGet('prefsPush')) pushPrefs(); return; }
+    var changed = false;
+    PREF_KEYS.forEach(function (k) {
+      var v = k in server ? JSON.stringify(server[k]) : null;
+      if (rawGet(k) !== v) { changed = true; rawSet(k, v); }
+    });
+    RAW_PREFS.forEach(function (k) { if (server[k] && rawGet(k) !== server[k]) { changed = true; rawSet(k, server[k]); } });
+    rawSet('prefsAt', JSON.stringify(server.at));
+    rawSet('prefsPush', null);
+    if (!changed) return;
+    store('prefsNote', merge ? (moved || 0) : -1);
+    location.reload();
+  }
+
+  // After the reload above.
+  function prefsNote() {
+    var n = load('prefsNote');
+    if (n == null) return;
+    rawSet('prefsNote', null);
+    toast((n >= 0 ? '✓ เข้าสู่ระบบแล้ว · ' : '') + 'ใช้รถ ชื่อเล่น สถานีโปรด และค่าที่ตั้งไว้จากบัญชีของคุณแล้ว' + (n > 0 ? ' · ย้ายแผน ' + n + ' แผนเข้าบัญชีแล้ว' : ''), 6000);
   }
 
   function showAcctBtn() {
@@ -3712,6 +3800,7 @@
     postJSON('/api/auth/verify', { email: A.email, code: code }).then(function (s) {
       A.busy = false;
       saveSession(s);
+      dropHandoff();
       logEvent('signin', null, A.from);
       return loadMe(true);
     }).then(function (moved) {
@@ -3928,6 +4017,16 @@
 
   // Supabase's default email (before custom SMTP lets us edit it to show the code) has a link
   // instead; it comes back here with the session in the URL fragment.
+  // Signed in some other way (the code, another tab): take back this device's request for the
+  // email's link, or the user's other devices ask to approve a sign-in that already happened.
+  function dropHandoff() {
+    var h = A.handoff;
+    A.handoff = null;
+    store('handoff', null);
+    clearTimeout(handoffTimer);
+    if (h && signedIn()) authFetch('/api/auth/approve', { method: 'POST', body: JSON.stringify({ id: h.id, approve: false }) }).catch(function () {});
+  }
+
   function myHandoff() {
     var h = load('handoff');
     return h && h.id && h.until > Date.now() ? h.id : null;
@@ -4027,8 +4126,7 @@
     A.s = load('auth');
     showAcctBtn();
     if (signedIn() && !was) {
-      A.handoff = null;
-      store('handoff', null);
+      dropHandoff();
       if (!$('acct').hidden) closeAcct();
       loadMe(true).then(function (moved) { toast('✓ เข้าสู่ระบบแล้ว' + (moved ? ' · ย้ายแผน ' + moved + ' แผนจากเครื่องนี้ให้แล้ว' : '')); });
     }
@@ -4036,6 +4134,7 @@
   }
 
   function initAccount() {
+    prefsNote();
     showAcctBtn();
     if (!accountsOn()) return;
     if (!fromEmailLink() && signedIn()) { loadMe(false); checkWaiting(); }

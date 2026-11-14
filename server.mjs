@@ -19,7 +19,7 @@ import { shareMeta } from './lib/share.mjs';
 import { cleanCar, carsScript } from './lib/cars.mjs';
 import { cleanPlace, mergePlaces, parseLatLng, followShort } from './lib/places.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
-import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
+import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -705,7 +705,8 @@ async function handoffApproval(req, res, url) {
   else { pending.deny(b?.id, user.email); json(res, 200, {}); }
 }
 
-// GET: the user's trips and charging history. PUT trips: replace the saved list. DELETE: the account.
+// GET: the user's trips, charging history and settings. PUT trips: replace the saved list. PUT prefs:
+// the settings that follow the user. DELETE: the account.
 async function me(req, res, url) {
   if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
   let user;
@@ -718,7 +719,11 @@ async function me(req, res, url) {
         stats.select('trips', 'select=data&user_id=eq.' + uid + '&order=updated_at.desc&limit=50'),
         stats.select('charges', 'select=created_at,station_id,station_name,op,ok,problem,plug,soc_from,soc_to,kwh,baht,minutes,max_kw,odometer,car_id,battery_kwh&user_id=eq.' + uid + '&order=created_at.desc&limit=200'),
       ]);
-      json(res, 200, { user, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
+      json(res, 200, { user: { id: user.id, email: user.email }, prefs: user.prefs || null, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
+    } else if (req.method === 'PUT' && url.pathname === '/api/me/prefs') {
+      const prefs = cleanPrefs((await bodyJSON(req))?.prefs);
+      if (!prefs) { res.writeHead(400).end(); return; }
+      json(res, 200, { prefs: await accounts.savePrefs(String(req.headers.authorization || '').slice(7), prefs) }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'PUT' && url.pathname === '/api/me/trips') {
       const trips = cleanTrips((await bodyJSON(req, MAX_TRIPS_BODY))?.trips); // trips ahead carry their route
       if (!trips) { res.writeHead(400).end(); return; }
@@ -835,7 +840,7 @@ createServer(async (req, res) => {
     await addStation(req, res);
     return;
   }
-  if (url.pathname.startsWith('/api/auth/') || url.pathname === '/api/me' || url.pathname === '/api/me/trips') {
+  if (url.pathname.startsWith('/api/auth/') || url.pathname === '/api/me' || url.pathname === '/api/me/trips' || url.pathname === '/api/me/prefs') {
     if (!accounts) { json(res, 404, { error: 'accounts disabled' }); return; }
     if (req.method === 'POST' && url.pathname === '/api/auth/code') await sendCode(req, res);
     else if (req.method === 'POST' && url.pathname === '/api/auth/verify') await verifyCode(req, res);

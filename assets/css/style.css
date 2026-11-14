@@ -1066,3 +1066,9 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .tier ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
 .tier .btn { margin-top: 8px; padding: 6px 14px; font-size: 13px; }
 .tier__note { margin: 6px 0 0; font-weight: 600; }
+
+/* iPhone home-screen app: welcome, and the note on the install card */
+.w-welcome { gap: 6px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.w-welcome__title { font-size: 16px; }
+.w-welcome__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 6px; }
+.w-install__note { display: block; margin-top: 4px; color: var(--warn); }

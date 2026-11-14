@@ -2,6 +2,16 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "ค่าที่ตั้งไว้": "Your settings",
+    "รุ่นรถและค่าที่ปรับเอง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา และธีม เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase · รูปรถของคุณยังอยู่ในเครื่องเท่านั้น)": "your car model and your own adjustments, nickname, favourite stations, choices for places on the way and avoiding floods, language and theme, so they follow you to every device you sign in on (kept with your account in Supabase · your own car photo stays on the device only)",
+    "แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari เปิดครั้งแรกให้เข้าสู่ระบบด้วยอีเมลนี้อีกครั้ง ทริป รถ และสถานีโปรดจะกลับมาครบ": "On iPhone the home-screen app keeps its data apart from Safari: the first time you open it, sign in again with this email and your trips, car and favourite stations come back",
+    "แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari ทริปและรถที่ตั้งไว้ที่นี่จะไม่ตามไป ถ้าสมัครด้วยอีเมลก่อน เข้าสู่ระบบในแอปแล้วจะกลับมาครบ": "On iPhone the home-screen app keeps its data apart from Safari, so trips and the car set here won't follow. Sign up with your email first, then sign in inside the app to get them back",
+    "👋 ยินดีต้อนรับสู่แอป EVROUTE": "👋 Welcome to the EVROUTE app",
+    "ถ้าเคยใช้ใน Safari หรือเครื่องอื่นด้วยอีเมล เข้าสู่ระบบด้วยอีเมลเดิมอีกครั้ง ทริป รถ สถานีโปรด และค่าที่ตั้งไว้จะกลับมาครบ (iPhone แยกข้อมูลของแอปบนหน้าจอโฮมจาก Safari)": "If you used EVROUTE in Safari or on another device with your email, sign in with it again and your trips, car, favourite stations and settings come back (iPhone keeps home-screen apps' data apart from Safari)",
+    "ใช้ครั้งแรก ไม่ต้องเข้าสู่ระบบ": "First time here, skip",
+    "✓ เข้าสู่ระบบแล้ว · ใช้รถ ชื่อเล่น สถานีโปรด และค่าที่ตั้งไว้จากบัญชีของคุณแล้ว": "✓ Signed in · your car, nickname, favourite stations and settings are back from your account",
+    "ใช้รถ ชื่อเล่น สถานีโปรด และค่าที่ตั้งไว้จากบัญชีของคุณแล้ว": "Your car, nickname, favourite stations and settings are back from your account",
+    "ย้ายแผน # แผนเข้าบัญชีแล้ว": "# plan(s) moved into your account",
     "เลขจับคู่ · ไม่ต้องพิมพ์": "Pairing number · don't type it",
     "เลขนี้คือเลขจับคู่ ไม่ใช่รหัส · เปิดอีเมลแล้วกดลิงก์ หรือใส่รหัส # หลักจากอีเมล": "That's the pairing number, not the code · open the email and tap the link, or enter the #-digit code from the email",
     "กาแฟ นาขั้นบันได": "Coffee and rice terraces",

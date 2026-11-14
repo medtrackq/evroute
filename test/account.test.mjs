@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanEmail, cleanCode, cleanTrips, supabaseAuth, realUse } from '../lib/account.mjs';
+import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, supabaseAuth, realUse } from '../lib/account.mjs';
 
 test('email and code input is checked', () => {
   assert.equal(cleanEmail('  Somchai@Example.COM '), 'somchai@example.com');
@@ -48,7 +48,7 @@ test('auth calls Supabase with the right shape and caches users', async () => {
   assert.deepEqual(JSON.parse(calls[1].o.body), { type: 'email', email: 'x@y.co', token: '123456' });
   assert.deepEqual(s.user, { id: 'u1', email: 'x@y.co' });
   assert.equal(s.expires_at, 1e9 + 3600);
-  assert.deepEqual(await a.user(s.access_token), { id: 'u1', email: 'x@y.co' });
+  assert.deepEqual(await a.user(s.access_token), { id: 'u1', email: 'x@y.co', prefs: null });
   await a.user(s.access_token);
   assert.equal(calls.filter((c) => c.url.endsWith('/user')).length, 1); // cached
   assert.equal(await a.user('b'.repeat(30)), null);
@@ -56,6 +56,47 @@ test('auth calls Supabase with the right shape and caches users', async () => {
   await a.deleteUser('u1');
   assert.equal(calls.at(-1).url, 'https://p.supabase.co/auth/v1/admin/users/u1');
   assert.equal(calls.at(-1).o.method, 'DELETE');
+});
+
+test('settings that follow the user keep only what the page uses, within range', () => {
+  const p = cleanPrefs({
+    at: '2026-11-14T10:00:00Z', car: { id: 'byd-atto3-std', kwh: 49.9, use: 16.5, dc: 70, margin: 10, extra: 'x' },
+    mycar: { id: 'custom', brand: 'Chery', model: 'V23 4WD Peak', plug: 'CCS2', kwh: 76.9, use: 999 },
+    nick: '  Tu  ', favs: { 'cur:14.8,101.6': true, 'osm:n1': true, '<x>': true, 'no': false },
+    floodAvoid: false, tpPrefs: { cats: { temple: true, casino: true }, time: 240 }, want: { food: true, beer: true },
+    premium: 1, lang: 'en', theme: 'dark', token: 'secret', photo: 'data:image/png;base64,AAAA',
+  });
+  assert.deepEqual(p, {
+    at: '2026-11-14T10:00:00.000Z', car: { id: 'byd-atto3-std', kwh: 49.9, use: 16.5, dc: 70, margin: 10 },
+    mycar: { id: 'custom', kwh: 76.9, brand: 'Chery', model: 'V23 4WD Peak', plug: 'CCS2' }, // use 999 is out of range
+    nick: 'Tu', favs: { 'cur:14.8,101.6': true, 'osm:n1': true },
+    floodAvoid: false, tpPrefs: { cats: { temple: true }, time: 240 }, want: { food: true }, premium: 1, lang: 'en', theme: 'dark',
+  });
+  assert.equal(cleanPrefs('x'), null);
+  const many = Object.fromEntries(Array.from({ length: 80 }, (_, i) => ['osm:n' + i, true]));
+  assert.equal(Object.keys(cleanPrefs({ favs: many }).favs).length, 50); // kept small: it rides in the access token
+  assert.deepEqual(Object.keys(cleanPrefs({ car: { id: '../../etc' }, lang: 'fr' })), ['at']);
+});
+
+test('settings are saved with the account by the user\'s own token, and the cached user sees them', async () => {
+  const calls = [];
+  const fetchFn = async (url, o) => {
+    calls.push({ url, o });
+    if (url.endsWith('/user') && o.method === 'GET') return { ok: true, json: async () => ({ id: 'u1', email: 'x@y.co', user_metadata: { evroute: { at: '2026-11-01T00:00:00Z', nick: 'Old' } } }) };
+    return { ok: true, json: async () => ({}) };
+  };
+  const a = supabaseAuth({ url: 'https://p.supabase.co', key: 'sb_secret_S', fetchFn });
+  const tok = 't'.repeat(30);
+  assert.equal((await a.user(tok)).prefs.nick, 'Old');
+  const prefs = cleanPrefs({ at: '2026-11-14T00:00:00Z', nick: 'New' });
+  await a.savePrefs(tok, prefs);
+  const put = calls.at(-1);
+  assert.equal(put.url, 'https://p.supabase.co/auth/v1/user');
+  assert.equal(put.o.method, 'PUT');
+  assert.equal(put.o.headers.Authorization, 'Bearer ' + tok);
+  assert.deepEqual(JSON.parse(put.o.body), { data: { evroute: prefs } });
+  assert.equal((await a.user(tok)).prefs.nick, 'New'); // from the cache, no second lookup
+  assert.equal(calls.filter((c) => c.o.method === 'GET').length, 1);
 });
 
 test('a wrong code comes back as a 4xx error', async () => {
