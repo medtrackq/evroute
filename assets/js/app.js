@@ -3636,7 +3636,8 @@
   // language and everything else start from them; a note says what happened.
   function syncPrefs(server, merge, moved) {
     var localAt = load('prefsAt');
-    if (!server) { if (localAt) { rawSet('prefsPush', '1'); pushPrefs(); } return; } // the account has none yet: this device's
+    // The account has none yet: this device's, also those set before settings followed the account.
+    if (!server) { if (localAt || PREF_KEYS.some(function (k) { return rawGet(k) != null; })) { rawSet('prefsPush', '1'); pushPrefs(); } return; }
     if (!merge && localAt && localAt >= server.at) { if (localAt > server.at || rawGet('prefsPush')) pushPrefs(); return; }
     var changed = false;
     PREF_KEYS.forEach(function (k) {
