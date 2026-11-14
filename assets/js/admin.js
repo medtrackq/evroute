@@ -190,7 +190,7 @@
   // The switch for routing around floods (server.mjs: /api/admin/floods).
   function floodText(f) {
     if (!f) return '–';
-    if (f.forcedOff) return '⛔ ปิดอยู่ ด้วย FLOODS=off ใน Render → Environment (ลบค่านั้นแล้วรอ deploy เพื่อเปิดจากหน้านี้)';
+    if (f.forcedOff) return '⛔ ปิดอยู่ ด้วย FLOODS=off ใน Railway → Variables (ลบค่านั้นแล้วรอ deploy เพื่อเปิดจากหน้านี้)';
     return (f.on ? '✅ เปิดอยู่ (ผู้ใช้เปิด/ปิดเองได้ที่ฟอร์มวางแผน)' + (f.count != null ? ' · ตอนนี้มีจุดน้ำท่วม ' + num(f.count) + ' จุด (ผ่านไม่ได้ ' + num(f.block) + ')' : ' · อ่านข้อมูลน้ำท่วมไม่ได้ตอนนี้')
       : '⏸ ปิดทั้งระบบ · แอปไม่ดึงข้อมูลจาก Longdo ไม่เลี่ยง/ไม่เตือนน้ำท่วม และซ่อนสวิตช์ของผู้ใช้') +
       ' <button type="button" class="btn adm-floods" data-on="' + (f.on ? '0' : '1') + '">' + (f.on ? 'ปิด' : 'เปิด') + '</button>';
@@ -216,7 +216,7 @@
 
   function fail(err) {
     var msg = err.status === 401 ? 'เข้าสู่ระบบด้วยอีเมลผู้ดูแลที่หน้าแอปก่อน (เมนู "เข้าสู่ระบบ") แล้วกลับมาที่หน้านี้'
-      : err.status === 403 ? 'อีเมลนี้ยังไม่ได้เป็นผู้ดูแล: ใส่อีเมลใน Render → Environment ชื่อ ADMIN_EMAILS แล้วรอ deploy'
+      : err.status === 403 ? 'อีเมลนี้ยังไม่ได้เป็นผู้ดูแล: ใส่อีเมลใน Railway → Variables ชื่อ ADMIN_EMAILS แล้วรอ deploy'
       : 'โหลดข้อมูลไม่ได้: ' + err.message;
     $('adm-body').innerHTML = '<section class="card adm-card"><p>' + esc(msg) + '</p>' + (err.status === 401 ? '<a class="btn btn--primary" href="./">ไปหน้าแอป</a>' : '') + '</section>';
     $('adm-when').textContent = '';

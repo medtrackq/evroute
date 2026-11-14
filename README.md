@@ -95,18 +95,18 @@
 ตั้งค่า:
 1. [Google Cloud Console](https://console.cloud.google.com) → สร้างโปรเจกต์ → ผูก Billing
 2. เปิด **Places API (New)** และ **Maps JavaScript API**
-3. สร้าง key 2 ตัว: (ก) สำหรับ server จำกัด API = Places API (New) (ข) สำหรับแผนที่ จำกัด Website = โดเมนเว็บบน Render, API = Maps JavaScript API
+3. สร้าง key 2 ตัว: (ก) สำหรับ server จำกัด API = Places API (New) (ข) สำหรับแผนที่ จำกัด Website = โดเมนของเว็บ (เช่น `https://evroute.up.railway.app/*`), API = Maps JavaScript API
 4. **ตั้งเพดานจริง**: APIs & Services → Places API (New) → Quotas → จำกัด requests per day (เช่น 30) งบประมาณ (Budget) แค่แจ้งเตือน ไม่ได้หยุดการเรียก
 5. (แนะนำ) สร้าง Map ID ที่ Google Maps Platform → Map management แล้วใส่ใน `GOOGLE_MAP_ID` (ไม่ใส่จะใช้ `DEMO_MAP_ID` ซึ่งใช้ทดสอบได้)
-6. Render → Environment: `GOOGLE_PLACES_KEY` = key (ก), `GOOGLE_MAPS_KEY` = key (ข), (ไม่บังคับ) `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`
+6. Railway → Variables: `GOOGLE_PLACES_KEY` = key (ก), `GOOGLE_MAPS_KEY` = key (ข), (ไม่บังคับ) `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`
 
 ถ้าไม่ตั้ง หรือโหลดแผนที่ Google ไม่ได้ เว็บใช้แผนที่ OpenStreetMap และข้อมูลฟรีตามเดิม
 
 ### สถานีที่ผู้ใช้เพิ่ม
 
-Render แบบฟรีจะล้างไฟล์ทุกครั้งที่ deploy หรือ restart จึงเก็บรายการไว้ใน **GitHub**: ไฟล์ `user-stations.json` ใน branch `user-data` ของ repo นี้ (server สร้าง branch ให้เองครั้งแรก) ฟรี ไม่หาย มีประวัติทุกครั้งที่มีคนเพิ่ม และการเขียนลง branch นี้ไม่ทำให้เว็บ deploy ใหม่
+เครื่องบน Railway ล้างไฟล์ทุกครั้งที่ deploy หรือ restart จึงเก็บรายการไว้ใน **GitHub**: ไฟล์ `user-stations.json` ใน branch `user-data` ของ repo นี้ (server สร้าง branch ให้เองครั้งแรก) ฟรี ไม่หาย มีประวัติทุกครั้งที่มีคนเพิ่ม และการเขียนลง branch นี้ไม่ทำให้เว็บ deploy ใหม่
 
-ตั้งค่าใน Render → Environment:
+ตั้งค่าใน Railway → Variables:
 
 | ตัวแปร | ค่า |
 | --- | --- |
@@ -114,7 +114,7 @@ Render แบบฟรีจะล้างไฟล์ทุกครั้ง�
 | `GITHUB_REPO` | `medtrackq/evroute` |
 | `GITHUB_DATA_BRANCH` | (ไม่บังคับ) ค่าเริ่มต้น `user-data` |
 
-ถ้าไม่ตั้ง จะเก็บใน `data/user-stations.json` บนเครื่อง (ใช้ตอนรันในเครื่อง; บน Render จะหายเมื่อ restart)
+ถ้าไม่ตั้ง จะเก็บใน `data/user-stations.json` บนเครื่อง (ใช้ตอนรันในเครื่อง; บน Railway จะหายเมื่อ deploy หรือ restart)
 
 - **ตรวจ/ลบ**: เปิด `user-stations.json` ใน branch `user-data` บน GitHub ดูประวัติ commit ได้ว่าใครเพิ่มอะไรเมื่อไร ถ้าข้อมูลผิดหรือสแปม แก้ไฟล์ใส่ `"hidden": true` ที่สถานีนั้น (หรือลบออก) server อ่านไฟล์ใหม่ทุก 10 นาที
 - **ย้ายเข้ารายการหลัก**: สถานีที่ตรวจแล้วคัดลอกไปใส่ `data/stations.json` ได้เลย (รูปแบบเดียวกัน)
@@ -136,7 +136,7 @@ Render แบบฟรีจะล้างไฟล์ทุกครั้ง�
 1. สมัคร Supabase → **New project** (Region: Singapore) ตั้งรหัสผ่านฐานข้อมูลแล้วเก็บไว้
 2. **SQL Editor** → New query → วางเนื้อหา `db/schema.sql` → **Run** (สร้าง 3 ตาราง และ view สรุป `car_usage`, `app_opens`, `station_reports`, `car_consumption` = อัตรากินไฟจริงต่อรุ่นจากเลขไมล์และ % แบตในบันทึกการชาร์จ, `car_returns` = รถกลับมาใช้ซ้ำแค่ไหน) ไฟล์นี้รันซ้ำได้ เมื่ออัปเดตโค้ดให้รันใหม่เพื่อเพิ่มคอลัมน์/view ที่ขาด
 3. **Project Settings → API**: คัดลอก **Project URL** และ **secret key** (`service_role`; ไม่ใช่ `anon`/publishable)
-4. Render → Environment: `SUPABASE_URL` = Project URL, `SUPABASE_KEY` = secret key
+4. Railway → Variables: `SUPABASE_URL` = Project URL, `SUPABASE_KEY` = secret key
 
 secret key อยู่บน server เท่านั้น ตารางเปิด row level security โดยไม่มี policy จึงอ่าน/เขียนด้วย key สาธารณะไม่ได้ ดูข้อมูลได้ใน **Table Editor** หรือเขียน SQL เอง ถ้าไม่ตั้งสองตัวแปรนี้ หน้าเว็บจะไม่ส่งอะไรเลย และไม่แสดงปุ่มบันทึกการชาร์จ
 
@@ -146,10 +146,10 @@ secret key อยู่บน server เท่านั้น ตารางเ
 
 ตั้งค่าใน Supabase:
 1. **SQL Editor**: รัน `db/schema.sql` อีกครั้ง
-2. **Authentication → URL Configuration → Site URL** = `https://evroute.onrender.com` (ค่าเริ่มต้นคือ localhost) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
+2. **Authentication → URL Configuration → Site URL** = ที่อยู่เว็บ เช่น `https://evroute.up.railway.app` (ค่าเริ่มต้นคือ localhost; เปลี่ยนที่อยู่เว็บเมื่อไรต้องแก้ที่นี่ด้วย) เพราะลิงก์ในอีเมลพากลับมาที่นี่ หน้าเว็บรับทั้งการกดลิงก์ในอีเมล (อีเมลแบบเริ่มต้นของ Supabase) และการพิมพ์รหัส
    - **Authentication → Emails → Templates**: Supabase ให้แก้แม่แบบได้หลังตั้ง SMTP เองแล้ว (ข้อ 3) จากนั้นแก้ทั้ง **Magic Link** และ **Confirm signup** ให้มีรหัส `{{ .Token }}` (ตัวอย่างด้านล่าง) ผู้ใช้จะพิมพ์รหัสได้ ซึ่งดีกว่าลิงก์บนมือถือ (ลิงก์มักเปิดในเบราว์เซอร์อื่น)
 3. **Authentication → Emails → SMTP Settings**: ใส่ SMTP ของผู้ให้บริการส่งอีเมล เช่น Resend (ฟรี 3,000 ฉบับ/เดือน) ระบบส่งอีเมลในตัวของ Supabase ส่งได้เฉพาะอีเมลของสมาชิกทีมโปรเจกต์ และจำนวนน้อยมาก ใช้ทดสอบเท่านั้น
-4. (ไม่บังคับ) Render → `CONTACT_EMAIL` = อีเมลติดต่อเรื่องข้อมูลส่วนบุคคล แสดงในหน้านโยบาย
+4. (ไม่บังคับ) Railway → Variables: `CONTACT_EMAIL` = อีเมลติดต่อเรื่องข้อมูลส่วนบุคคล แสดงในหน้านโยบาย
 
 ตัวอย่างอีเมล (Subject: `รหัสเข้าสู่ระบบ EVROUTE: {{ .Token }}`):
 
@@ -168,12 +168,12 @@ secret key อยู่บน server เท่านั้น ตารางเ
 - **ข้อผิดพลาดของโปรแกรม**: จากหน้าเว็บ (`window.onerror`, วางแผนไม่สำเร็จ) และจากเซิร์ฟเวอร์ (Overpass, Google, Supabase, เส้นทาง ฯลฯ) รวมข้อความเดียวกันเป็นแถวเดียว พร้อมจำนวนครั้ง จำนวนคน และเบราว์เซอร์
 - **ข้อความจากผู้ใช้**: จากปุ่ม "ติดต่อเรา / แจ้งปัญหา" (ท้ายหน้าแอป และในเมนูบัญชี) กด "เสร็จแล้ว" เมื่อจัดการแล้ว อีเมลกดตอบได้เลย
 - **คนมาจากช่องทางไหน**: จากลิงก์ `?ref=tiktok` (หรือ `utm_source`) และตรวจเองจากแอป/เว็บที่ส่งมา (Facebook, Instagram, TikTok, LINE, Google, YouTube, Pantip) เป็นเหตุการณ์ `arrive` พร้อม `ref` มีลิงก์สำเร็จรูปให้คัดลอกในหน้าหลังบ้าน พารามิเตอร์เหล่านี้ถูกลบออกจากที่อยู่ทันที ลิงก์ที่แชร์ต่อจึงไม่พาไปด้วย
-- **สวิตช์หลัก เลี่ยงถนนน้ำท่วม** (สถานะระบบ → "เลี่ยงถนนน้ำท่วม (Longdo Traffic) · สวิตช์หลัก"): สำหรับกรณีฉุกเฉิน เช่น Longdo ขอให้หยุด หรือข้อมูลผิดพลาด (ผู้ใช้เปิด/ปิดของตัวเองได้ที่ฟอร์มวางแผนอยู่แล้ว) มีผลทันทีไม่ต้อง deploy (เก็บในตาราง `settings` จำค่าไว้แม้ server รีสตาร์ท) ปิดแล้ว server ไม่ดึงข้อมูลจาก Longdo เลย แอปไม่เลี่ยง/ไม่เตือนน้ำท่วม และซ่อนสวิตช์ของผู้ใช้กับเครดิต Longdo · สวิตช์สำรอง: Render → Environment `FLOODS=off` บังคับปิดไม่ว่าหลังบ้านตั้งไว้อย่างไร (ใช้เมื่อ Supabase ใช้ไม่ได้)
+- **สวิตช์หลัก เลี่ยงถนนน้ำท่วม** (สถานะระบบ → "เลี่ยงถนนน้ำท่วม (Longdo Traffic) · สวิตช์หลัก"): สำหรับกรณีฉุกเฉิน เช่น Longdo ขอให้หยุด หรือข้อมูลผิดพลาด (ผู้ใช้เปิด/ปิดของตัวเองได้ที่ฟอร์มวางแผนอยู่แล้ว) มีผลทันทีไม่ต้อง deploy (เก็บในตาราง `settings` จำค่าไว้แม้ server รีสตาร์ท) ปิดแล้ว server ไม่ดึงข้อมูลจาก Longdo เลย แอปไม่เลี่ยง/ไม่เตือนน้ำท่วม และซ่อนสวิตช์ของผู้ใช้กับเครดิต Longdo · สวิตช์สำรอง: Railway → Variables `FLOODS=off` บังคับปิดไม่ว่าหลังบ้านตั้งไว้อย่างไร (ใช้เมื่อ Supabase ใช้ไม่ได้)
 - สถานีที่ผู้ใช้แจ้งว่าชาร์จไม่ได้, ภาษาที่ใช้, รุ่นรถยอดนิยม, การเปิดแอปผู้ให้บริการ, ปุ่มที่กด, สถานะระบบ (โควต้า Google, แหล่งข้อมูลสถานี)
 
 ตั้งค่า:
 1. Supabase → SQL Editor: รัน `db/schema.sql` อีกครั้ง (เพิ่มตาราง `errors`, `feedback`, `settings` และคอลัมน์ `dev`, `lang`) รันซ้ำได้ ไม่ลบข้อมูลเดิม
-2. Render → Environment: `ADMIN_EMAILS` = อีเมลผู้ดูแล (หลายคนคั่นด้วย `,`) และ (แนะนำ) `CONTACT_EMAIL` = อีเมลที่แสดงให้ผู้ใช้ติดต่อ
+2. Railway → Variables: `ADMIN_EMAILS` = อีเมลผู้ดูแล (หลายคนคั่นด้วย `,`) และ (แนะนำ) `CONTACT_EMAIL` = อีเมลที่แสดงให้ผู้ใช้ติดต่อ
 3. เปิดแอป → เข้าสู่ระบบด้วยอีเมลผู้ดูแล → ไปที่ `https://<โดเมน>/admin.html`
 
 ### ภาพตัวอย่างเวลาแชร์ลิงก์
@@ -228,14 +228,23 @@ npm test             # ทดสอบตัววางแผน (node:test)
 OCM_KEY=xxxx npm start   # เปิดใช้ข้อมูล Open Charge Map (สมัคร key ฟรีที่ openchargemap.org)
 ```
 
-## Deploy บน Render
+## Deploy บน Railway
 
-1. New + → **Web Service** → เลือก repo `medtrackq/evroute`
-2. Runtime: **Node** · Build Command: `npm install` · Start Command: `npm start` · Instance: **Free** · Region: Singapore
-3. Environment → เพิ่ม `GITHUB_TOKEN` และ `GITHUB_REPO` (เพื่อเก็บสถานีที่ผู้ใช้เพิ่ม ดูหัวข้อด้านบน) และ (ไม่บังคับ) `OCM_KEY`, `GOOGLE_PLACES_KEY` + `GOOGLE_MAPS_KEY`, `SUPABASE_URL` + `SUPABASE_KEY`
-4. กด Create แล้วรอจนขึ้น "Deploy live"
+ระบบทั้งหมดอยู่ที่ Railway ที่เดียว (ย้ายจาก Render เมื่อ พ.ย. 2569) ไม่ต้องมีไฟล์ตั้งค่าใน repo: Railway เห็น `package.json` แล้วรัน `npm start` (Node ตาม `engines`) และตั้ง `PORT` ให้เอง
 
-Render แบบฟรีจะหลับเมื่อไม่มีคนใช้ ครั้งแรกที่เปิดอาจรอ ~30 วินาที
+1. [railway.com](https://railway.com) → เข้าด้วย GitHub → แผน **Hobby** ($5/เดือน คืนเป็นเครดิตค่าใช้งาน $5 ใช้ร่วมกันทุก service)
+2. **ตั้งเพดานค่าใช้จ่ายก่อน:** หน้า Workspace Usage → **Set Usage Limits** ใส่ hard limit (ขั้นต่ำ $10) ถึงเพดานแล้ว Railway ปิด service แทนการเก็บเงินเพิ่ม และเตือนทางอีเมลที่ 75% / 90% / 100%
+3. **New Project → Deploy from GitHub repo** → `medtrackq/evroute`
+4. Service → **Settings**
+   - Source → Branch: `claude/ev-charging-route-planner-22ihr3` (branch ที่ใช้ขึ้นเว็บจริง)
+   - Deploy → Region: **Southeast Asia (Singapore)** (ใกล้ผู้ใช้ในไทย และอยู่ภูมิภาคเดียวกับ Supabase)
+   - Deploy → Healthcheck Path: `/api/config`
+   - Networking → **Generate Domain** แล้วแก้ชื่อเป็น `evroute` (ได้ `evroute.up.railway.app` ถ้ายังว่าง) หรือ Custom Domain ถ้ามีโดเมนของตัวเอง
+5. Service → **Variables** → Raw Editor วางทีละบรรทัด `ชื่อ=ค่า`: `SUPABASE_URL`, `SUPABASE_KEY`, `ADMIN_EMAILS`, `CONTACT_EMAIL`, `GITHUB_TOKEN`, `GITHUB_REPO`, และ (ไม่บังคับ) `GOOGLE_PLACES_KEY`, `GOOGLE_MAPS_KEY`, `GOOGLE_MAP_ID`, `GOOGLE_DAILY_LIMIT`, `OCM_KEY`, `FLOODS`
+6. รอ Deploy ขึ้น **Active** แล้วเปิดโดเมน
+7. **ที่อยู่เว็บใหม่ ต้องแก้ 2 ที่:** Supabase → Authentication → URL Configuration → Site URL และ Google Cloud → key แผนที่ → Website restrictions
+
+Railway ไม่หลับ ไม่มีรอตื่นเหมือนแผนฟรีของ Render ค่าใช้งานคิดตามจริง (RAM/CPU ต่อนาที) ดูได้ที่ Workspace → Usage
 
 ## โครงสร้าง
 

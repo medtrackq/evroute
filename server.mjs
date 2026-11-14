@@ -505,7 +505,7 @@ async function admin(req, res, url) {
   if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
   const user = await bearerUser(req).catch(() => null);
   if (!user) { json(res, 401, { error: 'เข้าสู่ระบบก่อน' }); return; }
-  if (!ADMINS.includes(String(user.email).toLowerCase())) { json(res, 403, { error: 'อีเมลนี้ไม่ใช่ผู้ดูแล (ตั้ง ADMIN_EMAILS ใน Render)' }); return; }
+  if (!ADMINS.includes(String(user.email).toLowerCase())) { json(res, 403, { error: 'อีเมลนี้ไม่ใช่ผู้ดูแล (ตั้ง ADMIN_EMAILS ใน Railway → Variables)' }); return; }
   try {
     if (url.pathname === '/api/admin/feedback' && req.method === 'POST') {
       const b = await bodyJSON(req);
@@ -532,7 +532,7 @@ async function admin(req, res, url) {
       return;
     }
     if (url.pathname === '/api/admin/floods' && req.method === 'POST') {
-      if (FLOODS_FORCED_OFF) { json(res, 400, { error: 'ปิดไว้ด้วย FLOODS=off ใน Render → Environment ต้องลบค่านั้นก่อน' }); return; }
+      if (FLOODS_FORCED_OFF) { json(res, 400, { error: 'ปิดไว้ด้วย FLOODS=off ใน Railway → Variables ต้องลบค่านั้นก่อน' }); return; }
       const on = (await bodyJSON(req))?.on === true;
       try {
         await stats.upsert('settings', { key: 'floods', value: { on }, updated_at: new Date().toISOString() });
@@ -594,7 +594,7 @@ async function admin(req, res, url) {
       if (places && !sweeping) lastSweep = (await stats.select('sweeps', 'select=*&order=started_at.desc&limit=1').catch(() => []))[0] || lastSweep;
       out.health = {
         sweep: places ? { running: !!sweeping, last: lastSweep, places: swept.count, pluz: swept.pluz || 0, cap: SWEEP_MAX, everyDays: 27 } : null,
-        up: Math.round((Date.now() - STARTED) / 60000), commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || null,
+        up: Math.round((Date.now() - STARTED) / 60000), commit: (process.env.RAILWAY_GIT_COMMIT_SHA || '').slice(0, 7) || null,
         memoryMb: Math.round(process.memoryUsage().rss / 1048576),
         google: places ? { used: places.counter.used, left: places.counter.remaining } : null,
         stations: stationsBody ? JSON.parse(stationsBody).sources : null,
