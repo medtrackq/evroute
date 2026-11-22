@@ -33,7 +33,7 @@
   }
   // Settings that follow a signed-in user to every device (see "settings that follow the account").
   var PREF_KEYS = ['car', 'mycar', 'nick', 'favs', 'floodAvoid', 'tpPrefs', 'want', 'premium'];
-  var RAW_PREFS = ['lang', 'theme']; // kept as plain strings by i18n.js and the theme button
+  var RAW_PREFS = ['lang', 'theme', 'text']; // kept as plain strings by i18n.js and the theme and text size buttons
   var prefsTimer = null;
   function store(k, v) {
     try {
@@ -2824,6 +2824,24 @@
     if (R.result) { draw(); chart(); }
   });
 
+  // Text size: ปกติ → ใหญ่ → ใหญ่มาก → ปกติ (style.css --fs; index.html applies it before the page draws).
+  var TEXT_SIZES = { m: 'ปกติ', l: 'ใหญ่', xl: 'ใหญ่มาก' };
+  function textLabel() {
+    var t = TEXT_SIZES[rawGet('text')] ? rawGet('text') : 'm';
+    $('text-size').setAttribute('aria-label', 'ขนาดตัวอักษร: ' + TEXT_SIZES[t]);
+    $('text-size').title = 'ขนาดตัวอักษร: ' + TEXT_SIZES[t];
+    return t;
+  }
+  textLabel();
+  $('text-size').addEventListener('click', function () {
+    var next = { m: 'l', l: 'xl', xl: 'm' }[textLabel()];
+    document.documentElement.dataset.text = next;
+    rawSet('text', next);
+    prefsChanged();
+    textLabel();
+    toast('ขนาดตัวอักษร: ' + Object.keys(TEXT_SIZES).map(function (k) { return k === next ? '<b>' + TEXT_SIZES[k] + '</b>' : TEXT_SIZES[k]; }).join(' · '), 2500);
+    if (R.result) chart();
+  });
 
   // ---------- add a station ----------
   var PLUG_TYPES = [['CCS2', 'CCS2'], ['CHAdeMO', 'CHAdeMO'], ['GB/T', 'GB/T'], ['Type2', 'Type 2 (AC)'], ['Tesla', 'Tesla']];

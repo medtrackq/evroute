@@ -79,6 +79,8 @@ test('settings that follow the user keep only what the page uses, within range',
   // "สนใจ ฿49" keeps when it was pressed; 1 from before that is still kept.
   assert.equal(cleanPrefs({ premium: '2026-11-14T09:30:00+07:00' }).premium, '2026-11-14T02:30:00.000Z');
   assert.equal(cleanPrefs({ premium: 'yes' }).premium, undefined);
+  assert.equal(cleanPrefs({ text: 'xl' }).text, 'xl');
+  assert.equal(cleanPrefs({ text: '200%' }).text, undefined);
 });
 
 test('the account list has emails only of those who asked to hear about ฿49', async () => {

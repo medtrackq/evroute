@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>นโยบายความเป็นส่วนตัว · EVROUTE</title>
   <meta name="color-scheme" content="light dark">
-  <script>try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <script>try { var t = localStorage.getItem('theme'), x = localStorage.getItem('text'); if (t) document.documentElement.dataset.theme = t; if (x) document.documentElement.dataset.text = x; } catch (e) {}</script>
   <script src="assets/js/i18n.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/style.css">
@@ -43,7 +43,7 @@
     <ul>
       <li><b>อีเมล</b> ใช้ส่งรหัสเข้าสู่ระบบ และระบุบัญชีของคุณ ไม่มีรหัสผ่าน</li>
       <li><b>ทริปที่บันทึกไว้</b> เพื่อเปิดได้ทุกเครื่อง และตรวจถนนน้ำท่วมกับจุดชาร์จให้ก่อนวันเดินทาง (ทริปที่ตั้งวันไว้ เก็บเส้นทางและจุดชาร์จที่จะแวะด้วย)</li>
-      <li><b>ค่าที่ตั้งไว้</b> รุ่นรถและค่าที่ปรับเอง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา และธีม เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase · รูปรถของคุณยังอยู่ในเครื่องเท่านั้น)</li>
+      <li><b>ค่าที่ตั้งไว้</b> รุ่นรถและค่าที่ปรับเอง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา ธีม และขนาดตัวอักษร เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase · รูปรถของคุณยังอยู่ในเครื่องเท่านั้น)</li>
       <li><b>บันทึกการชาร์จที่ส่งขณะเข้าสู่ระบบ</b> เชื่อมกับบัญชี เพื่อแสดงประวัติ ค่าชาร์จรวม และอัตรากินไฟจริงของรถคุณ ให้คุณคนเดียวเห็น</li>
       <li>เราอาจส่งอีเมลเกี่ยวกับบริการ เช่น เมื่อเปิดสมาชิกรุ่นแรก ถ้าคุณกด "สนใจ" (เราเก็บวันที่คุณกดไว้กับบัญชี)</li>
     </ul>
