@@ -2,29 +2,33 @@
 <link rel="stylesheet" href="base.css">
 <style>/* 1080x1080: tighter */
 .sq .trip{padding:18px 28px 18px}.sq .trip .dest{font-size:50px}.sq .trip .row{padding:9px 0}.sq .pair{margin-top:18px}
+/* แก้ตาม check.md แถว 25: ปลายทางเป็นตัวเด่น · ชื่อรถเป็นบรรทัดสีเทา "ตัวอย่างรถ …" · แบตตอนถึงขนาดเท่าแถวชาร์จ */
+.sq .trip .car{font-size:25px;line-height:1.4;color:var(--muted);margin-top:4px;padding-bottom:12px;white-space:nowrap}
 </style><script src="base.js" defer></script></head><body>
-<!-- ตัวเลขทั้งหมดจาก routes.md · R2 R3 วางแผน 23 พ.ย. 2569 · ใช้กับ A1-cold (fb-ads-dec-cold) -->
+<!-- ตัวเลขทั้งหมดจาก routes.md · R2 R3 วางแผน 23 พ.ย. 2569 · ใช้กับ A1-cold (fb-ads-dec-cold)
+     ภาพโฆษณา: ห้ามมีชื่อเครือข่าย (check.md คำตัดสินข้อ 1 · plan.md คำตัดสินหลังด่านตรวจรอบ 1 ข้อ 3) ใช้ "จุดที่ N · กม. X" แทน จนกว่า PEA VOLTA และ OR จะตอบ -->
 <div class="canvas sq">
-  <div class="pill">เที่ยวหนาวใกล้กรุงเทพฯ · 2 ทริปตัวอย่าง</div>
+  <div class="pill">เที่ยวหนาว · ขับวันเดียวถึง · 2 ทริปตัวอย่าง</div>
   <h1 style="font-size:60px;margin-top:16px">หนาวนี้ขับ EV ไปเที่ยว<br><span class="accent">แวะชาร์จแค่ 1 จุด</span></h1>
   <div class="pair">
     <div class="trip">
       <div class="dest">ภูทับเบิก</div>
-      <div class="car"><b>BYD Sealion 7</b><br>แบต 100% · ออกวันเสาร์ 07:00</div>
+      <div class="car">ตัวอย่างรถ BYD Sealion 7</div>
       <div class="row"><div class="k">ระยะทาง · เวลารวม</div><div class="v">426 กม. <small>6 ชม. 54 นาที</small></div></div>
-      <div class="row"><div class="k">แวะชาร์จ 1 จุด</div><div class="st">Altervim</div><div class="sm">269 กม. จากกรุงเทพฯ</div><div class="sm">ชาร์จ <b>~48 นาที</b> · <b>~฿250</b></div></div>
-      <div class="row"><div class="k">ถึงแล้วแบตเหลือ</div><div class="v">32%<span style="color:var(--orange)">*</span></div></div>
+      <div class="row"><div class="k">แวะชาร์จ 1 จุด</div><div class="st">จุดที่ 1 · กม. 269</div><div class="sm">นับจากกรุงเทพฯ</div><div class="sm">ชาร์จ <b>~48 นาที</b> · <b>~฿250</b></div></div>
+      <div class="row"><div class="sm">ถึงแล้วแบตเหลือราว <b>32%</b><b style="color:var(--orange)">*</b></div></div>
     </div>
     <div class="trip">
       <div class="dest">วังน้ำเขียว</div>
-      <div class="car"><b class="nw">BYD Atto 1 Premium 38.9 kWh</b><br>แบต 100% · ออกวันเสาร์ 08:00</div>
+      <div class="car">ตัวอย่างรถ BYD Atto 1 (38.9 kWh)</div>
       <div class="row"><div class="k">ระยะทาง · เวลารวม</div><div class="v">237 กม. <small>3 ชม. 42 นาที</small></div></div>
-      <div class="row"><div class="k">แวะชาร์จ 1 จุด</div><div class="st">PTT EV Station PluZ</div><div class="sm">171 กม. จากกรุงเทพฯ</div><div class="sm">ชาร์จ <b>~11 นาที</b> · <b>~฿26</b></div></div>
-      <div class="row"><div class="k">ถึงแล้วแบตเหลือ</div><div class="v">20%</div></div>
+      <div class="row"><div class="k">แวะชาร์จ 1 จุด</div><div class="st">จุดที่ 1 · กม. 171</div><div class="sm">นับจากกรุงเทพฯ</div><div class="sm">ชาร์จ <b>~11 นาที</b> · <b>~฿26</b></div></div>
+      <div class="row"><div class="sm">ถึงแล้วแบตเหลือราว <b>20%</b></div></div>
     </div>
   </div>
 
-  <div class="warn" style="margin-top:14px;font-size:23px"><b>* ภูทับเบิก:</b> ทางขึ้นชัน แอปยังไม่คิดความชัน แบตจริงอาจเหลือน้อยกว่านี้ · 2 ทริปตัวอย่าง คนละรุ่นรถ ไม่ได้เทียบกัน</div>
+  <div class="warn" style="margin-top:14px;font-size:23px"><b>* ภูทับเบิก:</b> ทางขึ้นชัน แอปยังไม่คิดความชัน แบตจริงอาจเหลือน้อยกว่านี้<br>แถวภูทับเบิกแอปไม่เจอที่ชาร์จเร็ว ถามที่พักก่อน</div>
+  <p class="fine" style="text-align:center;margin-top:8px">ออกจากกรุงเทพฯ วันเสาร์ แบต 100% <span class="nw">(ภูทับเบิก 07:00 · วังน้ำเขียว 08:00)</span> · คนละรุ่นรถ ไม่ได้เทียบกัน</p>
 
   <footer class="foot">
     <div class="brand">
