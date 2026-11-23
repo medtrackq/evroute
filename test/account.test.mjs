@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, supabaseAuth, realUse } from '../lib/account.mjs';
+import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, mergePrefs, supabaseAuth, realUse } from '../lib/account.mjs';
 
 test('email and code input is checked', () => {
   assert.equal(cleanEmail('  Somchai@Example.COM '), 'somchai@example.com');
@@ -79,8 +79,6 @@ test('settings that follow the user keep only what the page uses, within range',
   // "สนใจ ฿49" keeps when it was pressed; 1 from before that is still kept.
   assert.equal(cleanPrefs({ premium: '2026-11-14T09:30:00+07:00' }).premium, '2026-11-14T02:30:00.000Z');
   assert.equal(cleanPrefs({ premium: 'yes' }).premium, undefined);
-  assert.equal(cleanPrefs({ text: 'xl' }).text, 'xl');
-  assert.equal(cleanPrefs({ text: '200%' }).text, undefined);
 });
 
 test('the account list has emails only of those who asked to hear about ฿49', async () => {
@@ -173,4 +171,29 @@ test('a session for an already verified email comes from an admin link token', a
   assert.deepEqual(calls[0].body, { type: 'magiclink', email: 'x@y.co' });
   assert.deepEqual(calls[1].body, { type: 'magiclink', token_hash: 'h1' });
   assert.equal(s.user.id, 'u1');
+});
+
+test('a device saves only what it changed, onto what the account has now', () => {
+  const account = cleanPrefs({ at: '2026-11-23T03:00:00Z', car: { id: 'gac-aion-y-plus' }, nick: 'ตู่', soc: 90, theme: 'light' });
+  // The phone still has the old car and only changed the theme: the car stays as the computer set it.
+  const phone = cleanPrefs({ car: { id: 'custom', brand: 'Chery', model: 'V23' }, nick: 'ตู่', soc: 55, theme: 'dark' });
+  const after = mergePrefs(account, phone, ['theme'], '2026-11-23T04:00:00.000Z');
+  assert.deepEqual(after, { at: '2026-11-23T04:00:00.000Z', car: { id: 'gac-aion-y-plus' }, nick: 'ตู่', soc: 90, theme: 'dark' });
+  // A setting cleared on the device is cleared on the account; unknown names are ignored.
+  assert.equal('nick' in mergePrefs(account, {}, ['nick', 'token'], '2026-11-23T04:00:00Z'), false);
+  // An account without settings yet.
+  assert.deepEqual(mergePrefs(null, phone, ['soc'], '2026-11-23T04:00:00.000Z'), { at: '2026-11-23T04:00:00.000Z', soc: 55 });
+  assert.equal(cleanPrefs({ soc: 150 }).soc, undefined);
+  assert.equal(cleanPrefs({ soc: '62.4' }).soc, 62);
+});
+
+test('the account settings can be asked for fresh, past the 5-minute cache', async () => {
+  let n = 0;
+  const fetchFn = async () => ({ ok: true, json: async () => ({ id: 'u1', email: 'x@y.co', user_metadata: { evroute: { nick: 'v' + ++n } } }) });
+  const a = supabaseAuth({ url: 'https://p.supabase.co', key: 'k', fetchFn });
+  const tok = 't'.repeat(30);
+  assert.equal((await a.user(tok)).prefs.nick, 'v1');
+  assert.equal((await a.user(tok)).prefs.nick, 'v1'); // cached
+  assert.equal((await a.user(tok, { fresh: true })).prefs.nick, 'v2'); // changed on another device
+  assert.equal((await a.user(tok)).prefs.nick, 'v2');
 });

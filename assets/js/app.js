@@ -32,13 +32,13 @@
     return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
   }
   // Settings that follow a signed-in user to every device (see "settings that follow the account").
-  var PREF_KEYS = ['car', 'mycar', 'nick', 'favs', 'floodAvoid', 'tpPrefs', 'want', 'premium'];
-  var RAW_PREFS = ['lang', 'theme', 'text']; // kept as plain strings by i18n.js and the theme and text size buttons
+  var PREF_KEYS = ['car', 'mycar', 'nick', 'favs', 'floodAvoid', 'tpPrefs', 'want', 'premium', 'soc'];
+  var RAW_PREFS = ['lang', 'theme']; // kept as plain strings by i18n.js and the theme button (text size stays with each device)
   var prefsTimer = null;
   function store(k, v) {
     try {
       var s = JSON.stringify(v);
-      if (PREF_KEYS.indexOf(k) >= 0 && localStorage.getItem(k) !== s) prefsChanged();
+      if (PREF_KEYS.indexOf(k) >= 0 && localStorage.getItem(k) !== s) prefsChanged(k);
       localStorage.setItem(k, s);
     } catch (e) {}
   }
@@ -2812,7 +2812,7 @@
   $('lang').value = I18N.lang;
   $('lang').addEventListener('change', function () {
     try { localStorage.setItem('lang', $('lang').value); } catch (e) {}
-    prefsChanged(); // sent once the page has reloaded in the new language
+    prefsChanged('lang'); // sent once the page has reloaded in the new language
     if (I18N.use) I18N.use($('lang').value);
   });
 
@@ -2821,7 +2821,7 @@
     var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
     document.documentElement.dataset.theme = dark ? 'light' : 'dark';
     try { localStorage.setItem('theme', dark ? 'light' : 'dark'); } catch (e) {}
-    prefsChanged();
+    prefsChanged('theme');
     if (R.result) { draw(); chart(); }
   });
 
@@ -2837,8 +2837,7 @@
   $('text-size').addEventListener('click', function () {
     var next = { m: 'l', l: 'xl', xl: 'm' }[textLabel()];
     document.documentElement.dataset.text = next;
-    rawSet('text', next);
-    prefsChanged();
+    rawSet('text', next); // this device's: big on the phone in the car, normal on the computer
     textLabel();
     toast('ขนาดตัวอักษร: ' + Object.keys(TEXT_SIZES).map(function (k) { return k === next ? '<b>' + TEXT_SIZES[k] + '</b>' : TEXT_SIZES[k]; }).join(' · '), 2500);
     if (R.result) chart();
@@ -3623,8 +3622,9 @@
     }).catch(function (err) { console.warn('saving trips', err); });
   }
 
-  function loadMe(merge) {
+  function loadMe(merge, quiet) {
     if (!signedIn()) return Promise.resolve();
+    A.synced = Date.now();
     return authFetch('/api/me', {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (!d) return;
       A.me = d;
@@ -3638,59 +3638,92 @@
       store('plans', server.slice(0, 50));
       renderSaved();
       if (!$('acct').hidden) renderAcct();
-      return (merge && moved ? pushTrips() : Promise.resolve()).then(function () { syncPrefs(d.prefs, merge, moved); return moved; });
+      return (merge && moved ? pushTrips() : Promise.resolve()).then(function () { if (!quiet) syncPrefs(d.prefs, merge, moved); return moved; });
     }).catch(function (err) { console.warn('account', err); });
   }
 
   // ---------- settings that follow the account ----------
-  // Signed in, the car, nickname, favourite stations, a few preferences, language and theme are
-  // kept with the account (lib/account.mjs cleanPrefs), so another device, or the iPhone home-screen
-  // app (which doesn't share Safari's storage), gets them back by signing in. prefsAt: when they
-  // last changed on this device; prefsPush: changed here and not yet saved to the account.
+  // Signed in, the car, battery %, nickname, favourite stations, a few preferences, language and
+  // theme are kept with the account (lib/account.mjs cleanPrefs), so every device, and the
+  // iPhone home-screen app (which doesn't share Safari's storage), has the same. The account's copy
+  // counts: a device sends only the settings changed on it (prefsDirty), which the server puts onto
+  // the account's (mergePrefs), and takes the account's for the rest when the app opens, when it
+  // comes back to the screen, and on signing in. prefsVer: the account's version (its "at") this
+  // device has caught up with.
   function rawGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function rawSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+  var ADOPT = ['soc']; // added later: an account that hasn't got it yet takes this device's
+  function dirtyKeys() { var d = load('prefsDirty'); return Array.isArray(d) ? d : []; }
+  function setDirty(d) { rawSet('prefsDirty', d.length ? JSON.stringify(d) : null); }
+  function prefVal(k) { return PREF_KEYS.indexOf(k) >= 0 ? rawGet(k) : JSON.stringify(rawGet(k)); }
 
-  function prefsChanged() {
-    rawSet('prefsAt', JSON.stringify(new Date().toISOString()));
-    rawSet('prefsPush', '1');
+  function prefsChanged(k) {
+    var d = dirtyKeys();
+    if (k && d.indexOf(k) < 0) { d.push(k); setDirty(d); }
     clearTimeout(prefsTimer);
     prefsTimer = setTimeout(pushPrefs, 1500); // runs once the page has started, when A exists
   }
 
   function collectPrefs() {
-    var p = { at: load('prefsAt') || new Date().toISOString() };
+    var p = {};
     PREF_KEYS.forEach(function (k) { var v = load(k); if (v != null) p[k] = v; });
     RAW_PREFS.forEach(function (k) { var v = rawGet(k); if (v) p[k] = v; });
     return p;
   }
 
   function pushPrefs() {
-    if (!signedIn() || !rawGet('prefsPush')) return Promise.resolve();
-    return authFetch('/api/me/prefs', { method: 'PUT', body: JSON.stringify({ prefs: collectPrefs() }) }).then(function (r) {
-      if (r.ok) rawSet('prefsPush', null);
+    var keys = dirtyKeys(), sent = {};
+    if (!signedIn() || !keys.length) return Promise.resolve();
+    keys.forEach(function (k) { sent[k] = prefVal(k); });
+    return authFetch('/api/me/prefs', { method: 'PUT', body: JSON.stringify({ prefs: collectPrefs(), keys: keys }) }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (d) {
+      if (!d || !d.prefs) return;
+      setDirty(dirtyKeys().filter(function (k) { return !(k in sent) || prefVal(k) !== sent[k]; })); // changed again meanwhile: next time
+      // Changed on another device since this one caught up: take those too.
+      if ((d.before || null) !== (load('prefsVer') || null)) takePrefs(d.prefs, -1);
+      else rawSet('prefsVer', JSON.stringify(d.prefs.at));
     }).catch(function (err) { console.warn('saving settings', err); });
   }
 
-  // Signing in (merge), the account's settings win: a new device has only its defaults. Later,
-  // whichever side changed last. Settings taken from the account reload the page, so the car,
-  // language and everything else start from them; a note says what happened.
-  function syncPrefs(server, merge, moved) {
-    var localAt = load('prefsAt');
-    // The account has none yet: this device's, also those set before settings followed the account.
-    if (!server) { if (localAt || PREF_KEYS.some(function (k) { return rawGet(k) != null; })) { rawSet('prefsPush', '1'); pushPrefs(); } return; }
-    if (!merge && localAt && localAt >= server.at) { if (localAt > server.at || rawGet('prefsPush')) pushPrefs(); return; }
-    var changed = false;
+  // The account's settings, except those changed here and not sent yet. Any that differ reload the
+  // page, so the car, language and everything start from them; a note says so (note: trips moved
+  // in when signing in, -1 otherwise).
+  function takePrefs(acc, note) {
+    var dirty = dirtyKeys(), adopt = [], changed = false;
     PREF_KEYS.forEach(function (k) {
-      var v = k in server ? JSON.stringify(server[k]) : null;
+      if (dirty.indexOf(k) >= 0) return;
+      if (!(k in acc) && ADOPT.indexOf(k) >= 0 && rawGet(k) != null) { adopt.push(k); return; }
+      var v = k in acc ? JSON.stringify(acc[k]) : null;
       if (rawGet(k) !== v) { changed = true; rawSet(k, v); }
     });
-    RAW_PREFS.forEach(function (k) { if (server[k] && rawGet(k) !== server[k]) { changed = true; rawSet(k, server[k]); } });
-    rawSet('prefsAt', JSON.stringify(server.at));
-    rawSet('prefsPush', null);
+    RAW_PREFS.forEach(function (k) { if (dirty.indexOf(k) < 0 && acc[k] && rawGet(k) !== acc[k]) { changed = true; rawSet(k, acc[k]); } });
+    rawSet('prefsVer', JSON.stringify(acc.at));
+    if (adopt.length) { setDirty(dirty.concat(adopt)); pushPrefs(); } // kept if the page reloads first: sent after
     if (!changed) return;
-    store('prefsNote', merge ? (moved || 0) : -1);
+    store('prefsNote', note);
     location.reload();
   }
+
+  // Signing in (merge), the account's settings win: a new device has only its defaults.
+  function syncPrefs(server, merge, moved) {
+    rawSet('prefsAt', null); rawSet('prefsPush', null); // from before only the changes were sent
+    if (merge) setDirty([]);
+    // The account has none yet: this device's, also those set before settings followed the account.
+    if (!server) {
+      var have = PREF_KEYS.concat(RAW_PREFS).filter(function (k) { return rawGet(k) != null; });
+      if (have.length) { setDirty(have); pushPrefs(); }
+      return;
+    }
+    if (dirtyKeys().length) { pushPrefs(); return; } // which also takes what changed elsewhere
+    if (merge || JSON.stringify(server.at) !== rawGet('prefsVer')) takePrefs(server, merge ? (moved || 0) : -1);
+  }
+
+  // Back to the app (a phone keeps it in the background without reloading it): catch up with
+  // changes made on another device.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && accountsOn() && signedIn() && Date.now() - (A.synced || 0) > 30e3) loadMe(false);
+  });
 
   // After the reload above.
   function prefsNote() {
@@ -3720,7 +3753,7 @@
     $('acct').hidden = false;
     document.body.classList.add('no-scroll');
     renderAcct();
-    if (signedIn()) loadMe();
+    if (signedIn()) loadMe(false, true); // its trips and charges; settings are taken on opening the app
     var f = $('acct-body').querySelector('input');
     if (f) f.focus();
   }
@@ -3912,6 +3945,7 @@
 
   function signOut() {
     saveSession(null);
+    setDirty([]); rawSet('prefsVer', null);
     A.me = null;
     closeAcct();
     toast('ออกจากระบบแล้ว · แผนที่บันทึกไว้ยังอยู่ในเครื่องนี้');

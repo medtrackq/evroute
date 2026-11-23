@@ -19,7 +19,7 @@ import { shareMeta } from './lib/share.mjs';
 import { cleanCar, carsScript } from './lib/cars.mjs';
 import { cleanPlace, mergePlaces, parseLatLng, followShort } from './lib/places.mjs';
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
-import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
+import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, mergePrefs, PREF_FIELDS, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 import { liveCounter } from './lib/live.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
@@ -636,9 +636,9 @@ async function bodyJSON(req, max) {
   try { return JSON.parse(await readBody(req, max)); } catch { return null; }
 }
 
-function bearerUser(req) {
+function bearerUser(req, opts) {
   const h = String(req.headers.authorization || '');
-  return h.startsWith('Bearer ') ? accounts.user(h.slice(7)) : Promise.resolve(null);
+  return h.startsWith('Bearer ') ? accounts.user(h.slice(7), opts) : Promise.resolve(null);
 }
 
 const say = (err) => report('account', err.message);
@@ -713,7 +713,9 @@ async function handoffApproval(req, res, url) {
 async function me(req, res, url) {
   if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
   let user;
-  try { user = await bearerUser(req); } catch (err) { say(err); res.writeHead(502).end(); return; }
+  // The account's settings as they are now: another device may have just changed them.
+  const fresh = url.pathname === '/api/me/prefs' || (req.method === 'GET' && url.pathname === '/api/me');
+  try { user = await bearerUser(req, { fresh }); } catch (err) { say(err); res.writeHead(502).end(); return; }
   if (!user) { json(res, 401, { error: 'เข้าสู่ระบบใหม่อีกครั้ง' }); return; }
   const uid = encodeURIComponent(user.id);
   try {
@@ -724,9 +726,14 @@ async function me(req, res, url) {
       ]);
       json(res, 200, { user: { id: user.id, email: user.email }, prefs: user.prefs || null, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'PUT' && url.pathname === '/api/me/prefs') {
-      const prefs = cleanPrefs((await bodyJSON(req))?.prefs);
-      if (!prefs) { res.writeHead(400).end(); return; }
-      json(res, 200, { prefs: await accounts.savePrefs(String(req.headers.authorization || '').slice(7), prefs) }, { 'Cache-Control': 'no-store' });
+      const body = await bodyJSON(req), incoming = cleanPrefs(body?.prefs);
+      if (!incoming) { res.writeHead(400).end(); return; }
+      // keys: what this device changed, merged onto the account's (a page from before sends them all).
+      const keys = Array.isArray(body.keys) ? body.keys.filter((k) => PREF_FIELDS.includes(k)) : null;
+      const at = new Date().toISOString();
+      const prefs = keys ? mergePrefs(user.prefs, incoming, keys, at) : { ...incoming, at };
+      // before: the account's version this came onto, so the page knows if another device changed it.
+      json(res, 200, { prefs: await accounts.savePrefs(String(req.headers.authorization || '').slice(7), prefs), before: user.prefs?.at || null }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'PUT' && url.pathname === '/api/me/trips') {
       const trips = cleanTrips((await bodyJSON(req, MAX_TRIPS_BODY))?.trips); // trips ahead carry their route
       if (!trips) { res.writeHead(400).end(); return; }
