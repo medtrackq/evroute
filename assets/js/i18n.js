@@ -8,6 +8,7 @@
 // Place and station names have no entry and stay as they are. Loaded in <head>, before the page.
 (function () {
   'use strict';
+  var BUILD = ((document.currentScript && document.currentScript.src || '').match(/[?&]v=([\w-]+)/) || [])[1] || ''; // see server.mjs versioned()
   var LANGS = { th: 'ไทย', en: 'EN', zh: '中文' };
   var LOCALES = { th: 'th-TH', en: 'en-GB', zh: 'zh-CN' };
 
@@ -136,6 +137,7 @@
     }).observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   };
 
-  // Parser-blocking, so the page never shows in Thai first.
-  document.write('<script src="assets/i18n/' + lang + '.js"><\/script>');
+  // Parser-blocking, so the page never shows in Thai first. The same build version as this script
+  // (?v=, put there by the server), so a deploy's words arrive with its code.
+  document.write('<script src="assets/i18n/' + lang + '.js' + (BUILD ? '?v=' + BUILD : '') + '"><\/script>');
 })();

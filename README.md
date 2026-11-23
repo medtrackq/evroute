@@ -169,6 +169,8 @@ secret key อยู่บน server เท่านั้น ตารางเ
 Your EVROUTE sign-in code is above. If you didn't ask for it, ignore this email.</p>
 ```
 
+**ไฟล์โค้ดกับ Cloudflare:** Cloudflare (Browser Cache TTL ค่าเริ่มต้น 4 ชม.) สั่งเบราว์เซอร์ให้เก็บไฟล์ .js/.css ไว้ 4 ชั่วโมงไม่ว่า server จะบอกอะไร server จึงเติม `?v=<commit>` ให้ทุกสคริปต์และสไตล์ในหน้า HTML ตอนส่ง (`versioned()` ใน `server.mjs`, `api/cars.js` ใช้เวอร์ชันของรุ่นรถจากหลังบ้าน, คำแปลใช้เวอร์ชันเดียวกับ `i18n.js`) deploy ใหม่แล้วทุกเครื่องได้โค้ดใหม่ทันทีที่เปิดหน้า ไม่ต้องรอ 4 ชม. · ถ้าต้องการ ตั้ง Cloudflare → Caching → Configuration → Browser Cache TTL เป็น "Respect Existing Headers" ได้ด้วย
+
 ### หลังบ้าน (admin.html)
 
 หน้า `/admin.html` สำหรับเจ้าของแอป อัปเดตทุก 1 นาที:

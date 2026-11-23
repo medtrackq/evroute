@@ -4,6 +4,7 @@
 // Routes: public FOSSGIS Valhalla. Place search: Komoot Photon.
 // No dependencies: `node server.mjs` (PORT defaults to 8080).
 
+import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -392,13 +393,14 @@ async function feedback(req, res) {
 // ---------- car models added on the admin page ----------
 // Served as /api/cars.js, loaded right after assets/js/cars.js (lib/cars.mjs).
 const CARS_TTL = 10 * 60 * 1000;
-let carRows = [], carsJs = carsScript([]), carsAt = 0;
+let carRows = [], carsJs = carsScript([]), carsAt = 0, carsVer = '0';
 async function reloadCars() {
   carsAt = Date.now();
   if (!stats) return;
   try {
     carRows = await stats.select('cars', 'select=id,brand,model,kwh,use,dc,ac,plugs,hidden,note,updated_at&order=brand.asc,model.asc&limit=1000');
     carsJs = carsScript(carRows);
+    carsVer = createHash('sha1').update(carsJs).digest('hex').slice(0, 10);
   } catch (err) {
     report('cars', err.message);
   }
@@ -837,6 +839,14 @@ async function proxyRoute(req, res) {
 }
 
 // ---------- static ----------
+// Every script and style a page loads gets the build's version (?v=), so a browser takes the new ones
+// at once after a deploy: Cloudflare tells browsers to keep .js and .css for 4 hours whatever this
+// server says, and a phone's home-screen app would run the old code until then. api/cars.js gets the
+// version of the models added on the admin page instead.
+const BUILD = (process.env.RAILWAY_GIT_COMMIT_SHA || '').slice(0, 7) || Date.now().toString(36);
+function versioned(html) {
+  return html.replace(/((?:src|href)=")(assets\/[\w/.-]+\.(?:js|css)|api\/cars\.js)"/g, (m, a, path) => a + path + '?v=' + (path === 'api/cars.js' ? carsVer : BUILD) + '"');
+}
 // The address people reach the site at (behind Cloudflare and Railway), e.g. https://evroute.info.
 function publicOrigin(req) {
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
@@ -849,7 +859,7 @@ async function serveStatic(pathname, res, req, url) {
   if (pathname === '/index.html') {
     // Link previews need full URLs and the shared trip's name (lib/share.mjs).
     try {
-      const body = shareMeta(await readFile(join(ROOT, 'index.html'), 'utf8'), publicOrigin(req), url);
+      const body = versioned(shareMeta(await readFile(join(ROOT, 'index.html'), 'utf8'), publicOrigin(req), url));
       res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' }).end(body);
     } catch (err) {
       report('index', err.message);
@@ -867,7 +877,7 @@ async function serveStatic(pathname, res, req, url) {
     const st = await stat(file);
     if (st.isDirectory()) { res.writeHead(301, { Location: pathname + '/' }).end(); return; }
     if (!st.isFile()) throw new Error('not a file');
-    const body = await readFile(file);
+    const raw = await readFile(file), body = extname(file) === '.html' ? versioned(raw.toString('utf8')) : raw;
     res.writeHead(200, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(body);
   } catch {
