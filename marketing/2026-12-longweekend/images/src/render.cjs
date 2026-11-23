@@ -3,8 +3,8 @@
 const path = require('path');
 let pw; try { pw = require('/opt/node-tools/node_modules/playwright'); } catch { pw = require('playwright'); }
 const JOBS = [
-  ['G1-ubon-lunch', 1080, 1350],
-  ['G1b-nan', 1080, 1350],
+  ['G1-nan', 1080, 1350],
+  ['G1-alt-ubon-lunch', 1080, 1350],
   ['G2-cold-pair', 1080, 1350],
   ['G2-cold-pair-square', 1080, 1080],
   ['G3-1-ubon-go', 1080, 1350],
