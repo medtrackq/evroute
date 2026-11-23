@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { photoStore, photoName, cleanPhotoKey, jpegFromDataUrl, MAX_PHOTO } from '../lib/photos.mjs';
-import { cleanPrefs } from '../lib/account.mjs';
 
 const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, 1)]);
 
@@ -28,7 +27,7 @@ test('photos go to a private bucket made on first use, under the user', async ()
       return { ok: true, status: 200, text: async () => '{}' };
     }
     if (o.method === 'GET' || !o.method) return url.includes('/missing') ? { ok: false, status: 400, text: async () => 'not_found' } : { ok: true, status: 200, arrayBuffer: async () => JPEG };
-    return { ok: true, status: 200, text: async () => '{}', json: async () => [{ name: 'a.jpg' }, { name: 'b.jpg' }] };
+    return { ok: true, status: 200, text: async () => '{}', json: async () => [{ name: photoName('u1', 'photo:tesla-m3-rwd').slice(3), updated_at: '2026-11-23T05:00:00.000Z' }, { name: 'b.jpg', updated_at: '2026-11-23T04:00:00.000Z' }, { name: '.emptyFolderPlaceholder' }] };
   };
   const s = photoStore({ url: 'https://p.supabase.co/', key: 'sb_secret_S', fetchFn });
   await s.put('u1', 'photo:tesla-m3-rwd', JPEG);
@@ -45,13 +44,9 @@ test('photos go to a private bucket made on first use, under the user', async ()
   const again = photoStore({ url: 'https://p.supabase.co', key: 'eyJlegacy', fetchFn });
   await again.put('u2', 'photo:x', JPEG);
   assert.equal(calls.at(-1).o.headers.Authorization, 'Bearer eyJlegacy');
+  // Storage says which cars have a photo, and when it was put there.
+  assert.deepEqual(await s.when('u1', ['photo:tesla-m3-rwd', 'photo:byd-atto3-std']), { 'photo:tesla-m3-rwd': '2026-11-23T05:00:00.000Z' });
+  assert.equal(JSON.parse(calls.at(-1).o.body).prefix, 'u1');
   await s.removeAll('u1');
-  assert.deepEqual(JSON.parse(calls.at(-1).o.body), { prefixes: ['u1/a.jpg', 'u1/b.jpg'] });
-});
-
-test('the account lists at most 10 photos, newest kept', () => {
-  const photos = Object.fromEntries(Array.from({ length: 12 }, (_, i) => ['photo:car-' + i, new Date(Date.UTC(2026, 10, 1 + i)).toISOString()]));
-  const p = cleanPrefs({ photos: { ...photos, 'photo:/bad': '2026-11-30T00:00:00Z', 'nope': '2026-11-30T00:00:00Z', 'photo:x': 'not a date' } });
-  assert.equal(Object.keys(p.photos).length, 10);
-  assert.ok(p.photos['photo:car-11'] && !p.photos['photo:car-0'] && !p.photos['photo:car-1']);
+  assert.deepEqual(JSON.parse(calls.at(-1).o.body), { prefixes: [photoName('u1', 'photo:tesla-m3-rwd'), 'u1/b.jpg'] });
 });
