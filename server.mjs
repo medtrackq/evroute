@@ -869,7 +869,8 @@ async function serveStatic(pathname, res, req, url) {
   }
   const file = normalize(join(ROOT, decodeURIComponent(pathname)));
   const rel = file.slice(ROOT.length);
-  if (!file.startsWith(ROOT + '/') || /(^|\/)\.|^\/(lib|test|scripts|node_modules)\/|server\.mjs$|package\.json$/.test(rel)) {
+  // Only the app's own files: not the code, plans, letters (docs/, *.md) or database schema.
+  if (!file.startsWith(ROOT + '/') || /(^|\/)\.|^\/(lib|test|scripts|node_modules|docs|db|marketing)\/|\.md$|server\.mjs$|package\.json$/.test(rel)) {
     res.writeHead(404).end('Not found');
     return;
   }
