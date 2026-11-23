@@ -3930,7 +3930,7 @@
           '<input id="acct-email-in" class="field" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" value="' + esc(A.email) + '">' +
           '<p class="sheet__msg" id="acct-msg" role="status"></p>' +
           '<button type="submit" class="btn btn--primary btn--block">ส่งอีเมลเข้าสู่ระบบ</button></form>' +
-          '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
+          '<p class="hint">ฟรีช่วงทดสอบ · ไม่ต้องตั้งรหัสผ่าน · ใช้อีเมลเพื่อเก็บข้อมูลของคุณเท่านั้น · <a href="terms.html" target="_blank" rel="noopener">ข้อกำหนดการใช้งาน</a> · <a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></p>'
         : '<h2 class="sheet__title" id="acct-title">เปิดอีเมลแล้วกดลิงก์</h2>' +
           '<p class="hint">ส่งไปที่ <b>' + esc(A.email) + '</b> แล้ว (ถ้าไม่เห็น ดูในโฟลเดอร์สแปม)</p>' +
           (A.handoff ? '<div class="pair"><span>เลขจับคู่ · ไม่ต้องพิมพ์</span><b>' + esc(A.handoff.pair) + '</b>' +
