@@ -11,11 +11,12 @@ FROM ghcr.io/valhalla/valhalla-scripted:3.9.3
 #   force_rebuild=True also rebuilds (to refresh the map)
 # server_threads: the host's core count otherwise, too many for the memory a small service has
 # build_admins: country data, so it knows Thailand drives on the left
+# build_time_zones=False: the app sends no departure times to Valhalla; it saves disk on the 5 GB volume
 ENV tile_urls=https://download.geofabrik.de/asia/thailand-latest.osm.pbf \
     use_tiles_ignore_pbf=False \
     server_threads=2 \
     build_admins=True \
-    build_time_zones=True \
+    build_time_zones=False \
     build_elevation=False \
     build_transit=False \
     serve_tiles=True
