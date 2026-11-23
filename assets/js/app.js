@@ -73,6 +73,7 @@
 
   // Where this visit came from, for the admin page: a link's ?ref= (or utm_source), else the app or
   // site that sent it. Those parameters come off the address so a link shared on doesn't carry them.
+  var WANT_INSTALL = /[?&]install=1(&|$)/.test(location.search); // a shared link to the install guide
   var ARRIVE = (function () {
     var u = new URL(location.href), q = u.searchParams, ua = navigator.userAgent, src = null;
     var given = (q.get('ref') || q.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 30);
@@ -91,7 +92,7 @@
       }
     }
     var had = false;
-    ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ttclid'].forEach(function (k) { if (q.has(k)) { q.delete(k); had = true; } });
+    ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ttclid', 'install', 'openExternalBrowser'].forEach(function (k) { if (q.has(k)) { q.delete(k); had = true; } });
     if (had) history.replaceState(history.state, '', u.pathname + (q.toString() ? '?' + q.toString() : '') + u.hash);
     return src;
   })();
@@ -3445,18 +3446,22 @@
 
   // "Add to home screen": Android/desktop Chrome offer it through an event; iPhone needs the share menu.
   function standalone() { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
-  function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+  function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1); } // iPad says Mac
+  function isAndroid() { return /android/i.test(navigator.userAgent); }
+  // The browser inside LINE, Facebook, Instagram or TikTok can't add to the home screen.
+  function inApp() { return /FBAN|FBAV|FB_IAB|Instagram|musical_ly|TikTok|BytedanceWebview/i.test(navigator.userAgent) || /\bLine\//.test(navigator.userAgent); }
 
   function installWidget() {
-    if (standalone() || load('noinstall') || !(R.installEvt || isIOS())) return '';
+    if (standalone() || load('noinstall') || !(R.installEvt || isIOS() || isAndroid())) return '';
     return '<div class="w w--wide w-install"><img src="assets/icons/icon-192.png" alt="" width="52" height="52"><div class="w-install__text"><b>เพิ่ม EVROUTE ไปที่หน้าจอโฮม</b>' +
-      '<span class="w__sub">' + (R.installEvt ? 'เปิดได้ในแตะเดียวเหมือนแอป เต็มจอ ไม่มีแถบเบราว์เซอร์' : 'ใน Safari แตะปุ่มแชร์ <b>⬆︎</b> แล้วเลือก <b>“เพิ่มไปยังหน้าจอโฮม”</b>') + '</span>' +
+      '<span class="w__sub">' + (R.installEvt ? 'เปิดได้ในแตะเดียวเหมือนแอป เต็มจอ ไม่มีแถบเบราว์เซอร์' : inApp() ? 'เปิดใน Safari หรือ Chrome ก่อน แล้วจึงเพิ่มลงหน้าจอได้'
+        : isIOS() ? 'ใน Safari แตะปุ่มแชร์ <b>⬆︎</b> แล้วเลือก <b>“เพิ่มไปยังหน้าจอโฮม”</b>' : 'ใน Chrome แตะ ⋮ แล้วเลือก “ติดตั้งแอป” หรือ “เพิ่มลงในหน้าจอหลัก”') + '</span>' +
       // iPhone keeps the home-screen app's data apart from Safari's: it opens empty.
       (isIOS() && accountsOn() ? '<span class="w__sub w-install__note">' + (signedIn()
         ? 'แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari เปิดครั้งแรกให้เข้าสู่ระบบด้วยอีเมลนี้อีกครั้ง ทริป รถ และสถานีโปรดจะกลับมาครบ'
         : 'แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari ทริปและรถที่ตั้งไว้ที่นี่จะไม่ตามไป ถ้าสมัครด้วยอีเมลก่อน เข้าสู่ระบบในแอปแล้วจะกลับมาครบ') + '</span>' : '') +
       '</div>' +
-      '<div class="w-install__acts">' + (R.installEvt ? '<button type="button" class="btn btn--primary" data-install>ติดตั้ง</button>' : '') +
+      '<div class="w-install__acts">' + (R.installEvt ? '<button type="button" class="btn btn--primary" data-install>ติดตั้ง</button>' : '<button type="button" class="btn btn--soft" data-inst-open="card">ดูวิธีติดตั้ง</button>') +
       '<button type="button" class="link-btn" data-noinstall>ไม่ใช่ตอนนี้</button></div></div>';
   }
 
@@ -3500,7 +3505,7 @@
     if (e.target.closest('[data-near]')) { locateMe(false); return; }
     if (e.target.closest('[data-install]') && R.installEvt) {
       R.installEvt.prompt();
-      R.installEvt.userChoice.then(function (c) { logEvent(c.outcome === 'accepted' ? 'install' : 'install_no'); R.installEvt = null; renderHome(); }, function () {});
+      R.installEvt.userChoice.then(function (c) { logEvent(c.outcome === 'accepted' ? 'install' : 'install_no'); R.installEvt = null; renderHome(); refreshInst(); }, function () {});
       return;
     }
     if (e.target.closest('[data-noinstall]')) { store('noinstall', 1); renderHome(); return; }
@@ -3988,6 +3993,88 @@
   $('fb-form').addEventListener('submit', sendFb);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('fb').hidden) closeFb(); });
 
+  // ---------- install guide: iPhone, Android and computer (the home card, footer, account menu, ?install=1) ----------
+  var INST = { tab: null };
+  var INST_ICONS = {
+    share: '<path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/>',
+    add: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/>',
+    menu: '<circle class="dot" cx="12" cy="5" r="1.7"/><circle class="dot" cx="12" cy="12" r="1.7"/><circle class="dot" cx="12" cy="19" r="1.7"/>',
+    pc: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 7v6M9.5 10.5 12 13l2.5-2.5"/>',
+  };
+  function instSteps(list) {
+    return '<ol class="inst__steps">' + list.map(function (s) {
+      return '<li><span>' + s[0] + '</span>' + (s[1] ? '<span class="inst__key" aria-hidden="true"><svg viewBox="0 0 24 24">' + INST_ICONS[s[1]] + '</svg></span>' : '') + '</li>';
+    }).join('') + '</ol>';
+  }
+  function instNotes(list) { return list.map(function (t) { return '<p class="hint inst__note">' + t + '</p>'; }).join(''); }
+  function instPanel(p) {
+    if (p === 'ios') return instSteps([
+      ['เปิด evroute.info ใน Safari'],
+      ['แตะปุ่มแชร์ที่แถบล่างของ Safari (iOS 26: แตะ ⋯ ก่อน แล้วแตะ “แชร์”)', 'share'],
+      ['เลื่อนลง แล้วแตะ “เพิ่มไปยังหน้าจอโฮม”', 'add'],
+      ['แตะ “เพิ่ม” ที่มุมขวาบน ไอคอน EVROUTE จะอยู่บนหน้าจอโฮม'],
+    ].concat(accountsOn() ? [['เปิดแอปครั้งแรก เข้าสู่ระบบด้วยอีเมลเดิม ทริป รถ และค่าที่ตั้งไว้จะกลับมาครบ']] : [])) +
+      instNotes(['ถ้าเห็นสวิตช์ “เปิดเป็นเว็บแอป” ให้เปิดไว้', 'Chrome บน iPhone ก็ได้: แตะปุ่มแชร์ที่ช่องที่อยู่ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม”']);
+    if (p === 'android') return instSteps([
+      ['เปิด evroute.info ใน Chrome'],
+      ['แตะ ⋮ ที่มุมขวาบน', 'menu'],
+      ['แตะ “ติดตั้งแอป” หรือ “เพิ่มลงในหน้าจอหลัก”', 'add'],
+      ['แตะ “ติดตั้ง” ไอคอน EVROUTE จะอยู่บนหน้าจอหลักและในรายการแอป'],
+    ]) + instNotes(['รถ ทริป และค่าที่ตั้งไว้ใน Chrome ตามไปที่แอปด้วย', 'Samsung Internet: แตะ ☰ แล้วเลือก “เพิ่มหน้าไปที่” → “หน้าจอหลัก”']);
+    return instSteps([
+      ['เปิด evroute.info ใน Chrome หรือ Microsoft Edge'],
+      ['คลิกไอคอนติดตั้งที่ท้ายช่องที่อยู่', 'pc'],
+      ['คลิก “ติดตั้ง” EVROUTE จะเปิดเป็นหน้าต่างของตัวเอง และมีไอคอนในเมนู Start (Windows) หรือ Launchpad (Mac)'],
+    ]) + instNotes(['ไม่เห็นไอคอน: เปิดเมนู ⋮ (Edge: ⋯) แล้วหาคำว่า “ติดตั้ง”', 'ปักหมุดไว้ที่แถบงาน (Windows) หรือ Dock (Mac) จะเปิดได้เร็วขึ้น',
+      'Safari บน Mac (macOS Sonoma ขึ้นไป): เมนู “ไฟล์” → “เพิ่มไปยัง Dock”', 'Firefox ยังติดตั้งเป็นแอปไม่ได้ ใช้ Chrome หรือ Edge แทน']);
+  }
+
+  function renderInst() {
+    var link = location.origin + '/?install=1', html = '<p class="hint">เปิดได้ในแตะเดียว เต็มจอเหมือนแอป ไม่ต้องโหลดจาก App Store หรือ Play Store และอัปเดตเองทุกครั้งที่เปิด</p>';
+    if (standalone()) html += '<p class="inst__ok">✓ ตอนนี้คุณเปิดจากแอปที่ติดตั้งแล้ว</p>';
+    else if (inApp()) {
+      // LINE opens a link with openExternalBrowser=1 in Safari or Chrome; Android can hand it to Chrome.
+      html += '<div class="inst__warn"><b>เปิดในเบราว์เซอร์ก่อน</b><span>หน้านี้เปิดอยู่ในแอปอื่น (เช่น LINE หรือ Facebook) ซึ่งติดตั้งลงหน้าจอไม่ได้</span>' +
+        (/\bLine\//.test(navigator.userAgent) ? '<a class="btn btn--primary" href="' + esc(link) + '&openExternalBrowser=1">เปิดในเบราว์เซอร์</a>'
+          : isAndroid() ? '<a class="btn btn--primary" href="intent://' + esc(location.host) + '/?install=1#Intent;scheme=https;package=com.android.chrome;end">เปิดใน Chrome</a>'
+          : '<span>แตะ ⋯ ที่มุมจอ แล้วเลือก “เปิดในเบราว์เซอร์” หรือ “เปิดใน Safari”</span>') +
+        '<button type="button" class="btn" data-inst-copy="' + esc(link) + '">คัดลอกลิงก์</button></div>';
+    } else if (R.installEvt) html += '<div class="inst__now"><button type="button" class="btn btn--primary" data-install>ติดตั้งเลย</button><span class="hint">เครื่องนี้ติดตั้งได้ในแตะเดียว</span></div>';
+    html += '<div class="want__row inst__tabs" role="group" aria-label="อุปกรณ์">' + [['ios', 'iPhone / iPad'], ['android', 'Android'], ['pc', 'คอมพิวเตอร์']].map(function (t) {
+      return '<button type="button" class="want__chip" data-inst-tab="' + t[0] + '" aria-pressed="' + (t[0] === INST.tab) + '">' + t[1] + '</button>';
+    }).join('') + '</div>' + instPanel(INST.tab) +
+      '<p class="hint inst__note">ติดตั้งจากที่อยู่เก่า (onrender.com) ไว้ ให้ลบไอคอนเก่าแล้วติดตั้งใหม่จาก evroute.info</p>' +
+      '<p class="inst__share"><button type="button" class="link-btn" data-inst-copy="' + esc(link) + '">คัดลอกลิงก์วิธีติดตั้ง ส่งให้เพื่อน</button></p>';
+    $('inst-body').innerHTML = html;
+  }
+  function refreshInst() { if (!$('inst').hidden) renderInst(); }
+
+  function openInst(ctx) {
+    INST.tab = INST.tab || (isIOS() ? 'ios' : isAndroid() ? 'android' : 'pc');
+    if (!$('acct').hidden) closeAcct();
+    renderInst();
+    $('inst').hidden = false;
+    document.body.classList.add('no-scroll');
+    logEvent('install_help', null, ctx);
+  }
+  function closeInst() {
+    $('inst').hidden = true;
+    document.body.classList.remove('no-scroll');
+  }
+
+  document.addEventListener('click', function (e) {
+    var t;
+    if ((t = e.target.closest('[data-inst-open]'))) { openInst(t.dataset.instOpen); return; }
+    if (e.target.closest('[data-inst-close]')) { closeInst(); return; }
+    if ((t = e.target.closest('[data-inst-tab]'))) { INST.tab = t.dataset.instTab; renderInst(); return; }
+    if ((t = e.target.closest('[data-inst-copy]'))) {
+      var link = t.dataset.instCopy, fallback = function () { window.prompt(I18N.t('คัดลอกลิงก์นี้'), link); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(function () { toast('คัดลอกลิงก์แล้ว · ' + esc(link)); }, fallback);
+      else fallback();
+    }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('inst').hidden) closeInst(); });
+
   // ---------- sign-up prompts ----------
   var NUDGES = {
     save: '★ บันทึกในเครื่องนี้แล้ว · <b>ใส่อีเมลเพื่อเก็บไว้ถาวร</b> เปิดได้ทุกเครื่อง',
@@ -4179,8 +4266,8 @@
   // Installable app: a service worker for offline use, and the browser's install offer kept for the
   // home screen's "เพิ่มไปที่หน้าจอโฮม" card.
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () {});
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); R.installEvt = e; renderHome(); });
-  window.addEventListener('appinstalled', function () { R.installEvt = null; renderHome(); });
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); R.installEvt = e; renderHome(); refreshInst(); });
+  window.addEventListener('appinstalled', function () { R.installEvt = null; renderHome(); refreshInst(); });
 
   // Start: stations load in the background; the map is Google Maps when the server has Google
   // Places switched on (its data must be shown on a Google map), otherwise Leaflet + OpenStreetMap.
@@ -4211,6 +4298,7 @@
       send('event', { kind: 'open', dev: devId(), lang: I18N.lang });
     }
     startPing();
+    if (WANT_INSTALL) openInst('link');
     if (ARRIVE) send('event', { kind: 'arrive', ref: ARRIVE, dev: devId(), lang: I18N.lang });
     if (R.cfg.places) $('sources').insertAdjacentHTML('beforeend', ' · สถานีบางส่วน: <a href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>');
     routeLayer = map.layer();
