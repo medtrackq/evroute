@@ -1,0 +1,80 @@
+/* EVROUTE campaign images · 2026-12-longweekend
+   colours from marketing/facts.md · fonts = the app's (Inter + Noto Sans Thai) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=block');
+
+:root{
+  --blue:#2f6bff; --blue-l:#e5edff; --ink:#121826; --green:#1fae5b; --orange:#e8962b;
+  --muted:#4a5468; --line:#d5def0; --bg:#f5f7fd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:"Inter","Noto Sans Thai","Noto Color Emoji",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+.canvas{position:relative;width:1080px;height:1350px;overflow:hidden;display:flex;flex-direction:column;
+  padding:48px 56px 0;background:linear-gradient(180deg,#e3ebff 0%,#f5f7fd 38%,#f5f7fd 100%)}
+.canvas.sq{height:1080px}
+.canvas.story{height:1920px;padding-top:200px}
+
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;
+  font-weight:700;font-size:28px;line-height:1.2;padding:12px 26px;border-radius:999px}
+h1{font-weight:800;font-size:70px;line-height:1.25;letter-spacing:-0.005em;margin-top:22px}
+h1 .accent{color:var(--blue)}
+.sub{font-size:31px;line-height:1.4;color:var(--muted);font-weight:500;margin-top:10px}
+.sub b{color:var(--ink);font-weight:700}
+
+.stats{display:flex;gap:14px;margin-top:26px}
+.stat{flex:1;background:#fff;border-radius:24px;padding:16px 22px 18px;box-shadow:0 6px 20px rgba(47,107,255,.07)}
+.stat b{display:block;font-size:42px;line-height:1.2;font-weight:800;white-space:nowrap}
+.stat span{display:block;font-size:24px;color:var(--muted);margin-top:2px;line-height:1.3}
+.stat.go b{color:var(--green)}
+
+.card{background:#fff;border-radius:32px;padding:26px 32px;box-shadow:0 10px 30px rgba(47,107,255,.08)}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:6px}
+.card-h b{font-size:28px;font-weight:700}
+.card-h span{font-size:23px;color:var(--muted)}
+
+/* vertical trip line */
+.route{list-style:none;position:relative}
+.route .rline{position:absolute;z-index:1;width:6px;border-radius:3px;background:linear-gradient(180deg,var(--blue),#7fa2ff 60%,var(--green))}
+.route li{position:relative;display:grid;grid-template-columns:60px 1fr;column-gap:22px;padding:9px 0;align-items:start}
+.dot{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font:800 28px/1 "Inter",sans-serif;
+  background:#fff;border:5px solid var(--blue);color:var(--blue);position:relative;z-index:2}
+.start .dot{background:var(--blue);color:#fff}
+.end .dot{background:var(--green);border-color:var(--green);color:#fff}
+.nm{font-size:34px;font-weight:700;line-height:1.3;padding-top:4px}
+.nm .km{font-weight:500;color:var(--muted);font-size:28px}
+.meta{font-size:29px;line-height:1.35;color:var(--muted);margin-top:1px}
+.meta b{color:var(--ink);font-weight:700}
+.end .meta b.g{color:var(--green)}
+.route li.meal{background:var(--blue-l);border-radius:24px;margin:6px -18px;padding:14px 18px}
+.badge{display:inline-block;background:var(--blue);color:#fff;font-size:25px;font-weight:700;border-radius:999px;
+  padding:5px 16px 6px;line-height:1.3;vertical-align:4px;margin-left:6px;white-space:nowrap}
+.badge.soft{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.amen{font-size:25px;color:var(--muted);margin-top:2px;line-height:1.35}
+
+/* money row */
+.compare{display:flex;gap:14px;margin-top:18px}
+.cmp{flex:1;border-radius:24px;padding:14px 24px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cmp.ev{background:var(--blue);color:#fff}
+.cmp.gas{background:#fff;border:2px solid var(--line)}
+.cmp small{display:block;font-size:25px;line-height:1.3;font-weight:600;max-width:170px}
+.cmp.ev small{opacity:.92}
+.cmp.gas small{color:var(--muted)}
+.cmp b{display:block;font-size:48px;font-weight:800;line-height:1.15;white-space:nowrap}
+.fine{font-size:22px;line-height:1.45;color:var(--muted);margin-top:12px}
+.fine b{color:var(--ink)}
+.warn{background:#fff6e8;border:2px solid var(--orange);border-radius:20px;padding:12px 18px;font-size:24px;line-height:1.4;color:#5a3a06}
+.warn b{color:#8a4f00}
+
+/* footer: logo + evroute.info + plan date */
+.foot{margin:auto -56px 0;padding:22px 56px 26px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+  background:#fff;border-top:2px solid var(--line)}
+.story .foot{margin-bottom:0}
+.brand{display:flex;align-items:center;gap:14px;flex:none}
+.brand svg{width:56px;height:56px;fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round}
+.brand .name{font:400 34px/1.1 "Inter",sans-serif;letter-spacing:.02em;color:var(--ink)}
+.brand .name b{font-weight:800}
+.brand .url{font:600 26px/1.3 "Inter",sans-serif;color:var(--blue);margin-top:2px}
+.stamp{text-align:right}
+.stamp b{display:block;font-size:25px;font-weight:700;line-height:1.35}
+.stamp span{display:block;font-size:21px;color:var(--muted);line-height:1.4}
