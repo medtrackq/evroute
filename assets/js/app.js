@@ -202,6 +202,7 @@
   }
 
   function saveCar() {
+    if (LINK && LINK.on && LINK.car) return; // a trip's own car (see "a trip opened from a link")
     var c = R.car, s = { id: c.id, kwh: c.kwh, use: c.use, dc: c.dc, margin: c.margin };
     if (c.named) { s.brand = c.brand; s.model = c.model; s.plug = c.plugs[0] || ''; }
     store('car', s);
@@ -320,7 +321,7 @@
     if (on && !was) R.tuneSnap = TUNED.map(function (k) { return c[k]; });
     var changed = was && R.tuneSnap && TUNED.some(function (k, i) { return c[k] !== R.tuneSnap[i]; });
     if (was && !on) {
-      if (keep) { saveCar(); if (changed) toast('✓ บันทึกค่ารถแล้ว'); }
+      if (keep) { if (changed) ownLink('car'); saveCar(); if (changed) toast('✓ บันทึกค่ารถแล้ว'); }
       else TUNED.forEach(function (k, i) { c[k] = R.tuneSnap[i]; });
     }
     R.tuning = on;
@@ -430,11 +431,12 @@
     $('gauge-unit').textContent = km ? 'กม.' : '%';
     $('soc-hint').textContent = soc == null ? 'ใส่แบตที่เหลือ' : km ? '≈ ' + Math.round(soc) + '% ของแบต' : 'วิ่งได้ราว ' + Math.round(rangeKm(soc)) + ' กม.';
     $('gauge').classList.toggle('is-low', soc != null && soc <= +radio('min'));
-    if (soc != null) store('soc', Math.round(soc));
+    if (soc != null && !(LINK && LINK.on && LINK.soc != null)) store('soc', Math.round(soc)); // not a trip's own battery
   }
 
   // Sets the battery from a fraction of the dial (5–100%), written in the box's unit.
   function setSocFraction(f) {
+    ownLink('soc');
     var soc = Math.max(5, Math.min(100, Math.round(f * 100)));
     $('soc').value = unit() === 'km' ? Math.round(rangeKm(soc)) : soc;
     syncRange();
@@ -2497,6 +2499,7 @@
     if (q.get('tune')) {
       var t = q.get('tune').split(',').map(Number);
       tune = { id: carId, kwh: t[0], use: t[1], dc: t[2], margin: t[3] };
+      if (carId === 'custom' && saved && saved.id === 'custom') tune = Object.assign({}, saved, tune); // a link has no name for "ระบุรุ่นเอง"
     }
     if (q.get('u') === 'km') setRadio('unit', 'km');
     if (q.get('soc')) $('soc').value = q.get('soc');
@@ -2505,7 +2508,11 @@
     if (q.get('tgt')) setRadio('target', q.get('tgt'));
     if (q.get('fl') === '0') R.floodAvoid = false; // a shared plan made without avoiding floods (not remembered)
     if (q.get('buf')) setRadio('buffer', q.get('buf'));
+    // A link's own car and battery, when this browser has its own already (a first visit takes them).
+    // The battery first: setCar shows the range, which keeps the battery.
+    if (q.get('soc') && load('soc') != null && (q.get('u') === 'km' || +q.get('soc') !== load('soc'))) LINK = { on: true, car: null, soc: q.get('soc'), unit: q.get('u') === 'km' ? 'km' : 'pct' };
     setCar(carId, tune);
+    if (q.get('car') && saved && !sameCar(R.car, saved)) { LINK = LINK || { on: true, car: null, soc: null, unit: 'pct' }; LINK.car = { id: carId, tune: tune }; }
     // First visit: open the car picker so people notice they can choose their model.
     if (!q.get('car') && !saved) togglePicker(true);
     if (q.get('pin')) R.pinned = q.get('pin').split(',').filter(Boolean);
@@ -2542,6 +2549,7 @@
   $('brand').innerHTML = brands().map(function (b) { return '<option value="' + esc(b) + '">' + esc(b) + '</option>'; }).join(''); // the value stays Thai when the label is translated
   $('switch-car').addEventListener('click', function () { togglePicker(); });
   $('brand').addEventListener('change', function () {
+    ownLink('car');
     if (R.tuning) setTuning(false);
     fillModels($('brand').value);
     if ($('model').value === 'custom') {
@@ -2557,6 +2565,7 @@
     if (R.result) replan();
   });
   $('model').addEventListener('change', function () {
+    ownLink('car');
     if (R.tuning) setTuning(false);
     if ($('model').value === 'custom') { showMyCar(); $('my-brand').focus(); return; } // used once its name is filled in
     $('mycar').hidden = true;
@@ -2618,7 +2627,7 @@
 
   drawTicks();
   wireGauge();
-  $('soc').addEventListener('input', syncRange);
+  $('soc').addEventListener('input', function () { ownLink('soc'); syncRange(); });
   $('soc').addEventListener('change', function () { if (R.result) replan(); });
   document.querySelectorAll('input[name="unit"]').forEach(function (el) {
     el.addEventListener('change', function () {
@@ -3024,8 +3033,38 @@
   // folds into a one-line trip bar so the results come first. The map stays in every view.
   var DEMO = '?from=13.75630,100.50180&fn=' + encodeURIComponent('กรุงเทพฯ') + '&to=18.78830,98.98530&tn=' + encodeURIComponent('เชียงใหม่') + '&soc=90&u=pct&min=20&tgt=80';
 
+  // ---------- a trip opened from a link ----------
+  // A saved trip, or one someone shared, is a link with the car and battery it was planned with. The
+  // trip's form and results use those; the driver's own car and battery (kept, and on every device
+  // signed in) stay as they were, and are what the home screen shows. Picking a car or setting the
+  // battery yourself makes it your own again (ownLink).
+  var LINK = null; // { on: showing the trip's, car: {id, tune} | null, soc | null, unit }
+  function sameCar(a, b) {
+    return !!b && a.id === b.id && ['kwh', 'use', 'dc', 'margin'].every(function (k) { return b[k] == null || +b[k] === a[k]; }) &&
+      (a.id !== 'custom' || (a.brand === b.brand && a.model === b.model));
+  }
+  function useLink(trip) {
+    if (!LINK || LINK.on === trip) return;
+    LINK.on = true; // nothing is kept while switching over (setCar shows the range, which keeps the battery)
+    var own = load('car');
+    if (LINK.soc != null) {
+      setRadio('unit', trip ? LINK.unit : 'pct');
+      $('soc').max = trip && LINK.unit === 'km' ? 1000 : 100;
+      $('soc').value = trip ? LINK.soc : load('soc');
+    }
+    if (LINK.car) setCar(trip ? LINK.car.id : (own && own.id) || 'byd-atto3-std', trip ? LINK.car.tune : own);
+    LINK.on = trip;
+    syncRange();
+  }
+  function ownLink(what) {
+    if (!LINK) return;
+    if (what === 'car') LINK.car = null; else LINK.soc = null;
+    if (!LINK.car && LINK.soc == null) LINK = null;
+  }
+
   function setView(v) {
     var was = R.view;
+    useLink(v !== 'home');
     R.view = v;
     document.body.dataset.view = v;
     $('home').hidden = v !== 'home';
@@ -3247,6 +3286,7 @@
   }
 
   function useMyCar() {
+    ownLink('car');
     var brand = $('my-brand').value.trim().replace(/\s+/g, ' '), model = $('my-model').value.trim().replace(/\s+/g, ' ');
     var num = function (id, lo, hi) { var v = parseFloat($(id).value); return isFinite(v) && v >= lo && v <= hi ? v : null; };
     var kwh = num('my-kwh', 10, 200), use = num('my-use', 8, 40), dc = num('my-dc', 0, 400), plug = $('my-plug').value;
@@ -4257,6 +4297,7 @@
     if (e.target.closest('[data-delete-acct]')) { deleteAccount(); return; }
     if (e.target.closest('[data-premium]')) { store('premium', new Date().toISOString()); logEvent('premium', null, 'menu'); renderAcct(); return; }
     if ((t = e.target.closest('[data-use-real]'))) {
+      ownLink('car');
       R.car.use = +t.dataset.useReal;
       saveCar();
       showSpec();
