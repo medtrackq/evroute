@@ -76,7 +76,7 @@
   var WANT_INSTALL = /[?&]install=1(&|$)/.test(location.search); // a shared link to the install guide
   var ARRIVE = (function () {
     var u = new URL(location.href), q = u.searchParams, ua = navigator.userAgent, src = null;
-    var given = (q.get('ref') || q.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 30);
+    var given = (q.get('ref') || q.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9_.\u0e00-\u0e7f-]/g, '').slice(0, 30); // Thai too: fb-group-ชื่อกลุ่ม
     if (given) src = given;
     else if (/FBAN|FBAV|FB_IAB/.test(ua) || q.has('fbclid')) src = 'facebook';
     else if (/Instagram/.test(ua)) src = 'instagram';
@@ -2483,6 +2483,7 @@
       if (ex.length) q.set('ex', ex.join(','));
       if (!R.floodAvoid) q.set('fl', '0');
       if (radio('buffer') && radio('buffer') !== 'auto') q.set('buf', radio('buffer'));
+      if (wants()) q.set('w', Object.keys(wants()).join(',')); // "อยากแวะ", so the link plans the same stops
       history.replaceState(null, '', '?' + q);
     } catch (e) {}
   }
@@ -2508,6 +2509,7 @@
     if (q.get('tgt')) setRadio('target', q.get('tgt'));
     if (q.get('fl') === '0') R.floodAvoid = false; // a shared plan made without avoiding floods (not remembered)
     if (q.get('buf')) setRadio('buffer', q.get('buf'));
+    if (q.get('w')) { R.want = {}; q.get('w').split(',').forEach(function (k) { if (WANTS[k]) R.want[k] = true; }); showWants(); } // this trip's, not kept
     // A link's own car and battery, when this browser has its own already (a first visit takes them).
     // The battery first: setCar shows the range, which keeps the battery.
     if (q.get('soc') && load('soc') != null && (q.get('u') === 'km' || +q.get('soc') !== load('soc'))) LINK = { on: true, car: null, soc: q.get('soc'), unit: q.get('u') === 'km' ? 'km' : 'pct' };

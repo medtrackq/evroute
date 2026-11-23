@@ -51,6 +51,9 @@ test('a charge report needs a station and whether it worked', () => {
   assert.equal(bad.note.length, 200);
   assert.deepEqual(record({ t: 'event', d: { kind: 'app', pid: 'abc', sid: 'cur:1', op: 'PEA VOLTA' } }),
     ['events', { plan_id: 'abc', kind: 'app', station_id: 'cur:1', op: 'PEA VOLTA', car_id: null, car_uid: null, ctx: null, dev: null, lang: null, ref: null }]);
+  // Where a visit came from: Thai group names count too, odd ones don't.
+  assert.equal(record({ t: 'event', d: { kind: 'arrive', ref: 'fb-group-รถไฟฟ้าbyd' } })[1].ref, 'fb-group-รถไฟฟ้าbyd');
+  assert.equal(record({ t: 'event', d: { kind: 'arrive', ref: 'tiktok<script>' } })[1].ref, null);
 });
 
 test('supabase insert sends the secret key and the row', async () => {
