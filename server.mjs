@@ -67,7 +67,17 @@ const live = liveCounter(), allowPing = rateLimiter(1200, HOUR); // "กำล�
 const allowCode = rateLimiter(6, HOUR), allowCodeTo = rateLimiter(3, HOUR), allowVerify = rateLimiter(30, HOUR), allowMe = rateLimiter(600, HOUR);
 const UA = 'evroute (EV trip planner for Thailand)';
 
-const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
+const VALHALLA = 'https://valhalla1.openstreetmap.de/route'; // FOSSGIS: volunteers, at most 1 request a second
+// Our own Valhalla (routing/ in this repo, a Railway service reached on the private network), e.g.
+// http://valhalla.railway.internal:8002. Tried first; FOSSGIS answers when it's down or not set.
+const OWN_VALHALLA = String(process.env.VALHALLA_URL || '').replace(/\/+$/, '');
+let routingState = OWN_VALHALLA ? { own: null, at: null } : null; // own: up at the last look (admin page)
+function checkRouting() {
+  if (!OWN_VALHALLA) return;
+  fetch(OWN_VALHALLA + '/status', { signal: AbortSignal.timeout(5000) })
+    .then((r) => { routingState = { own: r.ok, at: new Date().toISOString(), why: r.ok ? null : 'status ' + r.status }; })
+    .catch((err) => { routingState = { own: false, at: new Date().toISOString(), why: err.message.slice(0, 160) }; });
+}
 const PHOTON = 'https://photon.komoot.io/api/?limit=5&bbox=97.3,5.6,105.7,20.5&q=';
 const PHOTON_REVERSE = 'https://photon.komoot.io/reverse?limit=1&';
 // Daily forecast for a trip's destination (Open-Meteo, free, no key; up to 16 days ahead).
@@ -623,6 +633,7 @@ async function admin(req, res, url) {
     out.health.floods = { on: floodsOn, forcedOff: FLOODS_FORCED_OFF, count: floodsOn ? floodsMemo.count ?? null : null, block: floodsOn ? floodsMemo.block ?? null : null };
     out.live = live.count();
     out.health.photos = photosState;
+    out.health.routing = routingState; // null: FOSSGIS only
     json(res, 200, out, { 'Cache-Control': 'no-store' });
   } catch (err) {
     report('admin', err.message);
@@ -825,11 +836,23 @@ async function proxyRoute(req, res) {
   const avoid = Array.isArray(q.exclude_polygons) ? q.exclude_polygons.slice(0, 10).filter((ring) => Array.isArray(ring) && ring.length >= 4 && ring.length <= 12 &&
     ring.every((pt) => Array.isArray(pt) && pt.length === 2 && pt.every(Number.isFinite))) : [];
   if (avoid.length) body.exclude_polygons = avoid;
+  const ask = (url, ms) => fetch(url, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': UA },
+    body: JSON.stringify(body), signal: AbortSignal.timeout(ms),
+  });
   try {
-    const r = await fetch(VALHALLA, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': UA },
-      body: JSON.stringify(body), signal: AbortSignal.timeout(40000),
-    });
+    let r = null;
+    if (OWN_VALHALLA) {
+      try {
+        r = await ask(OWN_VALHALLA + '/route', 20000);
+        if (r.status >= 500) throw new Error('status ' + r.status);
+      } catch (err) {
+        r = null;
+        if (routingState?.own !== false) report('/api/route own', err.message); // once per outage
+        routingState = { own: false, at: new Date().toISOString(), why: err.message.slice(0, 160) };
+      }
+    }
+    r ||= await ask(VALHALLA, 40000);
     // Pass Valhalla's own answer through, including "no path" errors the page explains to the user.
     json(res, r.status, Buffer.from(await r.arrayBuffer()), { 'Cache-Control': 'no-store' });
   } catch (err) {
@@ -970,6 +993,7 @@ createServer(async (req, res) => {
       stats: !!stats,
       accounts: !!accounts,
       photos: photosState ? photosState.ok : null, // car photos with the account
+      routing: !routingState ? 'fossgis' : routingState.own ? 'own' : 'own-down', // where routes are worked out
       ...(photosState && !photosState.ok ? { photosWhy: photosState.why } : {}),
       contact: CONTACT_EMAIL || null,
     }, { 'Cache-Control': 'no-store' });
@@ -1034,6 +1058,8 @@ reloadReports();
 reloadCars();
 reloadTripPlaces();
 checkPhotos();
+checkRouting();
+setInterval(checkRouting, 5 * 60 * 1000).unref();
 const settingsLoaded = loadSettings();
 if (places && stats) {
   loadSwept();

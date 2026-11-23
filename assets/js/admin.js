@@ -180,6 +180,7 @@
         ['โควต้า Google วันนี้', h.google ? 'ใช้ ' + num(h.google.used) + ' · เหลือ ' + num(h.google.left) : 'ไม่ได้เปิด Google'],
         ['กวาดหา PTT PluZ ทั่วประเทศ', sweepText(h.sweep)],
         ['เลี่ยงถนนน้ำท่วม (Longdo Traffic) · สวิตช์หลัก', floodText(h.floods)],
+        ['คำนวณเส้นทาง (Valhalla)', !h.routing ? 'เซิร์ฟเวอร์สาธารณะ FOSSGIS (1 ครั้ง/วินาที) · ยังไม่ได้ตั้ง VALHALLA_URL' : h.routing.own ? '✓ เครื่องของเราเอง · ตรวจเมื่อ ' + esc(when(h.routing.at)) : h.routing.own === false ? '✗ เครื่องของเราไม่ตอบ ใช้ FOSSGIS แทนอยู่: <code>' + esc(h.routing.why || '') + '</code>' : 'กำลังตรวจ…'],
         ['รูปรถของผู้ใช้ เก็บกับบัญชี (Supabase Storage)', !h.photos ? 'ยังไม่ได้ตรวจ' : h.photos.ok ? '✓ ใช้ได้ · ตรวจเมื่อ ' + esc(when(h.photos.at)) : '✗ ใช้ไม่ได้: <code>' + esc(h.photos.why || '') + '</code>'],
       ].concat(Object.keys(h.stations || {}).map(function (k) {
         var s = h.stations[k];
