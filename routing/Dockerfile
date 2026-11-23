@@ -3,7 +3,7 @@
 # Thailand from OpenStreetMap (Geofabrik) and builds its routing tiles (tens of minutes), keeps them on
 # the volume, then answers on port 8002 on Railway's private network only; server.mjs reaches it
 # through VALHALLA_URL and falls back to the public FOSSGIS server when it doesn't answer.
-FROM ghcr.io/valhalla/valhalla-scripted:latest
+FROM ghcr.io/valhalla/valhalla-scripted:3.9.3
 
 # use_tiles_ignore_pbf: restarts use the tiles already built (force_rebuild=True to refresh the map)
 # server_threads: the host's core count otherwise, too many for the memory a small service has
