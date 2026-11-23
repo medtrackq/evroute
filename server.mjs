@@ -46,6 +46,15 @@ const allowLog = rateLimiter(300, 60 * 60 * 1000);
 // Optional accounts ride on the same Supabase project (lib/account.mjs).
 const accounts = stats ? supabaseAuth({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
 const photos = stats ? photoStore({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null; // own car photos, with the account
+// Whether car photos can be kept with accounts, checked at start (admin page → สถานะระบบ, /api/config).
+let photosState = null;
+function checkPhotos() {
+  if (!photos) return;
+  photos.check().then(() => { photosState = { ok: true, at: new Date().toISOString() }; }, (err) => {
+    photosState = { ok: false, at: new Date().toISOString(), why: err.message.slice(0, 240) };
+    report('photos', err.message);
+  });
+}
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page and the contact form
 // Who may open admin.html (signed in with one of these emails), comma separated.
 const ADMINS = adminEmails(process.env.ADMIN_EMAILS);
@@ -611,6 +620,7 @@ async function admin(req, res, url) {
     if (floodsOn) await floodsNow().catch(() => null);
     out.health.floods = { on: floodsOn, forcedOff: FLOODS_FORCED_OFF, count: floodsOn ? floodsMemo.count ?? null : null, block: floodsOn ? floodsMemo.block ?? null : null };
     out.live = live.count();
+    out.health.photos = photosState;
     json(res, 200, out, { 'Cache-Control': 'no-store' });
   } catch (err) {
     report('admin', err.message);
@@ -741,9 +751,10 @@ async function me(req, res, url) {
         return { prefs, before: user.prefs?.at || null };
       };
       if (req.method === 'PUT') {
-        const b = await bodyJSON(req, 1024 * 1024), key = cleanPhotoKey(b?.key), buf = jpegFromDataUrl(b?.data);
-        if (!key || !buf) { json(res, 400, { error: 'รูปไม่ถูกต้องหรือใหญ่เกินไป' }); return; }
+        const b = await bodyJSON(req, 2200 * 1024), key = cleanPhotoKey(b?.key), buf = jpegFromDataUrl(b?.data);
+        if (!key || !buf) { report('photos', 'rejected: ' + (key ? 'not a JPEG or too big, ' + String(b?.data || '').length + ' chars' : 'bad key')); json(res, 400, { error: 'รูปไม่ถูกต้องหรือใหญ่เกินไป' }); return; }
         await photos.put(user.id, key, buf);
+        if (!photosState?.ok) photosState = { ok: true, at: new Date().toISOString() };
         const at = new Date().toISOString();
         json(res, 200, { at, ...(await listed(key, at)) }, { 'Cache-Control': 'no-store' });
       } else if (req.method === 'GET' || req.method === 'DELETE') {
@@ -953,6 +964,8 @@ createServer(async (req, res) => {
       places: places ? { left: places.counter.remaining } : null,
       stats: !!stats,
       accounts: !!accounts,
+      photos: photosState ? photosState.ok : null, // car photos with the account
+      ...(photosState && !photosState.ok ? { photosWhy: photosState.why } : {}),
       contact: CONTACT_EMAIL || null,
     }, { 'Cache-Control': 'no-store' });
     return;
@@ -1015,6 +1028,7 @@ createServer(async (req, res) => {
 reloadReports();
 reloadCars();
 reloadTripPlaces();
+checkPhotos();
 const settingsLoaded = loadSettings();
 if (places && stats) {
   loadSwept();

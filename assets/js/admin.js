@@ -180,6 +180,7 @@
         ['โควต้า Google วันนี้', h.google ? 'ใช้ ' + num(h.google.used) + ' · เหลือ ' + num(h.google.left) : 'ไม่ได้เปิด Google'],
         ['กวาดหา PTT PluZ ทั่วประเทศ', sweepText(h.sweep)],
         ['เลี่ยงถนนน้ำท่วม (Longdo Traffic) · สวิตช์หลัก', floodText(h.floods)],
+        ['รูปรถของผู้ใช้ เก็บกับบัญชี (Supabase Storage)', !h.photos ? 'ยังไม่ได้ตรวจ' : h.photos.ok ? '✓ ใช้ได้ · ตรวจเมื่อ ' + esc(when(h.photos.at)) : '✗ ใช้ไม่ได้: <code>' + esc(h.photos.why || '') + '</code>'],
       ].concat(Object.keys(h.stations || {}).map(function (k) {
         var s = h.stations[k];
         return [esc(SOURCES[k] || k), num(s.count) + ' แห่ง · ' + (s.at ? 'อัปเดต ' + esc(when(s.at)) : '–') + (s.note ? ' · ' + esc(s.note) : '')];
