@@ -357,6 +357,7 @@
   // Photo of the chosen model from Wikimedia Commons, with the credit its licence asks for.
   function showPhoto() {
     if (!R.car) return; // the photo list can arrive before the car is chosen
+    syncPhoto();
     var img = carPhoto();
     $('photo-btn').querySelector('span').textContent = img && img.own ? 'เปลี่ยนรูปรถ' : 'รูปรถของคุณ';
     $('car-photo').hidden = !img;
@@ -366,7 +367,8 @@
     $('car-img').src = img.thumb;
     $('car-img').alt = R.car.brand + ' ' + R.car.model;
     if (img.own) {
-      $('car-credit').innerHTML = 'รูปของคุณ เก็บในเครื่องนี้เท่านั้น · <button type="button" class="link-btn" id="photo-clear">ใช้รูปมาตรฐาน</button>';
+      $('car-credit').innerHTML = (photoSynced() && rawGet('photoVer:' + photoKey()) ? 'รูปของคุณ ใช้ได้ทุกเครื่องที่เข้าสู่ระบบ' : 'รูปของคุณ เก็บในเครื่องนี้เท่านั้น') +
+        ' · <button type="button" class="link-btn" id="photo-clear">ใช้รูปมาตรฐาน</button>';
       return;
     }
     $('car-credit').innerHTML = 'ภาพ: <a href="' + esc(img.page) + '" target="_blank" rel="noopener">' + esc(img.artist || 'Wikimedia Commons') + '</a> · ' +
@@ -3083,8 +3085,12 @@
   }
 
   // ---------- the driver's own car photo ----------
-  // Kept in this browser only, for this brand and model (a rental, or a car not on the list). It is
-  // scaled down to 1280 px first so it fits the browser's storage.
+  // For this brand and model (a rental, or a car not on the list), scaled down to 1280 px. Kept in this
+  // browser and, signed in, with the account too (lib/photos.mjs), so every device shows it: the
+  // account's settings list the photos ("photos": key → when put there, kept by the server), and
+  // photoVer:<key> is the one this browser has. Photos added before they went with the account, or
+  // signed out, go up the next time that car is shown signed in.
+  var PHOTO_MEM = {}, PHOTO_BUSY = {}, PHOTO_FAILED = {};
   function photoKey() {
     var c = R.car;
     if (c.id !== 'custom') return 'photo:' + c.id;
@@ -3093,7 +3099,60 @@
   function ownPhoto() {
     var k = photoKey();
     if (!k) return null;
-    try { return localStorage.getItem(k); } catch (e) { return null; }
+    try { return localStorage.getItem(k) || PHOTO_MEM[k] || null; } catch (e) { return PHOTO_MEM[k] || null; }
+  }
+  // In the browser's storage, or this page's memory when that is full.
+  function keepPhoto(k, data) {
+    try { localStorage.setItem(k, data); delete PHOTO_MEM[k]; return true; } catch (e) { PHOTO_MEM[k] = data; return false; }
+  }
+  function photoSynced() { return accountsOn() && signedIn(); }
+  // What /api/me/photo answers: the account's photo list, and its settings version if nothing else moved.
+  function tookPhotoList(d) {
+    if (!d || !d.prefs) return;
+    rawSet('photos', JSON.stringify(d.prefs.photos || {}));
+    if ((d.before || null) === (load('prefsVer') || null)) rawSet('prefsVer', JSON.stringify(d.prefs.at));
+  }
+
+  function uploadPhoto(k, data) {
+    PHOTO_BUSY[k] = 1;
+    return authFetch('/api/me/photo', { method: 'PUT', body: JSON.stringify({ key: k, data: data }) }).then(function (r) {
+      if (!r.ok) throw new Error('car photo ' + r.status);
+      return r.json();
+    }).then(function (d) {
+      rawSet('photoVer:' + k, d.at);
+      tookPhotoList(d);
+      delete PHOTO_BUSY[k];
+      showPhoto();
+    }).catch(function (err) {
+      console.warn(err);
+      delete PHOTO_BUSY[k];
+      PHOTO_FAILED[k] = 1; // not again on this page
+      toast('เก็บรูปกับบัญชีไม่สำเร็จ รูปยังอยู่ในเครื่องนี้', 5000);
+    });
+  }
+
+  // The shown car's photo, as the account has it.
+  function syncPhoto() {
+    var k = R.car && photoKey();
+    if (!k || !photoSynced() || PHOTO_BUSY[k] || PHOTO_FAILED[k]) return;
+    var list = load('photos') || {}, ver = rawGet('photoVer:' + k), local = ownPhoto();
+    if (list[k] && list[k] !== ver) { // put there (or changed) on another device
+      PHOTO_BUSY[k] = 1;
+      authFetch('/api/me/photo?key=' + encodeURIComponent(k), {}).then(function (r) {
+        if (r.status === 404) return { gone: true };
+        return r.ok ? r.json() : Promise.reject(new Error('car photo ' + r.status));
+      }).then(function (d) {
+        if (d.data) keepPhoto(k, d.data);
+        rawSet('photoVer:' + k, list[k]);
+        delete PHOTO_BUSY[k];
+        showPhoto();
+      }).catch(function (err) { console.warn(err); delete PHOTO_BUSY[k]; PHOTO_FAILED[k] = 1; });
+    } else if (!list[k] && ver) { // "ใช้รูปมาตรฐาน" on another device
+      rawSet('photoVer:' + k, null);
+      try { localStorage.removeItem(k); } catch (e) {}
+      delete PHOTO_MEM[k];
+      showPhoto();
+    } else if (!list[k] && local) uploadPhoto(k, local);
   }
 
   function pickPhoto() {
@@ -3110,21 +3169,22 @@
 
   function savePhoto(file) {
     if (!file || !/^image\//.test(file.type)) return;
-    var url = URL.createObjectURL(file), img = new Image();
+    var url = URL.createObjectURL(file), img = new Image(), k = photoKey();
     img.onload = function () {
-      var max = 1280, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      var max = 1280, s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
       var cv = document.createElement('canvas');
-      cv.width = Math.round(img.naturalWidth * k);
-      cv.height = Math.round(img.naturalHeight * k);
+      cv.width = Math.round(img.naturalWidth * s);
+      cv.height = Math.round(img.naturalHeight * s);
       cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
       URL.revokeObjectURL(url);
       var data = cv.toDataURL('image/jpeg', 0.82);
-      try {
-        localStorage.setItem(photoKey(), data);
-      } catch (e) {
+      if (!keepPhoto(k, data) && !photoSynced()) {
+        delete PHOTO_MEM[k];
         toast('เก็บรูปไม่ได้ พื้นที่ในเบราว์เซอร์เต็ม ลองรูปที่เล็กลง', 6000);
         return;
       }
+      delete PHOTO_FAILED[k];
+      if (photoSynced()) uploadPhoto(k, data); // first: showPhoto would otherwise send it up too
       showPhoto();
       toast('✓ ใช้รูปรถของคุณแล้ว · ' + esc(R.car.brand + ' ' + R.car.model));
     };
@@ -3133,10 +3193,20 @@
   }
 
   function clearPhoto() {
-    try { localStorage.removeItem(photoKey()); } catch (e) {}
+    var k = photoKey(), list = load('photos') || {}, listed = !!list[k];
+    try { localStorage.removeItem(k); } catch (e) {}
+    delete PHOTO_MEM[k];
+    rawSet('photoVer:' + k, null);
+    delete list[k];
+    rawSet('photos', JSON.stringify(list)); // so it isn't fetched back before the account has it gone
+    if (photoSynced() && listed) {
+      authFetch('/api/me/photo?key=' + encodeURIComponent(k), { method: 'DELETE' }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(tookPhotoList).catch(function (err) { console.warn(err); });
+    }
     showPhoto();
     toast('กลับไปใช้รูปมาตรฐานแล้ว');
   }
+
 
   // ---------- "ไม่มีรุ่นของฉัน" ----------
   function openPicker() {
@@ -3638,7 +3708,7 @@
       store('plans', server.slice(0, 50));
       renderSaved();
       if (!$('acct').hidden) renderAcct();
-      return (merge && moved ? pushTrips() : Promise.resolve()).then(function () { if (!quiet) syncPrefs(d.prefs, merge, moved); return moved; });
+      return (merge && moved ? pushTrips() : Promise.resolve()).then(function () { if (!quiet) { syncPrefs(d.prefs, merge, moved); if (R.car) showPhoto(); } return moved; });
     }).catch(function (err) { console.warn('account', err); });
   }
 
@@ -3680,6 +3750,7 @@
     }).then(function (d) {
       if (!d || !d.prefs) return;
       setDirty(dirtyKeys().filter(function (k) { return !(k in sent) || prefVal(k) !== sent[k]; })); // changed again meanwhile: next time
+      rawSet('photos', JSON.stringify(d.prefs.photos || {}));
       // Changed on another device since this one caught up: take those too.
       if ((d.before || null) !== (load('prefsVer') || null)) takePrefs(d.prefs, -1);
       else rawSet('prefsVer', JSON.stringify(d.prefs.at));
@@ -3708,6 +3779,7 @@
   // Signing in (merge), the account's settings win: a new device has only its defaults.
   function syncPrefs(server, merge, moved) {
     rawSet('prefsAt', null); rawSet('prefsPush', null); // from before only the changes were sent
+    rawSet('photos', JSON.stringify(server && server.photos || {})); // the account's car photos (syncPhoto)
     if (merge) setDirty([]);
     // The account has none yet: this device's, also those set before settings followed the account.
     if (!server) {
@@ -3719,11 +3791,24 @@
     if (merge || JSON.stringify(server.at) !== rawGet('prefsVer')) takePrefs(server, merge ? (moved || 0) : -1);
   }
 
-  // Back to the app (a phone keeps it in the background without reloading it): catch up with
-  // changes made on another device.
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible' && accountsOn() && signedIn() && Date.now() - (A.synced || 0) > 30e3) loadMe(false);
-  });
+  // Catching up with another device can reload the page: not while the user is typing, planning, or
+  // has a sheet open.
+  function busyHere() {
+    var a = document.activeElement, typing = a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && /^(text|search|email|number|tel|url|date|time|datetime-local)$/.test(a.type)));
+    return !!(R.busy || typing || !$('acct').hidden || !$('fb').hidden || !$('inst').hidden);
+  }
+  function catchUp() { if (accountsOn() && signedIn() && !busyHere() && Date.now() - (A.synced || 0) > 30e3) loadMe(false); }
+  // Back to the app (a phone keeps it in the background without reloading it), or to the window.
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') catchUp(); });
+  window.addEventListener('focus', catchUp);
+  // A computer's tab can stay on screen while the phone changes things: ask every minute whether the
+  // account's settings moved (the rest only when they did).
+  setInterval(function () {
+    if (document.visibilityState !== 'visible' || !accountsOn() || !signedIn() || busyHere()) return;
+    authFetch('/api/me/prefs', {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (d && d.prefs && JSON.stringify(d.prefs.at) !== rawGet('prefsVer') && !busyHere()) loadMe(false);
+    }).catch(function () {});
+  }, 60e3);
 
   // After the reload above.
   function prefsNote() {
@@ -3945,7 +4030,8 @@
 
   function signOut() {
     saveSession(null);
-    setDirty([]); rawSet('prefsVer', null);
+    setDirty([]); rawSet('prefsVer', null); rawSet('photos', null);
+    Object.keys(localStorage).forEach(function (k) { if (k.indexOf('photoVer:') === 0) rawSet(k, null); });
     A.me = null;
     closeAcct();
     toast('ออกจากระบบแล้ว · แผนที่บันทึกไว้ยังอยู่ในเครื่องนี้');

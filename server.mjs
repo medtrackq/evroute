@@ -21,6 +21,7 @@ import { cleanPlace, mergePlaces, parseLatLng, followShort } from './lib/places.
 import { overpassQuery, fromOSMPlace, placeIndex, amenitiesOf } from './lib/amenities.mjs';
 import { cleanEmail, cleanCode, cleanTrips, cleanPrefs, mergePrefs, PREF_FIELDS, supabaseAuth, realUse, handoffs } from './lib/account.mjs';
 import { liveCounter } from './lib/live.mjs';
+import { photoStore, cleanPhotoKey, jpegFromDataUrl } from './lib/photos.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PORT = Number(process.env.PORT) || 8080;
@@ -44,6 +45,7 @@ const stats = SUPABASE_URL && SUPABASE_KEY ? supabase({ url: SUPABASE_URL, key: 
 const allowLog = rateLimiter(300, 60 * 60 * 1000);
 // Optional accounts ride on the same Supabase project (lib/account.mjs).
 const accounts = stats ? supabaseAuth({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null;
+const photos = stats ? photoStore({ url: SUPABASE_URL, key: SUPABASE_KEY }) : null; // own car photos, with the account
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || ''; // shown on the privacy page and the contact form
 // Who may open admin.html (signed in with one of these emails), comma separated.
 const ADMINS = adminEmails(process.env.ADMIN_EMAILS);
@@ -714,7 +716,7 @@ async function me(req, res, url) {
   if (!allowMe(clientIp(req))) { res.writeHead(429).end(); return; }
   let user;
   // The account's settings as they are now: another device may have just changed them.
-  const fresh = url.pathname === '/api/me/prefs' || (req.method === 'GET' && url.pathname === '/api/me');
+  const fresh = url.pathname === '/api/me/prefs' || url.pathname === '/api/me/photo' || (req.method === 'GET' && url.pathname === '/api/me');
   try { user = await bearerUser(req, { fresh }); } catch (err) { say(err); res.writeHead(502).end(); return; }
   if (!user) { json(res, 401, { error: 'เข้าสู่ระบบใหม่อีกครั้ง' }); return; }
   const uid = encodeURIComponent(user.id);
@@ -725,13 +727,41 @@ async function me(req, res, url) {
         stats.select('charges', 'select=created_at,station_id,station_name,op,ok,problem,plug,soc_from,soc_to,kwh,baht,minutes,max_kw,odometer,car_id,battery_kwh&user_id=eq.' + uid + '&order=created_at.desc&limit=200'),
       ]);
       json(res, 200, { user: { id: user.id, email: user.email }, prefs: user.prefs || null, trips: trips.map((t) => t.data), charges, use: realUse(charges) }, { 'Cache-Control': 'no-store' });
+    } else if (req.method === 'GET' && url.pathname === '/api/me/prefs') {
+      // A tab left open asks every minute whether another device changed the settings.
+      json(res, 200, { prefs: user.prefs || null }, { 'Cache-Control': 'no-store' });
+    } else if (url.pathname === '/api/me/photo') {
+      // The user's own car photo (lib/photos.mjs): PUT {key, data: a JPEG data URL}, GET/DELETE ?key=.
+      // The account's settings list the photos (photos: key → when put there) for the other devices;
+      // only this keeps that list, so two devices adding photos can't drop each other's.
+      const listed = async (key, at) => {
+        const list = { ...(user.prefs?.photos || {}) };
+        if (at) list[key] = at; else delete list[key];
+        const prefs = await accounts.savePrefs(String(req.headers.authorization || '').slice(7), mergePrefs(user.prefs, { photos: list }, ['photos'], new Date().toISOString()));
+        return { prefs, before: user.prefs?.at || null };
+      };
+      if (req.method === 'PUT') {
+        const b = await bodyJSON(req, 1024 * 1024), key = cleanPhotoKey(b?.key), buf = jpegFromDataUrl(b?.data);
+        if (!key || !buf) { json(res, 400, { error: 'รูปไม่ถูกต้องหรือใหญ่เกินไป' }); return; }
+        await photos.put(user.id, key, buf);
+        const at = new Date().toISOString();
+        json(res, 200, { at, ...(await listed(key, at)) }, { 'Cache-Control': 'no-store' });
+      } else if (req.method === 'GET' || req.method === 'DELETE') {
+        const key = cleanPhotoKey(url.searchParams.get('key'));
+        if (!key) { res.writeHead(400).end(); return; }
+        if (req.method === 'DELETE') { await photos.remove(user.id, [key]); json(res, 200, await listed(key, null), { 'Cache-Control': 'no-store' }); return; }
+        const buf = await photos.get(user.id, key);
+        if (!buf) { json(res, 404, { error: 'ไม่มีรูป' }); return; }
+        json(res, 200, { data: 'data:image/jpeg;base64,' + buf.toString('base64') }, { 'Cache-Control': 'no-store' });
+      } else res.writeHead(405).end();
     } else if (req.method === 'PUT' && url.pathname === '/api/me/prefs') {
       const body = await bodyJSON(req), incoming = cleanPrefs(body?.prefs);
       if (!incoming) { res.writeHead(400).end(); return; }
       // keys: what this device changed, merged onto the account's (a page from before sends them all).
-      const keys = Array.isArray(body.keys) ? body.keys.filter((k) => PREF_FIELDS.includes(k)) : null;
+      // photos: kept by /api/me/photo only.
+      const keys = Array.isArray(body.keys) ? body.keys.filter((k) => PREF_FIELDS.includes(k) && k !== 'photos') : null;
       const at = new Date().toISOString();
-      const prefs = keys ? mergePrefs(user.prefs, incoming, keys, at) : { ...incoming, at };
+      const prefs = keys ? mergePrefs(user.prefs, incoming, keys, at) : cleanPrefs({ ...incoming, photos: user.prefs?.photos, at });
       // before: the account's version this came onto, so the page knows if another device changed it.
       json(res, 200, { prefs: await accounts.savePrefs(String(req.headers.authorization || '').slice(7), prefs), before: user.prefs?.at || null }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'PUT' && url.pathname === '/api/me/trips') {
@@ -743,6 +773,7 @@ async function me(req, res, url) {
       await stats.insertMany('trips', trips.map((t, i) => ({ user_id: user.id, q: t.q, data: t, updated_at: new Date(t0 - i * 1000).toISOString() })));
       json(res, 200, { trips }, { 'Cache-Control': 'no-store' });
     } else if (req.method === 'DELETE' && url.pathname === '/api/me') {
+      await photos.removeAll(user.id).catch((err) => say(err)); // their car photos too
       await accounts.deleteUser(user.id); // trips go with it; charging reports stay, unlinked
       console.log(new Date().toISOString(), 'account deleted');
       res.writeHead(204).end();
@@ -850,7 +881,7 @@ createServer(async (req, res) => {
     await addStation(req, res);
     return;
   }
-  if (url.pathname.startsWith('/api/auth/') || url.pathname === '/api/me' || url.pathname === '/api/me/trips' || url.pathname === '/api/me/prefs') {
+  if (url.pathname.startsWith('/api/auth/') || url.pathname === '/api/me' || url.pathname === '/api/me/trips' || url.pathname === '/api/me/prefs' || url.pathname === '/api/me/photo') {
     if (!accounts) { json(res, 404, { error: 'accounts disabled' }); return; }
     if (req.method === 'POST' && url.pathname === '/api/auth/code') await sendCode(req, res);
     else if (req.method === 'POST' && url.pathname === '/api/auth/verify') await verifyCode(req, res);

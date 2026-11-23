@@ -2,6 +2,10 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "ถ้าเข้าสู่ระบบอยู่ เก็บกับบัญชีใน Supabase Storage แบบส่วนตัว ให้คุณคนเดียวเห็น เพื่อให้ขึ้นทุกเครื่องที่เข้าสู่ระบบ กด “ใช้รูปมาตรฐาน” เพื่อลบ และลบทั้งหมดเมื่อลบบัญชี · ถ้าไม่ได้เข้าสู่ระบบ รูปอยู่ในเครื่องนั้นเท่านั้น": "if you're signed in, kept privately with your account in Supabase Storage, seen only by you, so it shows on every device you sign in on. Tap “Use the standard photo” to remove it; all are deleted with your account · if you're not signed in, the photo stays on that device only",
+    "รูปรถที่คุณใส่เอง": "Car photos you add",
+    "รูปของคุณ ใช้ได้ทุกเครื่องที่เข้าสู่ระบบ": "Your photo, on every device you sign in on",
+    "เก็บรูปกับบัญชีไม่สำเร็จ รูปยังอยู่ในเครื่องนี้": "Couldn't save the photo to your account; it's still on this device",
     "ติดตั้ง EVROUTE บนหน้าจอ": "Install EVROUTE on your screen",
     "เปิดได้ในแตะเดียว เต็มจอเหมือนแอป ไม่ต้องโหลดจาก App Store หรือ Play Store และอัปเดตเองทุกครั้งที่เปิด": "Opens in one tap, full screen like an app. Nothing to download from the App Store or Play Store, and it updates itself every time you open it.",
     "✓ ตอนนี้คุณเปิดจากแอปที่ติดตั้งแล้ว": "✓ You're using the installed app",
@@ -32,7 +36,7 @@ I18N.load({
     "(ส่งอีเมลรหัสเข้าสู่ระบบ ในชื่อ noreply@evroute.info): ได้รับอีเมลของคุณเพื่อส่งรหัสเท่านั้น": "(sends the sign-in code email, as noreply@evroute.info): receives your email address only to send the code",
     "รหัสตัวเลขจากอีเมล": "Code from the email",
     "ค่าที่ตั้งไว้": "Your settings",
-    "รุ่นรถและค่าที่ปรับเอง แบตตอนออกเดินทาง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา และธีม เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase · รูปรถของคุณยังอยู่ในเครื่องเท่านั้น)": "your car model and your own adjustments, battery at departure, nickname, favourite stations, choices for places on the way and avoiding floods, language and theme, so they follow you to every device you sign in on (kept with your account in Supabase · your own car photo stays on the device only)",
+    "รุ่นรถและค่าที่ปรับเอง แบตตอนออกเดินทาง ชื่อเล่น สถานีโปรด ตัวเลือกที่เที่ยวและเลี่ยงน้ำท่วม ภาษา และธีม เพื่อให้ตามไปทุกเครื่องที่เข้าสู่ระบบ (เก็บกับบัญชีใน Supabase)": "your car model and your own adjustments, battery at departure, nickname, favourite stations, choices for places on the way and avoiding floods, language and theme, so they follow you to every device you sign in on (kept with your account in Supabase)",
     "แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari เปิดครั้งแรกให้เข้าสู่ระบบด้วยอีเมลนี้อีกครั้ง ทริป รถ และสถานีโปรดจะกลับมาครบ": "On iPhone the home-screen app keeps its data apart from Safari: the first time you open it, sign in again with this email and your trips, car and favourite stations come back",
     "แอปบนหน้าจอโฮมของ iPhone แยกข้อมูลจาก Safari ทริปและรถที่ตั้งไว้ที่นี่จะไม่ตามไป ถ้าสมัครด้วยอีเมลก่อน เข้าสู่ระบบในแอปแล้วจะกลับมาครบ": "On iPhone the home-screen app keeps its data apart from Safari, so trips and the car set here won't follow. Sign up with your email first, then sign in inside the app to get them back",
     "👋 ยินดีต้อนรับสู่แอป EVROUTE": "👋 Welcome to the EVROUTE app",
