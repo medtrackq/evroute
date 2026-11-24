@@ -1,0 +1,12 @@
+/* A4 sheet: 10 cards (2 × 5) at real size 90×55 mm, butted together, centred (15 mm left/right, 11 mm top/bottom)
+   front and back sheets use this same file → the grid sits in exactly the same place; the grid is symmetric,
+   so duplex "flip on long edge" puts every back on a front. Crop marks: thin light grey, in the margin, at every cut line */
+@page{size:210mm 297mm;margin:0}
+html,body{width:210mm;height:297mm;background:#fff;overflow:hidden}
+.sheet{position:relative;width:210mm;height:297mm;overflow:hidden}
+.grid{position:absolute;left:15mm;top:11mm;width:180mm;height:275mm;display:grid;grid-template-columns:90mm 90mm;grid-template-rows:repeat(5,55mm)}
+.slot{position:relative;width:90mm;height:55mm;overflow:hidden}
+.slot .ec{position:absolute;left:-3mm;top:-3mm;transform:scale(.32);transform-origin:0 0} /* 300 dpi design px → CSS px (96/300) */
+.marks{position:absolute;left:0;top:0;width:210mm;height:297mm;pointer-events:none}
+.marks line{stroke:#b4b4b4;stroke-width:.1}
+.note{position:absolute;left:20mm;top:5.2mm;font:500 7pt/1.2 "Noto Sans Thai","Inter",sans-serif;color:#9a9a9a;white-space:nowrap}

@@ -1,0 +1,79 @@
+/* EVROUTE QR card · นามบัตร 90×55 มม. · 2026-11-testers
+   same look as marketing/2026-12-longweekend/images (colours from marketing/facts.md · fonts = the app's: Inter + Noto Sans Thai)
+   units: 1 design px = 1 dot at 300 dpi (--mm = 11.811px). Card box = trim 90×55 + bleed 3 mm each side = 1134×720
+   safe zone (text + QR) = 4 mm inside the trim = 7 mm from the bleed edge → 82×47 mm box */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=block');
+
+:root{
+  --blue:#2f6bff; --blue-l:#e5edff; --ink:#121826; --green:#1fae5b;
+  --muted:#4a5468; --line:#d5def0;
+  --mm:11.811024px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter","Noto Sans Thai",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.nw{white-space:nowrap}
+
+.ec{position:relative;width:1134px;height:720px;overflow:hidden;background:#fff}
+.ec .safe{position:absolute;left:calc(7*var(--mm));top:calc(7*var(--mm));width:calc(82*var(--mm));height:calc(47*var(--mm));display:flex}
+
+/* logo: brand__mark (index.html) + EVROUTE with bold EV */
+.logo{display:flex;align-items:center;gap:14px}
+.logo svg{width:64px;height:64px;flex:none;fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round}
+.logo .name{font:400 54px/1 "Inter",sans-serif;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+.logo .name b{font-weight:800}
+
+/* QR: vector, dark on white, 4-module quiet zone is part of the svg, white panel adds more white around it */
+.qr{display:block;shape-rendering:crispEdges}
+
+/* ── front ── */
+.ec.front{background:linear-gradient(155deg,#d9e5ff 0%,#e9f0ff 48%,#f7f9ff 100%)}
+.front .safe{justify-content:space-between;align-items:center;gap:40px}
+.front .fl{flex:1;min-width:0;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;padding:10px 0 6px}
+.front .fh{font-weight:800;font-size:84px;line-height:1.2;color:var(--blue);white-space:nowrap;letter-spacing:-.005em}
+.front .slogan{font-size:37px;line-height:1.5;font-weight:500;color:var(--muted);margin-top:14px}
+.front .slogan b{display:block;color:var(--ink);font-weight:700}
+.front .slogan .acc{color:var(--blue);font-weight:700}
+.front .qrbox{flex:none;background:#fff;border-radius:26px;padding:14px 14px 18px;text-align:center;border:2px solid #c9d7fb}
+.front .qrbox .qr{width:410px;height:410px}
+.front .url{font:700 46px/1.15 "Inter",sans-serif;color:var(--blue);margin-top:4px;letter-spacing:.005em}
+.front .free{font-size:31px;line-height:1.35;font-weight:600;color:var(--muted);margin-top:4px}
+
+/* mini trip line (start · charge · arrive), same idea as the trip cards */
+.trk{position:relative;height:44px}
+.trk i{position:absolute;left:20px;right:20px;top:19px;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),#7fa2ff 55%,var(--green))}
+.trk span{position:absolute;top:0;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff;border:5px solid var(--blue)}
+.trk .a{left:0;background:var(--blue)}
+.trk .s{left:50%;margin-left:-22px}
+.trk .b{right:0;background:var(--green);border-color:var(--green)}
+.trk svg{width:22px;height:22px;fill:var(--blue)}
+
+/* ── back ── */
+.ec.back{background:#fff}
+.back .safe{flex-direction:column}
+.back .bh{font-weight:800;font-size:54px;line-height:1.3;white-space:nowrap;letter-spacing:-.005em}
+.back .bh .acc{color:var(--blue)}
+.back .bmain{display:flex;gap:34px;margin-top:22px;align-items:flex-start}
+.back .pts{flex:1;min-width:0;list-style:none;position:relative}
+.back .pts::before{content:"";position:absolute;left:25px;top:30px;bottom:70px;width:6px;border-radius:3px;background:linear-gradient(180deg,var(--blue),#7fa2ff 60%,var(--green))}
+.back .pts li{position:relative;display:grid;grid-template-columns:56px 1fr;column-gap:20px;align-items:start}
+.back .pts li+li{margin-top:22px}
+.back .pts .dot{position:relative;z-index:1;width:56px;height:56px;border-radius:50%;background:#fff;border:5px solid var(--blue);display:grid;place-items:center;margin-top:2px}
+.back .pts .dot svg{width:28px;height:28px;fill:none;stroke:var(--blue);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.back .pts li:last-child .dot{border-color:var(--green)}
+.back .pts li:last-child .dot svg{stroke:var(--green)}
+.back .pts b{display:block;font-size:40px;line-height:1.3;font-weight:700;white-space:nowrap}
+.back .pts small{display:block;font-size:33px;line-height:1.35;font-weight:500;color:var(--muted)}
+.back .side{flex:none;width:246px;text-align:center}
+.back .side .qr{width:246px;height:246px}
+.back .side .logo{justify-content:center;gap:8px;margin-top:6px}
+.back .side .logo svg{width:38px;height:38px}
+.back .side .logo .name{font-size:34px}
+.back .side .url{font:700 31px/1.3 "Inter",sans-serif;color:var(--blue);margin-top:2px}
+/* beta line sits in a light-blue box inside the safe zone: card edges stay plain white, so a slightly-off home cut or duplex shift shows nothing */
+.back .beta{margin-top:auto;display:flex;align-items:center;gap:14px;font-size:32px;line-height:1.35;font-weight:500;color:var(--ink);white-space:nowrap;background:var(--blue-l);border-radius:20px;padding:10px 20px}
+.back .beta .tag{background:#fff;color:var(--blue);border:2px solid var(--blue);font-weight:700;border-radius:999px;padding:3px 18px 5px}
+
+/* guides (only for checking, never in the delivered files): red = trim, cyan = 4 mm safe */
+.guides .ec::before{content:"";position:absolute;z-index:9;left:calc(3*var(--mm));top:calc(3*var(--mm));width:calc(90*var(--mm));height:calc(55*var(--mm));outline:2px dashed red}
+.guides .ec .safe{outline:2px dashed #00b5d8}

@@ -1,0 +1,17 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>การ์ด QR EVROUTE · ภาพตัวอย่าง หน้า + หลัง</title>
+<link rel="stylesheet" href="card.css">
+<style>
+html,body{width:1820px;height:636px;overflow:hidden;background:#eef1f7}
+.row{display:flex;gap:40px;padding:28px 40px 0}
+.col{width:850px}
+.lab{font-size:30px;font-weight:700;color:#4a5468;line-height:1.3;margin:0 0 12px 4px}
+.lab span{font-weight:500;font-size:24px;margin-left:10px}
+.cut{position:relative;width:850px;height:520px;overflow:hidden;border-radius:14px;box-shadow:0 10px 30px rgba(18,24,38,.14),0 0 0 1px rgba(18,24,38,.06)}
+.cut .ec{position:absolute;left:-28.35px;top:-28.35px;transform:scale(.8);transform-origin:0 0} /* show the trimmed card (bleed cut off) */
+</style>
+<script src="qr-data.js"></script><script src="card.js" defer></script></head><body>
+<div class="row">
+  <div class="col"><div class="lab">ด้านหน้า <span>นามบัตร 90×55 มม.</span></div><div class="cut"><div class="ec" data-side="front"></div></div></div>
+  <div class="col"><div class="lab">ด้านหลัง</div><div class="cut"><div class="ec" data-side="back"></div></div></div>
+</div>
+</body></html>
