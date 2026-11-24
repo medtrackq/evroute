@@ -220,7 +220,7 @@ Your EVROUTE sign-in code is above. If you didn't ask for it, ignore this email.
 
 | บริการ | ใช้ทำ | เรียกผ่าน |
 | --- | --- | --- |
-| [Valhalla](https://valhalla1.openstreetmap.de) (FOSSGIS) | คำนวณเส้นทาง | `POST /api/route` |
+| Valhalla ของเราเอง (`routing/` บน Railway) · สำรอง [FOSSGIS](https://valhalla1.openstreetmap.de) | คำนวณเส้นทาง | `POST /api/route` |
 | [Photon](https://photon.komoot.io) (Komoot) | ค้นหาสถานที่ | `/api/geocode?q=` |
 | Overpass / Open Charge Map | สถานีชาร์จ | `/api/stations` (cache 24 ชม.) |
 | GitHub API | เก็บสถานีที่ผู้ใช้เพิ่ม | `POST /api/stations` |
