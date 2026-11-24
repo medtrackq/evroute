@@ -5,10 +5,10 @@
 # through VALHALLA_URL and falls back to the public FOSSGIS server when it doesn't answer.
 FROM ghcr.io/valhalla/valhalla-scripted:3.9.3
 
-# use_tiles_ignore_pbf=False: on every start, build again unless the tiles finished building from this
-#   exact map file (its hash is written at the end of a build). With True, a build cut off half way
-#   (a redeploy during the first build) left tiles it then tried to load: "Couldn't find usable tiles".
-#   force_rebuild=True also rebuilds (to refresh the map)
+# use_tiles_ignore_pbf=False: build again unless the tiles finished building from this map file.
+#   start.sh goes further: unless the last build finished, it empties the volume and downloads the map
+#   whole first (a cut-off start left half a map: "PBF error: unexpected EOF"). force_rebuild=True also
+#   starts from empty, so it downloads a fresh map
 # server_threads: the host's core count otherwise, too many for the memory a small service has
 # build_admins: country data, so it knows Thailand drives on the left
 # build_time_zones=False: the app sends no departure times to Valhalla; it saves disk on the 5 GB volume
@@ -22,3 +22,8 @@ ENV tile_urls=https://download.geofabrik.de/asia/thailand-latest.osm.pbf \
     serve_tiles=True
 
 EXPOSE 8002
+
+# start.sh checks the volume, runs Valhalla's own scripts to build, then serves (see start.sh)
+COPY start.sh /evroute/start.sh
+ENTRYPOINT ["bash", "/evroute/start.sh"]
+CMD []

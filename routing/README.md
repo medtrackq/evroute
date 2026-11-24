@@ -14,18 +14,26 @@
    - **Service Name:** `valhalla` (ชื่อนี้กลายเป็นที่อยู่ภายใน `valhalla.railway.internal`)
    - **Source → Branch:** `claude/ev-charging-route-planner-22ihr3`
    - **Source → Root Directory:** `routing`
-   - **Source → Watch Paths:** `routing/**` (แก้แอปแล้วเครื่องนี้ไม่ต้องสร้างใหม่)
+   - **Source → Watch Paths:** `/routing/**` (**ต้องตั้ง** ไม่งั้นทุกครั้งที่ push งานแอป เครื่องนี้จะเริ่มใหม่และการสร้างแผนที่ที่ค้างอยู่ถูกตัด)
    - **Networking:** **ไม่ต้องกด Generate Domain** (ไม่เปิดให้คนนอกใช้)
 4. **เพิ่มที่เก็บข้อมูล:** คลิกขวาที่ service `valhalla` → **Attach Volume** → Mount path `/custom_files`
-5. **Deploy** แล้วรอ ครั้งแรกจะโหลดแผนที่ไทยและสร้างข้อมูลเส้นทาง **ราว 20–60 นาที** ดูใน Deployments → View Logs จนเห็นว่าเริ่มให้บริการแล้ว **ระหว่างนี้อย่ากด Deploy ซ้ำ** (ถ้าโดนตัดกลางทาง ครั้งต่อไปเครื่องจะสร้างใหม่เองตั้งแต่ต้น)
+5. **Deploy** แล้วรอ ครั้งแรกจะโหลดแผนที่ไทยและสร้างข้อมูลเส้นทาง **ราว 20–60 นาที** ดูใน Deployments → View Logs จนเห็นว่าเริ่มให้บริการแล้ว **ระหว่างนี้อย่ากด Deploy ซ้ำ** (ถ้าโดนตัดกลางทาง ครั้งต่อไปเครื่องจะล้าง volume แล้วโหลดแผนที่และสร้างใหม่เองตั้งแต่ต้น ดู `start.sh`)
 6. **บอกแอปให้ใช้เครื่องนี้:** service `evroute` → **Variables** → เพิ่ม `VALHALLA_URL` = `http://valhalla.railway.internal:8002` (ถ้าชื่อในหน้า Settings → Networking → Private Networking ต่างจากนี้ ใช้ตามที่หน้านั้นแสดง)
 7. **ตรวจ:** หลังบ้าน → สถานะระบบ → "คำนวณเส้นทาง (Valhalla)" ต้องขึ้น **✓ เครื่องของเราเอง**
 
 ## อัปเดตแผนที่ (เดือนละครั้ง หรือเมื่อมีถนนใหม่)
 
-service `valhalla` → Variables → เพิ่ม `force_rebuild` = `True` → รอ deploy สร้างใหม่เสร็จ → ลบตัวแปรนั้นออก (ระหว่างสร้างใหม่ แอปใช้ FOSSGIS แทนอัตโนมัติ)
+service `valhalla` → Variables → เพิ่ม `force_rebuild` = `True` → เครื่องจะล้าง volume โหลดแผนที่ไทยฉบับล่าสุด แล้วสร้างใหม่ → รอจน log ขึ้น `EVROUTE: build finished` → ลบตัวแปรนั้นออก (ถ้าลืมลบ ทุกครั้งที่เครื่องเริ่มใหม่จะสร้างใหม่หมด) ระหว่างสร้างใหม่ แอปใช้ FOSSGIS แทนอัตโนมัติ
 
 ## ถ้าที่เก็บข้อมูลเต็ม (High Volume Usage 99%)
 
-Volume ของแพ็กเกจ Hobby ได้สูงสุด 5 GB ข้อมูลเส้นทางไทยสร้างได้ในนั้นถ้าเริ่มจากที่ว่าง แต่การสร้างที่ล้มเหลวทิ้งไฟล์ค้างไว้จนเต็ม วิธีแก้: คลิก `valhalla-volume` → **Settings** → **Wipe Volume** (ล้างให้ว่าง) แล้วรอ service `valhalla` เริ่มสร้างใหม่ (หรือกด Redeploy ที่ service ครั้งเดียว) ระหว่างสร้างอย่ากด Deploy ซ้ำ
+Volume ของแพ็กเกจ Hobby ได้สูงสุด 5 GB ข้อมูลเส้นทางไทยสร้างได้ในนั้นถ้าเริ่มจากที่ว่าง `start.sh` ล้าง volume ให้เองทุกครั้งที่การสร้างครั้งก่อนไม่เสร็จ ถ้ายังเต็มอยู่ดี วิธีแก้: คลิก `valhalla-volume` → **Settings** → **Wipe Volume** (ล้างให้ว่าง) แล้วรอ service `valhalla` เริ่มสร้างใหม่ (หรือกด Redeploy ที่ service ครั้งเดียว) ระหว่างสร้างอย่ากด Deploy ซ้ำ
 
+## อ่าน log อย่างไร (Deployments → deployment บนสุด → Deploy Logs)
+
+- `EVROUTE: volume … used of …` พื้นที่ตอนเริ่ม
+- `EVROUTE: no finished build on the volume …` การสร้างครั้งก่อนไม่เสร็จ ล้างแล้วเริ่มใหม่ (ปกติในครั้งแรก)
+- `EVROUTE: map complete (… md5 matches)` โหลดแผนที่ครบแล้ว
+- ตัวแดง RTTOPO / Self-intersection ระหว่าง "Building admin db" เป็นเรื่องปกติ
+- `EVROUTE: build finished, serving on port 8002` เสร็จ ใช้งานได้ (`/api/config` ขึ้น `own` ภายในไม่กี่นาที)
+- `No space left on device` volume เต็ม · `Killed` หรือ exit code 137 หน่วยความจำไม่พอ
