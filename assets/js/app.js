@@ -1652,69 +1652,6 @@
         (o.bookMax && x.n > o.bookMax ? '<span> · ชาร์จนานกว่าที่จองได้ (สูงสุด ' + o.bookMax + ' ช่วง)</span>' : '') + '</span>';
   }
 
-  // ---------- the trip in the phone's calendar ----------
-  // Leaving, each charging stop (arrival to leaving, with the slot to book) and arriving, as an
-  // .ics file. The server hands it back as a calendar (/api/trip.ics), which phones offer to add;
-  // a file made in the page would only be downloaded on an iPhone. Stops whose app takes bookings
-  // remind an hour ahead, the time to book (by a passenger, or at a rest stop).
-  var CAL = {
-    th: { go: 'ออกเดินทาง', stop: 'ชาร์จจุดที่', end: 'ถึง', at: 'ถึงราว', may: 'อาจถึง', charge: 'ชาร์จถึง', min: 'นาที', slot: 'ช่วงที่ควรจองในแอป', nav: 'นำทาง', plan: 'ดูแผนเต็ม', google: 'จุดชาร์จจาก Google Maps', remindGo: 'อีก 30 นาทีออกเดินทาง', remindBook: 'อีกราว 1 ชม. ถึงจุดชาร์จ ถ้าจะจอง ให้ผู้โดยสารจอง หรือจองตอนแวะพัก', note: 'เวลาโดยประมาณจาก EVROUTE ของจริงขึ้นกับการขับและสภาพถนน' },
-    en: { go: 'Leave', stop: 'Charging stop', end: 'Arrive at', at: 'Arrive around', may: 'could be', charge: 'charge to', min: 'min', slot: 'Slot to book in', nav: 'Directions', plan: 'Full plan', google: 'Charging stop from Google Maps', remindGo: 'Leaving in 30 minutes', remindBook: 'About an hour to the charging stop. To book, have a passenger book it, or book at a rest stop', note: 'Times are EVROUTE estimates; the real ones depend on the driving and the roads' },
-    zh: { go: '出发', stop: '充电站', end: '到达', at: '约', may: '可能', charge: '充到', min: '分钟', slot: '建议预约时段 · 应用', nav: '导航', plan: '完整行程', google: '来自 Google 地图的充电站', remindGo: '30 分钟后出发', remindBook: '约 1 小时后到达充电站。如需预约，请乘客预约或在休息时预约', note: 'EVROUTE 估算的时间，实际取决于驾驶和路况' },
-  };
-  function tripICS(res) {
-    var L = CAL[I18N.lang] || CAL.th, dep = departAt(), now = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
-    shareURL();
-    var link = location.href, id = res.pid || Date.now().toString(36);
-    var when = function (min) { return new Date(dep + min * 60000).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z'; };
-    var text = function (v) { return String(v).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); };
-    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//EVROUTE//Trip//TH', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:EVROUTE'];
-    var event = function (n, from, to, summary, desc, place, remind) {
-      lines.push('BEGIN:VEVENT', 'UID:' + id + '-' + n + '@evroute.info', 'DTSTAMP:' + now, 'DTSTART:' + when(from), 'DTEND:' + when(to),
-        'SUMMARY:' + text(summary), 'DESCRIPTION:' + text(desc.filter(Boolean).join('\n')));
-      if (place) lines.push('LOCATION:' + text(place.name), 'GEO:' + (+place.lat).toFixed(6) + ';' + (+place.lng).toFixed(6));
-      if (remind) lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'TRIGGER:-PT' + remind[0] + 'M', 'DESCRIPTION:' + text(remind[1]), 'END:VALARM');
-      lines.push('END:VEVENT');
-    };
-    var end = res.trip.end, t = totals(res);
-    event(0, 0, 15, '🚗 ' + L.go + ' · ' + R.a.label + ' → ' + end.label, [L.plan + ': ' + link, L.note], null, [30, L.remindGo]);
-    res.stops.forEach(function (s, i) {
-      var st = s.st, g = String(st.id).indexOf('g:') === 0, o = R.operators[st.op], x = stopTimes(res, s);
-      var slot = o && o.booking && o.bookSlot ? slotFor(o, s, x) : null;
-      event(i + 1, r5(x.arr), r5(x.leave), '⚡ ' + L.stop + ' ' + (i + 1) + ' · ' + (g ? L.google : st.name), [
-        L.at + ' ' + hm(r5(x.arr)) + ' (' + L.may + ' ' + hm(r5(x.early, 'floor')) + '–' + hm(r5(x.late, 'ceil')) + ') · ' + L.charge + ' ' + Math.round(s.depart) + '% ~' + Math.round(s.chargeMin + P.PLUG_MIN) + ' ' + L.min,
-        slot ? L.slot + ' ' + (o.app || o.name) + ': ' + hm(slot.start) + '–' + hm(slot.end) : '',
-        // Google's places go out as Google's own link, never as data copied off its map
-        L.nav + ': ' + (g ? st.url || '' : 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + (+st.lat).toFixed(6) + '%2C' + (+st.lng).toFixed(6)),
-      ], g ? null : st, o && o.booking ? [60, L.remindBook] : null);
-    });
-    if (res.ok && !end.home) event(res.stops.length + 1, r5(t.total), r5(t.total) + 15, '🏁 ' + L.end + ' ' + end.label, [L.note], null, null);
-    lines.push('END:VCALENDAR');
-    // Lines longer than 75 bytes fold onto the next with a leading space (RFC 5545), whole characters only.
-    var enc = new TextEncoder();
-    return lines.map(function (l) {
-      var out = [], cur = '', size = 0;
-      Array.from(l).forEach(function (ch) {
-        var b = enc.encode(ch).length;
-        if (size + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; size = 0; }
-        cur += ch; size += b;
-      });
-      out.push(cur);
-      return out.join('\r\n ');
-    }).join('\r\n') + '\r\n';
-  }
-  function openCalendar(res) {
-    var bytes = new TextEncoder().encode(tripICS(res)), bin = '';
-    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    var a = document.createElement('a');
-    a.href = '/api/trip.ics?d=' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
   // Operator apps can't be opened at a given station, so "จองผ่านแอป" copies a search word for the
   // app's search box. Operators name sites their own way ("พีทีทีอาร์เอ็ม สาขาอินทร์บุรี กม.104"),
   // but their names and addresses carry the district, so that finds the site in a few results.
@@ -1981,7 +1918,6 @@
         '<span class="hint">ตั้งวันแล้วกดบันทึก ช่วง 3 วันก่อนออก หน้าแรกจะตรวจถนนน้ำท่วมและจุดชาร์จที่จะแวะให้อีกครั้ง</span>'
       : isSaved() ? '<p class="next__done">★ บันทึกแล้ว · ช่วง 3 วันก่อนออก หน้าแรกจะตรวจถนนน้ำท่วมและจุดชาร์จที่จะแวะให้อีกครั้ง</p>'
       : '<button type="button" class="btn btn--soft" data-next="save">🔔 บันทึกทริป ให้แอปตรวจก่อนออกเดินทาง</button>';
-    if (res.stops.length) save += '<button type="button" class="btn btn--soft" data-next="ics">📆 เพิ่มเวลาแวะชาร์จลงปฏิทิน</button>';
     if (end.home) return '<section class="next" id="next"><h3 class="next__title">ก่อนออกเดินทาง</h3><div class="next__acts">' + save + '</div></section>';
     var near = destChargers(end).list.filter(function (x) { return x.st.id.indexOf('g:') !== 0; }); // Google's places only on its map
     var chargers = near.length
@@ -2005,7 +1941,6 @@
     var res = R.result;
     if (!res || !res.ok) return;
     if (kind === 'save') { logEvent('save', null, 'next'); savePlan(); return; }
-    if (kind === 'ics') { logEvent('calendar', null, 'next'); openCalendar(res); return; }
     var end = res.trip.end, start = R.a, arrive = Math.max(5, Math.round(totals(res).arrive));
     logEvent(kind === 'back' ? 'next_back' : 'next_on');
     setRadio('unit', 'pct');
