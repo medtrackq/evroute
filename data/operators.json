@@ -35,7 +35,11 @@
     "ios": "https://apps.apple.com/th/app/ev-station-pluz-pluz-happiness/id6535679105",
     "booking": true,
     "bookAhead": 2,
-    "bookNote": "จองได้เฉพาะวันนี้และพรุ่งนี้ · เฉพาะหัว DC · ต้องเริ่มชาร์จภายใน 5 นาทีหลังเวลาจอง"
+    "bookNote": "จองได้เฉพาะวันนี้และพรุ่งนี้ · เฉพาะหัว DC · ต้องเริ่มชาร์จภายใน 5 นาทีหลังเวลาจอง",
+    "bookSlot": 30,
+    "bookSlotUse": 27,
+    "bookStartWithin": 5,
+    "bookMax": 3
   },
   "EleXA": {
     "name": "EleX by EGAT / EleXA",
@@ -89,5 +93,5 @@
     "bookAhead": 2,
     "bookNote": "จองล่วงหน้าได้ 24 ชม. · ค่าจองราว ฿10/ชม. ไม่มาตามนัดไม่คืนเงิน · มาถึงก่อนเวลาจองได้ 10 นาที"
   },
-  "_booking": "booking: the app takes bookings · bookAhead: calendar days that can be booked, today included · bookNear: only when close by, not ahead · checked Oct 2026 (operators' sites, Shell/PluZ fee notes, EGAT EleXA page); EA Anywhere and PEA VOLTA unclear, so left as no booking · Sharge and Shell Recharge (Thailand) book and pay in the RêverSharger app (Sharge Management): 24 h ahead, ~10 THB/h, kept on no-show, start up to 10 min early (shell.co.th fee notes)"
+  "_booking": "booking: the app takes bookings · bookAhead: calendar days that can be booked, today included · bookNear: only when close by, not ahead · checked Oct 2026 (operators' sites, Shell/PluZ fee notes, EGAT EleXA page); EA Anywhere and PEA VOLTA unclear, so left as no booking · Sharge and Shell Recharge (Thailand) book and pay in the RêverSharger app (Sharge Management): 24 h ahead, ~10 THB/h, kept on no-show, start up to 10 min early (shell.co.th fee notes) · bookSlot: minutes per booking slot (slots start on the hour and half hour), bookSlotUse: minutes of charging in one, bookStartWithin: minutes after a slot starts the charge must have started by, bookMax: slots one account can hold · PluZ slots from the owner's screenshot of the app, 25 Nov 2026 (30-minute slots, 27 minutes of charging, today and tomorrow, 3 slots left to book)"
 }

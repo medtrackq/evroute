@@ -2,6 +2,19 @@
 // runs were translated from every Thai run in the source; add a phrase where word order reads wrong.
 I18N.load({
   phrases: {
+    "· หรือจองช่วง": "· or book",
+    "(ถึงก่อน": "(arriving by",
+    "🕐 ถึงราว": "🕐 Arrive around",
+    "· ออกราว": "· leave around",
+    "(อาจถึง": "(could be",
+    "🕐 ออก": "🕐 Leave",
+    "📅 ช่วงที่ควรจอง": "📅 Slot to book",
+    "(# ช่วงติดกัน)": "(# slots in a row)",
+    "· ถ้าถึงตามแผน รอราว # นาที": "· arriving on time, a wait of about # min",
+    "จองตอนใกล้ถึง (เหลือทางไม่ถึง # ชม.) ให้ผู้โดยสารจอง หรือจองตอนแวะพัก · ถ้าจะถึงหลัง": "Book when close (under # h to go): have a passenger book it, or book at a rest stop · arriving after",
+    "ให้จองช่วงถัดไป": "book the next slot",
+    "· ชาร์จนานกว่าที่จองได้ (สูงสุด # ช่วง)": "· charging takes longer than you can book (up to # slots)",
+    "📆 เพิ่มเวลาแวะชาร์จลงปฏิทิน": "📆 Add the charging stops to my calendar",
     "ข้อกำหนดการใช้งาน": "Terms of use",
     "EVROUTE วางแผนชาร์จ · มีผลตั้งแต่ # พฤศจิกายน #": "EVROUTE Charging Planner · Effective 23 November 2026",
     "EVROUTE ช่วยวางแผนการเดินทางเท่านั้น ตัวเลขทุกตัวเป็นค่าประมาณ สถานีอาจปิดหรือหัวชาร์จเสียได้ ตรวจสอบในแอปของผู้ให้บริการก่อนออกเดินทาง อย่าใช้แอปขณะขับรถ และคุณเป็นผู้ตัดสินใจเรื่องการเดินทางของคุณเอง": "EVROUTE only helps you plan. Every number is an estimate, and a station can be closed or a charger broken. Check in the operator's app before you set off, don't use the app while driving, and remember the decisions about your trip are yours.",

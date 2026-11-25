@@ -909,9 +909,41 @@ async function serveStatic(pathname, res, req, url) {
   }
 }
 
+// ---------- the trip as a calendar ----------
+// The app writes the trip's stops as an .ics file and opens /api/trip.ics?d=<base64url>; this hands
+// it back as a calendar, which phones offer to add (a file made in the page is only downloaded on an
+// iPhone). Nothing is kept. Only the few kinds of line the app writes get through, and links only to
+// this site and Google Maps, so a link here can't be made into someone else's calendar file.
+const ICS_PROPS = new Set(['BEGIN', 'END', 'VERSION', 'PRODID', 'CALSCALE', 'METHOD', 'X-WR-CALNAME', 'UID', 'DTSTAMP',
+  'DTSTART', 'DTEND', 'SUMMARY', 'DESCRIPTION', 'LOCATION', 'GEO', 'ACTION', 'TRIGGER']);
+const ICS_BLOCKS = new Set(['VCALENDAR', 'VEVENT', 'VALARM']);
+const ICS_LINK = /^(https:\/\/((www\.)?evroute\.info|www\.google\.com\/maps|maps\.google\.com)|https?:\/\/localhost(:\d+)?)([/?]|$)/;
+function tripICS(res, url) {
+  const bad = () => json(res, 400, { error: 'bad calendar' });
+  const d = url.searchParams.get('d') || '';
+  if (!d || d.length > 16000 || !/^[\w-]+$/.test(d)) { bad(); return; }
+  const ics = Buffer.from(d, 'base64url').toString('utf8');
+  const lines = ics.replace(/\r?\n[ \t]/g, '').split(/\r?\n/).filter(Boolean); // unfolded
+  if (lines[0] !== 'BEGIN:VCALENDAR' || lines[lines.length - 1] !== 'END:VCALENDAR') { bad(); return; }
+  let events = 0;
+  for (const line of lines) {
+    const m = /^([A-Z-]+)[;:](.*)$/.exec(line);
+    if (!m || !ICS_PROPS.has(m[1]) || line.length > 2000) { bad(); return; }
+    if ((m[1] === 'BEGIN' || m[1] === 'END') && !ICS_BLOCKS.has(m[2])) { bad(); return; }
+    if (m[1] === 'BEGIN' && m[2] === 'VEVENT' && ++events > 12) { bad(); return; }
+    for (const link of m[2].match(/https?:\/\/[^\s\\]+/gi) || []) if (!ICS_LINK.test(link)) { bad(); return; }
+  }
+  res.writeHead(200, {
+    'Content-Type': 'text/calendar; charset=utf-8', 'Content-Disposition': 'attachment; filename="evroute-trip.ics"',
+    'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'X-Content-Type-Options': 'nosniff',
+  });
+  res.end(ics.replace(/\r?\n/g, '\r\n'));
+}
+
 createServer(async (req, res) => {
   let url;
   try { url = new URL(req.url, 'http://localhost'); } catch { res.writeHead(400).end(); return; }
+  if (url.pathname === '/api/trip.ics' && req.method === 'GET') { tripICS(res, url); return; }
   if (url.pathname === '/api/route' && req.method === 'POST') {
     await proxyRoute(req, res);
     return;

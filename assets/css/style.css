@@ -998,6 +998,11 @@ textarea.field { min-height: 120px; resize: vertical; font: inherit; line-height
 .row__book { display: block; font-size: calc(12.5px * var(--fs)); color: var(--muted); }
 .row__book.is-later { color: var(--tile-sun-ink); font-weight: 600; }
 .book-note { margin-top: 10px; }
+/* When the car gets to a stop and leaves it, and the slot to book (app.js timeLine, slotLines) */
+.row__time { display: block; margin-bottom: 4px; font-size: calc(13px * var(--fs)); color: var(--text); }
+.row__time small { font-size: calc(12px * var(--fs)); color: var(--muted); }
+.row--end div span.row__time { color: var(--text); }
+.row__slot { color: var(--text); }
 
 /* Flooded roads on the way (lib/floods.mjs) */
 .verdict--ok { padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--ok) 12%, var(--surface)); font-size: calc(13.5px * var(--fs)); }
